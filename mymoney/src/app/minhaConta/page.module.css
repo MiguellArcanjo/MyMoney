@@ -1,0 +1,76 @@
+.mainContent {
+    margin-left: 240px;
+    padding: 40px 0 0 0;
+}
+
+.card {
+    background: #0E2A4C;
+    border-radius: 18px;
+    padding: 32px 40px;
+    max-width: 600px;
+    min-width: 350px;
+    color: #fff;
+    box-shadow: 0 4px 24px 0 rgba(0,0,0,0.10);
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    position: relative;
+    min-height: 320px;
+}
+
+.card h2 {
+    font-size: 1.2rem;
+    font-weight: bold;
+    margin-bottom: 18px;
+}
+
+.infoGroup {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+    width: 100%;
+    justify-content: flex-start;
+}
+
+.infoValue {
+    color: #00D1B2;
+    font-weight: bold;
+}
+
+.buttonGroup {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 18px;
+}
+
+.actionButton {
+    background: #00D1B2;
+    color: #061426;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 24px;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.2s;
+    width: 100%;
+}
+
+.actionButton:hover {
+    background: #00b89c;
+}
+
+.spinnerContainer {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2;
+} 

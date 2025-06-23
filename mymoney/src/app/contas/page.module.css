@@ -1,0 +1,350 @@
+.mainContent {
+  margin-left: 240px;
+  padding: 40px 0 0 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  min-height: 100vh;
+}
+
+.title {
+  color: #fff;
+  font-size: 2rem;
+  margin-bottom: 18px;
+}
+
+.addButton {
+  background: #00D1B2;
+  color: #081B33;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 22px;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  margin-bottom: 18px;
+  transition: background 0.2s;
+}
+.addButton:hover {
+  background: #00b89c;
+}
+
+.card {
+  background: #0E2A4C;
+  border-radius: 16px;
+  padding: 24px 24px 16px 24px;
+  width: 100%;
+  max-width: 86vw;
+  color: #fff;
+  box-shadow: 0 4px 24px 0 rgba(0,0,0,0.10);
+  margin-top: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.tableTitle {
+  font-size: 1.1rem;
+  font-weight: bold;
+  margin-bottom: 16px;
+}
+
+.tableMetas {
+  width: 100%;
+  border-collapse: collapse;
+  background: transparent;
+  table-layout: fixed;
+}
+
+.tableMetas th, .tableMetas td {
+  padding: 12px 12px;
+  text-align: left;
+  font-size: 1rem;
+  border-bottom: 1.5px solid #223B5A;
+  vertical-align: middle;
+}
+
+.tableMetas thead th {
+  border-bottom: 2px solid #223B5A;
+}
+
+.tableMetas tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.modalTitle {
+  color: #fff;
+  font-size: 1.25rem;
+  font-weight: bold;
+  margin-bottom: 18px;
+}
+
+.formMeta {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.labelMeta {
+  color: #A5B3C7;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.inputMeta {
+  background: #061426;
+  border: none;
+  border-radius: 10px;
+  padding: 12px 16px;
+  color: #A5B3C7;
+  font-size: 16px;
+  margin-bottom: 4px;
+}
+
+.inputMeta::placeholder {
+  color: #5C6A7C;
+  opacity: 1;
+}
+
+.buttonMeta {
+  background: #00D1B2;
+  color: #081B33;
+  border: none;
+  border-radius: 8px;
+  padding: 16px 0;
+  font-size: 1rem;
+  font-weight: bold;
+  margin-top: 12px;
+  width: 200px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.buttonMeta:hover {
+  background: #00b89c;
+}
+
+.actionBtn {
+  position: relative;
+  right: 10px;
+  background: none;
+  color: #00D1B2;
+  border: none;
+  border-radius: 4px;
+  padding: 4px 12px;
+  font-size: 0.97rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+  vertical-align: middle;
+}
+
+.actionBtn:last-child {
+  margin-right: 0;
+}
+
+.actionBtn:hover {
+  background: #223B5A;
+  color: #fff;
+}
+
+.parcelamentoModalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(8, 27, 51, 0.85);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.parcelamentoModal {
+  background: #16273B;
+  border-radius: 16px;
+  box-shadow: 0 8px 32px 0 rgba(0,0,0,0.18);
+  padding: 32px 32px 24px 32px;
+  width: 800px;
+  color: #fff;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.parcelamentoModalTitle {
+  font-size: 1.18rem;
+  font-weight: bold;
+  margin-bottom: 8px;
+}
+
+.parcelamentoModalClose {
+  position: absolute;
+  top: 18px;
+  right: 22px;
+  background: none;
+  border: none;
+  color: #A5B3C7;
+  font-size: 1.3rem;
+  cursor: pointer;
+}
+
+.parcelamentoInfo span {
+  display: block;
+  margin-bottom: 2px;
+  font-size: 1rem;
+}
+
+.parcelamentoInfo strong {
+  color: #00D1B2;
+  font-weight: 600;
+}
+
+.parcelamentoInfo .parcelas {
+  color: #00D1B2;
+}
+
+.parcelamentoInfo .status {
+  color: #00D1B2;
+  font-weight: 500;
+}
+
+.parcelamentoTableWrapper {
+  background: #112033;
+  border-radius: 10px;
+  padding: 12px 0 0 0;
+  margin: 10px 0 0 0;
+}
+
+.parcelamentoTable {
+  width: 100%;
+  border-collapse: collapse;
+  color: #fff;
+  font-size: 0.98rem;
+}
+
+.parcelamentoTable th, .parcelamentoTable td {
+  padding: 8px 16px;
+  text-align: left;
+}
+
+.parcelamentoTable th {
+  color: #A5B3C7;
+  font-weight: 600;
+}
+
+.statusPago {
+  color: #00D1B2;
+  font-weight: 600;
+}
+
+.statusAberto {
+  color: #FF5C5C;
+  font-weight: 600;
+}
+
+.fecharBtn {
+  margin-top: 18px;
+  background: #00D1B2;
+  color: #081B33;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 0;
+  font-size: 1rem;
+  font-weight: bold;
+  width: 100%;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.fecharBtn:hover {
+  background: #00b89c;
+}
+
+.editarModalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(8, 27, 51, 0.85);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.editarModal {
+  background: #16273B;
+  border-radius: 16px;
+  box-shadow: 0 8px 32px 0 rgba(0,0,0,0.18);
+  padding: 32px 32px 24px 32px;
+  min-width: 400px;
+  max-width: 420px;
+  color: #fff;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.editarModalTitle {
+  font-size: 1.18rem;
+  font-weight: bold;
+  margin-bottom: 8px;
+}
+
+.editarModalClose {
+  position: absolute;
+  top: 18px;
+  right: 22px;
+  background: none;
+  border: none;
+  color: #A5B3C7;
+  font-size: 1.3rem;
+  cursor: pointer;
+}
+
+.editarForm {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.editarLabel {
+  color: #A5B3C7;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.editarInput, .editarSelect {
+  background: #061426;
+  border: none;
+  border-radius: 10px;
+  padding: 12px 16px;
+  color: #A5B3C7;
+  font-size: 16px;
+  margin-bottom: 4px;
+}
+
+.editarInput::placeholder {
+  color: #5C6A7C;
+  opacity: 1;
+}
+
+.editarBtn {
+  background: #00D1B2;
+  color: #081B33;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 0;
+  font-size: 1rem;
+  font-weight: bold;
+  width: 100%;
+  cursor: pointer;
+  transition: background 0.2s;
+  margin-top: 10px;
+}
+.editarBtn:hover {
+  background: #00b89c;
+} 

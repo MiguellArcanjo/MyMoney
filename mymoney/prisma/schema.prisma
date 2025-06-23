@@ -18,6 +18,7 @@ model Usuario {
   nome String
   email String @unique
   senha String
+  salario Float?
   
   contas Conta[]
   categorias Categoria[]
@@ -28,6 +29,7 @@ model Usuario {
 model Conta {
   id Int @id @default(autoincrement())
   nome String
+  tipo String
   saldo Float
   usuarioId Int
   usuario Usuario @relation(fields: [usuarioId], references: [id])
@@ -38,6 +40,8 @@ model Conta {
 model Categoria {
   id Int @id @default(autoincrement())
   nome String
+  tipo String
+  cor String
   usuarioId Int
   usuario Usuario @relation(fields: [usuarioId], references: [id])
 
@@ -61,6 +65,8 @@ model Lancamento {
   usuario Usuario @relation(fields: [usuarioId], references: [id])
 
   parcelasLancamento Parcela[]
+  metaId Int?
+  meta Meta? @relation(fields: [metaId], references: [id])
 }
 
 model Parcela {
@@ -83,4 +89,5 @@ model Meta {
   usuarioId Int
 
   usuario Usuario @relation(fields: [usuarioId], references: [id])
+  lancamentos Lancamento[]
 }
