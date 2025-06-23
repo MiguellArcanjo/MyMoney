@@ -1,0 +1,86 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Usuario {
+  id Int @id @default(autoincrement())
+  nome String
+  email String @unique
+  senha String
+  
+  contas Conta[]
+  categorias Categoria[]
+  lancamentos Lancamento[]
+  metas Meta[]
+}
+
+model Conta {
+  id Int @id @default(autoincrement())
+  nome String
+  saldo Float
+  usuarioId Int
+  usuario Usuario @relation(fields: [usuarioId], references: [id])
+
+  lancamentos Lancamento[]
+}
+
+model Categoria {
+  id Int @id @default(autoincrement())
+  nome String
+  usuarioId Int
+  usuario Usuario @relation(fields: [usuarioId], references: [id])
+
+  lancamentos Lancamento[]
+}
+
+model Lancamento {
+  id Int @id @default(autoincrement())
+  descricao String
+  tipo String
+  valor Float
+  data DateTime
+  parcelado Boolean @default(false)
+  parcelas Int?
+  contaId Int
+  categoriaId Int
+  usuarioId Int
+
+  conta Conta @relation(fields: [contaId], references: [id])
+  categoria Categoria @relation(fields: [categoriaId], references: [id])
+  usuario Usuario @relation(fields: [usuarioId], references: [id])
+
+  parcelasLancamento Parcela[]
+}
+
+model Parcela {
+  id Int @id @default(autoincrement())
+  lancamentoId Int
+  numeroParcela Int
+  valorParcela Float
+  dataVencimento DateTime
+  status String @default("Em aberto")
+
+  lancamento Lancamento @relation(fields: [lancamentoId], references: [id])
+}
+
+model Meta {
+  id Int @id @default(autoincrement())
+  descricao String
+  valorObjetivo Float
+  dataInicio DateTime
+  dataFim DateTime
+  usuarioId Int
+
+  usuario Usuario @relation(fields: [usuarioId], references: [id])
+}
