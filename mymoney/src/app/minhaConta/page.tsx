@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import Sidebar from "@/components/SideBar/SideBar";
+import SideBar from "@/components/SideBar/SideBar";
 import Modal from "@/components/Modal/Modal";
 import styles from "./page.module.css";
 import LoadingSpinner from "@/components/LoadingSpinner";
@@ -92,7 +92,7 @@ export default function MinhaConta() {
 
   return (
     <div>
-      <Sidebar />
+      <SideBar />
       <main className={styles.mainContent}>
         {/* Barra de título e menu no mobile */}
         {isMobile ? (
