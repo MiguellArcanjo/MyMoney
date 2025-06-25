@@ -16,21 +16,52 @@ export async function GET(req: NextRequest) {
   if (!token) return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
   const { searchParams } = new URL(req.url);
   const contaId = Number(searchParams.get("contaId"));
-  const page = Number(searchParams.get("page")) || 1;
-  const limit = Number(searchParams.get("limit")) || 10;
-  const skip = (page - 1) * limit;
+  const page = searchParams.get("page");
+  const limit = searchParams.get("limit");
+  const mes = searchParams.get("mes");
+  const ano = searchParams.get("ano");
   const where: any = { usuarioId: token.id };
   if (contaId) where.contaId = contaId;
-  const [totalCount, lancamentos] = await Promise.all([
-    prisma.lancamento.count({ where }),
-    prisma.lancamento.findMany({
-      where,
-      include: { parcelasLancamento: true, categoria: true, conta: true },
-      orderBy: { data: "desc" },
-      skip,
-      take: limit
-    })
-  ]);
+  
+  // Adicionar filtros de data se fornecidos
+  if (mes && ano) {
+    const mesNum = Number(mes);
+    const anoNum = Number(ano);
+    const dataInicio = new Date(anoNum, mesNum - 1, 1);
+    const dataFim = new Date(anoNum, mesNum, 0, 23, 59, 59, 999);
+    where.data = {
+      gte: dataInicio,
+      lte: dataFim
+    };
+  }
+
+  let lancamentos, totalCount;
+  if (page && limit) {
+    const pageNum = Number(page) || 1;
+    const limitNum = Number(limit) || 10;
+    const skip = (pageNum - 1) * limitNum;
+    [totalCount, lancamentos] = await Promise.all([
+      prisma.lancamento.count({ where }),
+      prisma.lancamento.findMany({
+        where,
+        include: { parcelasLancamento: true, categoria: true, conta: true },
+        orderBy: { data: "desc" },
+        skip,
+        take: limitNum
+      })
+    ]);
+  } else {
+    [totalCount, lancamentos] = await Promise.all([
+      prisma.lancamento.count({ where }),
+      prisma.lancamento.findMany({
+        where,
+        include: { parcelasLancamento: true, categoria: true, conta: true },
+        orderBy: { data: "desc" }
+      })
+    ]);
+  }
+  console.log('API LANCAMENTOS - where:', where);
+  console.log('API LANCAMENTOS - lancamentos encontrados:', lancamentos.length);
   return NextResponse.json({ lancamentos, totalCount });
 }
 

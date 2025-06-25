@@ -16,3 +16,9 @@ body {
   font-size: 2rem;
   margin-bottom: 32px;
 }
+
+@media (max-width: 600px) {
+  input, select, textarea, button {
+    font-size: 16px !important;
+  }
+}

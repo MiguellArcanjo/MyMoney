@@ -4,23 +4,25 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import styles from "./page.module.css";
+import LoadingSpinner from "@/components/LoadingSpinner";
 
 export default function Home() {
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
   const [erro, setErro] = useState("");
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setErro("");
-
+    setLoading(true);
     const res = await fetch("/api/auth/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, senha }),
     });
-
+    setLoading(false);
     if (res.ok) {
       const data = await res.json();
       localStorage.setItem("token", data.token);
@@ -54,7 +56,9 @@ export default function Home() {
             />
           </div>
           {erro && <span style={{ color: "red" }}>{erro}</span>}
-          <button type="submit" className={styles.buttonLogin}>Entrar</button>
+          <button type="submit" className={styles.buttonLogin} disabled={loading}>
+            {loading ? <LoadingSpinner size={22} inline /> : "Entrar"}
+          </button>
           <div className={styles.cadastroHint}>
             <span>Não tem conta? </span>
             <span className={styles.cadastroLink} onClick={() => router.push("/registro")}>Cadastre-se</span>

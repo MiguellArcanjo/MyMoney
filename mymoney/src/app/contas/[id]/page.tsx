@@ -42,6 +42,12 @@ export default function DetalheConta() {
   const [loadingLancamentos, setLoadingLancamentos] = useState(true);
   const [loadingCategorias, setLoadingCategorias] = useState(true);
   const [loadingMetas, setLoadingMetas] = useState(true);
+  // Estados de paginação
+  const [pagina, setPagina] = useState(1);
+  const itensPorPagina = 10;
+  const [totalPaginas, setTotalPaginas] = useState(1);
+  const [lancamentosTotais, setLancamentosTotais] = useState<any[]>([]);
+  const [isMobile, setIsMobile] = useState(false);
 
   const carregando = loadingConta || loadingLancamentos || loadingCategorias || loadingMetas;
 
@@ -61,12 +67,13 @@ export default function DetalheConta() {
     async function fetchLancamentos() {
       const token = localStorage.getItem("token");
       if (!token || !contaId) { setLoadingLancamentos(false); return; }
-      const res = await fetch(`/api/lancamentos?contaId=${contaId}`, {
+      const res = await fetch(`/api/lancamentos?contaId=${contaId}&page=${pagina}&limit=${itensPorPagina}`, {
         headers: { Authorization: "Bearer " + token }
       });
       if (res.ok) {
         const data = await res.json();
         setLancamentos(data.lancamentos || []);
+        setTotalPaginas(Math.ceil((data.totalCount || 0) / itensPorPagina));
       }
       setLoadingLancamentos(false);
     }
@@ -90,15 +97,36 @@ export default function DetalheConta() {
       });
       if (res.ok) {
         const data = await res.json();
-        setMetas(data);
+        setMetas(Array.isArray(data.metas) ? data.metas : []);
       }
       setLoadingMetas(false);
+    }
+    async function fetchLancamentosTotais() {
+      const token = localStorage.getItem("token");
+      if (!token || !contaId) return;
+      const res = await fetch(`/api/lancamentos?contaId=${contaId}`, {
+        headers: { Authorization: "Bearer " + token }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setLancamentosTotais(data.lancamentos || []);
+      }
     }
     fetchConta();
     fetchLancamentos();
     fetchCategorias();
     fetchMetas();
-  }, [contaId]);
+    fetchLancamentosTotais();
+  }, [contaId, pagina, filtroMes, filtroAno]);
+
+  useEffect(() => {
+    function handleResize() {
+      setIsMobile(window.innerWidth <= 768);
+    }
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   function openEditarModal(lancamento: any) {
     setEditData(lancamento);
@@ -146,7 +174,7 @@ export default function DetalheConta() {
     });
     if (res.ok) {
       const data = await res.json();
-      const lanc = data.find((l: any) => l.id === lancamento.id);
+      const lanc = (Array.isArray(data.lancamentos) ? data.lancamentos : []).find((l: any) => l.id === lancamento.id);
       setParcelas(lanc?.parcelasLancamento || []);
     }
     setModalParcelamento(true);
@@ -201,7 +229,7 @@ export default function DetalheConta() {
     if (parcelamentoInfo) openParcelamentoModal(parcelamentoInfo);
   }
 
-  // Lançamentos filtrados do mês/ano + categoria + tipo
+  // Lançamentos filtrados por mês/ano, categoria e tipo (filtros aplicados no frontend)
   const lancamentosFiltrados = (Array.isArray(lancamentos) ? lancamentos : [])
     .flatMap(l => {
       if (l.parcelado && l.parcelasLancamento?.length) {
@@ -231,9 +259,36 @@ export default function DetalheConta() {
       (filtroTipo === 'Todos' || l.tipo === filtroTipo)
     );
 
-  // Calcular total gasto no mês (apenas despesas filtradas)
-  const totalGastoMes = lancamentosFiltrados
-    .filter(l => l.tipo === "Despesa")
+  // Calcular total gasto no mês (apenas despesas filtradas, usando todos os lançamentos da conta)
+  const totalGastoMes = (Array.isArray(lancamentosTotais) ? lancamentosTotais : [])
+    .flatMap(l => {
+      if (l.parcelado && l.parcelasLancamento?.length) {
+        return l.parcelasLancamento
+          .filter((p: any) => {
+            const data = new Date(p.dataVencimento);
+            return data.getMonth() + 1 === filtroMes && data.getFullYear() === filtroAno;
+          })
+          .map((p: any) => ({
+            ...l,
+            valor: p.valorParcela,
+            data: p.dataVencimento,
+            parcelaInfo: `${p.numeroParcela}/${l.parcelas}`,
+            statusParcela: p.status,
+            idParcela: p.id
+          }));
+      } else {
+        const data = new Date(l.data);
+        if (data.getMonth() + 1 === filtroMes && data.getFullYear() === filtroAno) {
+          return [{ ...l }];
+        }
+        return [];
+      }
+    })
+    .filter(l =>
+      (filtroCategoria === 'Todas' || l.categoria?.nome === filtroCategoria) &&
+      (filtroTipo === 'Todos' || l.tipo === filtroTipo) &&
+      l.tipo === "Despesa"
+    )
     .reduce((acc, l) => acc + Number(l.valor), 0);
 
   // Animação do saldo subindo
@@ -261,94 +316,203 @@ export default function DetalheConta() {
     <div>
       <SideBar />
       <main className={styles.mainContent}>
-        <h1 className="title">{conta ? `${conta.nome} - Detalhes` : "Detalhes da Conta"}</h1>
-        <div style={{ display: 'flex', gap: 32, marginBottom: 24 }}>
-          <div style={{ background: '#0E2A4C', borderRadius: 12, padding: 24, minWidth: 340, border: '2px dashed #3A4B6A', marginBottom: 8 }}>
-            <h2 style={{ color: '#fff', fontSize: 18, fontWeight: 600, marginBottom: 12 }}>Resumo da Conta</h2>
-            <div style={{ color: '#A5B3C7', fontSize: 15, marginBottom: 6 }}>Total Gasto no Mês:</div>
-            <div style={{ color: '#00D1B2', fontSize: 24, fontWeight: 700 }}>
-              R$ {valorAnimado.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+        {/* Barra de título e menu no mobile */}
+        {isMobile ? (
+          <div className={styles.mobileHeaderBar}>
+            <button className="sidebar-hamburger" onClick={() => document.querySelector('.sidebar-hamburger')?.dispatchEvent(new Event('click', { bubbles: true }))}>
+              <span className="sidebar-hamburger-bar" />
+              <span className="sidebar-hamburger-bar" />
+              <span className="sidebar-hamburger-bar" />
+            </button>
+            <span className={styles.mobileTitle}>{conta ? `${conta.nome} - Detalhes` : "Detalhes da Conta"}</span>
+          </div>
+        ) : (
+          <h1 className="title">{conta ? `${conta.nome} - Detalhes` : "Detalhes da Conta"}</h1>
+        )}
+        <div className={isMobile ? styles.mobileMainWrapper : undefined}>
+          {/* Card de resumo alinhado à direita */}
+          <div style={{ width: '100%', display: 'flex', justifyContent: isMobile ? 'flex-end' : 'flex-start', marginBottom: 24 }}>
+            <div style={{ background: '#0E2A4C', borderRadius: 12, padding: 24, minWidth: 220, maxWidth: 420, width: '50%', border: '2px dashed #3A4B6A', marginBottom: 8 }}>
+              <h2 style={{ color: '#fff', fontSize: 18, fontWeight: 600, marginBottom: 12 }}>Total Gasto no Mês:</h2>
+              <div style={{ color: '#00D1B2', fontSize: 24, fontWeight: 700 }}>
+                R$ {valorAnimado.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+              </div>
             </div>
           </div>
-        </div>
-        <button className={styles.addButton} onClick={() => setModalAdd(true)}>+ Adicionar Lançamento</button>
-        <div style={{ marginBottom: 18, display: 'flex', gap: 6, background: '#10294A', borderRadius: 10, padding: '12px 16px', alignItems: 'center', width: 'fit-content' }}>
-          {/* Filtro Categoria */}
-          <span style={{ color: '#A5B3C7', fontSize: 14, marginRight: 4 }}>Categoria:</span>
-          <select value={filtroCategoria} onChange={e => setFiltroCategoria(e.target.value)} style={{ background: '#142B4D', color: '#fff', border: 'none', borderRadius: 6, padding: '4px 10px', marginRight: 12 }}>
-            <option value="Todas">Todas</option>
-            {categorias.map(cat => (
-              <option key={cat.id} value={cat.nome}>{cat.nome}</option>
-            ))}
-          </select>
-          {/* Filtro Tipo */}
-          <span style={{ color: '#A5B3C7', fontSize: 14, marginRight: 4 }}>Tipo:</span>
-          <select value={filtroTipo} onChange={e => setFiltroTipo(e.target.value)} style={{ background: '#142B4D', color: '#fff', border: 'none', borderRadius: 6, padding: '4px 10px', marginRight: 12 }}>
-            <option value="Todos">Todos</option>
-            <option value="Despesa">Despesa</option>
-            <option value="Receita">Receita</option>
-          </select>
-          {/* Filtro Mês */}
-          <span style={{ color: '#A5B3C7', fontSize: 14, marginRight: 4 }}>Mês:</span>
-          <select value={filtroMes} onChange={e => setFiltroMes(Number(e.target.value))} style={{ background: '#142B4D', color: '#fff', border: 'none', borderRadius: 6, padding: '4px 10px', marginRight: 12 }}>
-            {[...Array(12)].map((_, i) => (
-              <option key={i+1} value={i+1}>{(i+1).toString().padStart(2, '0')}</option>
-            ))}
-          </select>
-          <select value={filtroAno} onChange={e => setFiltroAno(Number(e.target.value))} style={{ background: '#142B4D', color: '#fff', border: 'none', borderRadius: 6, padding: '4px 10px' }}>
-            {[...Array(5)].map((_, i) => {
-              const ano = new Date().getFullYear() - 2 + i;
-              return <option key={ano} value={ano}>{ano}</option>
-            })}
-          </select>
-        </div>
-        <div className={styles.card} style={{ marginTop: 24 }}>
-          <h2 className={styles.tableTitle}>Lançamentos</h2>
-          {carregando ? (
-            <div className={styles.card} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 180, height: '180px' }}>
-              <LoadingSpinner size={48} inline />
+          {/* Botão e filtros alinhados à direita no mobile */}
+          {isMobile ? (
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', width: '100%' }}>
+              <button className={styles.addButton} onClick={() => setModalAdd(true)}>
+                + Adicionar Lançamento
+              </button>
+              <div style={{ marginBottom: 18, display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 8, background: 'none', borderRadius: 0, padding: 0, width: '100%', marginTop: 8 }}>
+                <div style={{ display: 'flex', gap: 6, background: '#10294A', borderRadius: 10, padding: '12px 16px', alignItems: 'center', width: 'fit-content', flexWrap: 'wrap' }}>
+                  <span style={{ color: '#A5B3C7', fontSize: 14, marginRight: 4 }}>Categoria:</span>
+                  <select value={filtroCategoria} onChange={e => setFiltroCategoria(e.target.value)} style={{ background: '#142B4D', color: '#fff', border: 'none', borderRadius: 6, padding: '4px 10px', marginRight: 12 }}>
+                    <option value="Todas">Todas</option>
+                    {categorias.map(cat => (
+                      <option key={cat.id} value={cat.nome}>{cat.nome}</option>
+                    ))}
+                  </select>
+                  <span style={{ color: '#A5B3C7', fontSize: 14, marginRight: 4 }}>Tipo:</span>
+                  <select value={filtroTipo} onChange={e => setFiltroTipo(e.target.value)} style={{ background: '#142B4D', color: '#fff', border: 'none', borderRadius: 6, padding: '4px 10px', marginRight: 12 }}>
+                    <option value="Todos">Todos</option>
+                    <option value="Despesa">Despesa</option>
+                    <option value="Receita">Receita</option>
+                  </select>
+                </div>
+                <div style={{ display: 'flex', gap: 6, background: '#10294A', borderRadius: 10, padding: '12px 16px', alignItems: 'center', width: 'fit-content', flexWrap: 'wrap' }}>
+                  <span style={{ color: '#A5B3C7', fontSize: 14, marginRight: 4 }}>Mês:</span>
+                  <select value={filtroMes} onChange={e => setFiltroMes(Number(e.target.value))} style={{ background: '#142B4D', color: '#fff', border: 'none', borderRadius: 6, padding: '4px 10px', marginRight: 12 }}>
+                    {[...Array(12)].map((_, i) => (
+                      <option key={i+1} value={i+1}>{(i+1).toString().padStart(2, '0')}</option>
+                    ))}
+                  </select>
+                  <span style={{ color: '#A5B3C7', fontSize: 14, marginRight: 4 }}>Ano:</span>
+                  <select value={filtroAno} onChange={e => setFiltroAno(Number(e.target.value))} style={{ background: '#142B4D', color: '#fff', border: 'none', borderRadius: 6, padding: '4px 10px' }}>
+                    {[...Array(5)].map((_, i) => {
+                      const ano = new Date().getFullYear() - 2 + i;
+                      return <option key={ano} value={ano}>{ano}</option>
+                    })}
+                  </select>
+                </div>
+              </div>
             </div>
           ) : (
-            <table className={styles.tableMetas}>
-              <thead>
-                <tr>
-                  <th>Descrição</th>
-                  <th>Categoria</th>
-                  <th>Tipo</th>
-                  <th>Valor</th>
-                  <th>Parcelado</th>
-                  <th>Data</th>
-                  <th>Ações</th>
-                </tr>
-              </thead>
-              <tbody>
-                {lancamentosFiltrados.map((l, i) => (
-                  <tr key={l.id + (l.idParcela ? `-p${l.idParcela}` : '')}>
-                    <td>{l.descricao}</td>
-                    <td>{l.categoria?.nome || "-"}</td>
-                    <td>{l.tipo}</td>
-                    <td style={{ color: l.tipo === 'Despesa' ? '#FF5C5C' : '#00D1B2' }}>
-                      R$ {l.tipo === 'Despesa' ? '-' : '+'}{Math.abs(Number(l.valor)).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                    </td>
-                    <td>{l.parcelado ? (l.parcelaInfo || 'Sim') : 'Não'}</td>
-                    <td>{l.data ? new Date(l.data).toLocaleDateString('pt-BR') : '-'}</td>
-                    <td className={styles.actionCell}>
-                      <button
-                        className={styles.actionBtn}
-                        onClick={() => openEditarModal(l)}
-                      >Editar</button>
-                      {l.parcelado && l.idParcela && (
-                        <button
-                          className={styles.actionBtn}
-                          onClick={() => openParcelamentoModal(l)}
-                        >Detalhes</button>
-                      )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            <>
+              <button className={styles.addButton} onClick={() => setModalAdd(true)}>
+                + Adicionar Lançamento
+              </button>
+              <div className={styles.filtrosBar}>
+                <span className={styles.filtrosLabel}>Categoria:</span>
+                <select value={filtroCategoria} onChange={e => setFiltroCategoria(e.target.value)} className={styles.filtrosSelect}>
+                  <option value="Todas">Todas</option>
+                  {categorias.map(cat => (
+                    <option key={cat.id} value={cat.nome}>{cat.nome}</option>
+                  ))}
+                </select>
+                <span className={styles.filtrosLabel}>Tipo:</span>
+                <select value={filtroTipo} onChange={e => setFiltroTipo(e.target.value)} className={styles.filtrosSelect}>
+                  <option value="Todos">Todos</option>
+                  <option value="Despesa">Despesa</option>
+                  <option value="Receita">Receita</option>
+                </select>
+                <span className={styles.filtrosLabel}>Mês:</span>
+                <select value={filtroMes} onChange={e => setFiltroMes(Number(e.target.value))} className={styles.filtrosSelect}>
+                  {[...Array(12)].map((_, i) => (
+                    <option key={i+1} value={i+1}>{(i+1).toString().padStart(2, '0')}</option>
+                  ))}
+                </select>
+                <span className={styles.filtrosLabel}>Ano:</span>
+                <select value={filtroAno} onChange={e => setFiltroAno(Number(e.target.value))} className={styles.filtrosSelect}>
+                  {[...Array(5)].map((_, i) => {
+                    const ano = new Date().getFullYear() - 2 + i;
+                    return <option key={ano} value={ano}>{ano}</option>
+                  })}
+                </select>
+              </div>
+            </>
           )}
+          <div className={styles.card} style={{ marginTop: 24 }}>
+            <h2 className={styles.tableTitle}>Lançamentos</h2>
+            {carregando ? (
+              <div className={styles.card} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 180, height: '180px' }}>
+                <LoadingSpinner size={48} inline />
+              </div>
+            ) : (
+              <>
+              <table className={styles.tableMetas}>
+                <thead>
+                  <tr>
+                    <th>Descrição</th>
+                    <th>Categoria</th>
+                    <th>Tipo</th>
+                    <th>Valor</th>
+                    <th>Data</th>
+                    <th>Ações</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {lancamentosFiltrados.map((lancamento) => (
+                    <tr key={lancamento.id}>
+                      <td>{lancamento.descricao}</td>
+                      <td>{lancamento.categoria?.nome || '-'}</td>
+                      <td style={{ color: lancamento.tipo === 'Despesa' ? '#FF5C5C' : '#00D1B2' }}>{lancamento.tipo}</td>
+                      <td style={{ color: lancamento.tipo === 'Despesa' ? '#FF5C5C' : '#00D1B2' }}>
+                        R$ {Number(lancamento.valor).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                      </td>
+                      <td>{lancamento.data ? new Date(lancamento.data).toLocaleDateString('pt-BR') : '-'}</td>
+                      <td className={styles.actionCell}>
+                        <button className={styles.actionBtn} onClick={() => openEditarModal(lancamento)}>Editar</button>
+                        {lancamento.parcelado ? (
+                          <button className={styles.actionBtn} onClick={() => openParcelamentoModal(lancamento)}>Parcelas</button>
+                        ) : null}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              {/* Cards responsivos para mobile */}
+              {isMobile && (
+                <div className={styles.cardsMobileWrapper}>
+                  {lancamentosFiltrados.map((lancamento) => (
+                    <div className={styles.contaCardMobile} key={lancamento.id}>
+                      <div className={styles.contaNome}>{lancamento.descricao}</div>
+                      <div className={styles.contaTipo}>{lancamento.categoria?.nome || '-'}</div>
+                      <div className={styles.contaSaldo} style={{ color: lancamento.tipo === 'Despesa' ? '#FF5C5C' : '#00D1B2' }}>{lancamento.tipo}</div>
+                      <div className={styles.contaSaldo} style={{ color: lancamento.tipo === 'Despesa' ? '#FF5C5C' : '#00D1B2' }}>
+                        R$ {Number(lancamento.valor).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                      </div>
+                      <div className={styles.contaTipo}>{lancamento.data ? new Date(lancamento.data).toLocaleDateString('pt-BR') : '-'}</div>
+                      <div className={styles.contaAcoes}>
+                        <button onClick={() => openEditarModal(lancamento)}>Editar</button>
+                        {lancamento.parcelado ? (
+                          <button onClick={() => openParcelamentoModal(lancamento)}>Parcelas</button>
+                        ) : null}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+              {/* Paginação */}
+              {totalPaginas > 1 && (
+                <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: 18, marginTop: 18 }}>
+                  <button
+                    onClick={() => setPagina(p => Math.max(1, p - 1))}
+                    disabled={pagina === 1}
+                    style={{
+                      background: pagina === 1 ? '#223B5A' : '#00D1B2',
+                      color: pagina === 1 ? '#A5B3C7' : '#081B33',
+                      border: 'none',
+                      borderRadius: 8,
+                      padding: '8px 18px',
+                      fontWeight: 600,
+                      fontSize: 16,
+                      cursor: pagina === 1 ? 'not-allowed' : 'pointer',
+                      transition: 'background 0.2s',
+                    }}
+                  >Anterior</button>
+                  <span style={{ color: '#A5B3C7', fontWeight: 600, fontSize: 16, minWidth: 32, textAlign: 'center' }}>{pagina} / {totalPaginas}</span>
+                  <button
+                    onClick={() => setPagina(p => Math.min(totalPaginas, p + 1))}
+                    disabled={pagina === totalPaginas}
+                    style={{
+                      background: pagina === totalPaginas ? '#223B5A' : '#00D1B2',
+                      color: pagina === totalPaginas ? '#A5B3C7' : '#081B33',
+                      border: 'none',
+                      borderRadius: 8,
+                      padding: '8px 18px',
+                      fontWeight: 600,
+                      fontSize: 16,
+                      cursor: pagina === totalPaginas ? 'not-allowed' : 'pointer',
+                      transition: 'background 0.2s',
+                    }}
+                  >Próxima</button>
+                </div>
+              )}
+              </>
+            )}
+          </div>
         </div>
         {/* Modal de Parcelamento */}
         {modalParcelamento && parcelamentoInfo && (
@@ -362,39 +526,42 @@ export default function DetalheConta() {
                 <span className="parcelas">Parcelas: <strong>{parcelamentoInfo.parcelasLancamento?.length || parcelamentoInfo.parcelas} de {parcelamentoInfo.parcelas}</strong></span>
                 <span className="status">Status: <strong>{parcelas.filter(p => p.status === 'Pago').length} pagas, {parcelas.filter(p => p.status !== 'Pago').length} em aberto</strong></span>
               </div>
-              <div className={styles.parcelamentoTableWrapper}>
-                <table className={styles.parcelamentoTable}>
-                  <thead>
-                    <tr>
-                      <th>Parcela</th>
-                      <th>Valor</th>
-                      <th>Data</th>
-                      <th>Status</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {parcelas.map((p, idx) => (
-                      <tr key={idx}>
-                        <td>{p.numeroParcela}/{parcelamentoInfo.parcelas}</td>
-                        <td>R$ {Number(p.valorParcela).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
-                        <td>{p.dataVencimento ? p.dataVencimento.slice(0, 10).split('-').reverse().join('/') : '-'}</td>
-                        <td className={p.status === "Pago" ? styles.statusPago : styles.statusAberto}>
-                          {p.status}
-                          {p.status === "Em aberto" && (
-                            <button
-                              style={{ marginLeft: 15, color: "#00D1B2", background: "none", border: "none", cursor: "pointer", opacity: parcelaLoading === p.id ? 0.6 : 1 }}
-                              onClick={() => marcarParcelaComoPaga(p.id)}
-                              disabled={parcelaLoading === p.id}
-                            >
-                              {parcelaLoading === p.id ? "Marcando..." : "Marcar como pago"}
-                            </button>
-                          )}
-                        </td>
+              {/* Tabela só no desktop */}
+              {!isMobile && (
+                <div className={styles.parcelamentoTableWrapper}>
+                  <table className={styles.parcelamentoTable}>
+                    <thead>
+                      <tr>
+                        <th>Parcela</th>
+                        <th>Valor</th>
+                        <th>Data</th>
+                        <th>Status</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                    </thead>
+                    <tbody>
+                      {parcelas.map((p, idx) => (
+                        <tr key={idx}>
+                          <td>{p.numeroParcela}/{parcelamentoInfo.parcelas}</td>
+                          <td>R$ {Number(p.valorParcela).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
+                          <td>{p.dataVencimento ? p.dataVencimento.slice(0, 10).split('-').reverse().join('/') : '-'}</td>
+                          <td className={p.status === "Pago" ? styles.statusPago : styles.statusAberto}>
+                            {p.status}
+                            {p.status === "Em aberto" && (
+                              <button
+                                style={{ marginLeft: 15, color: "#00D1B2", background: "none", border: "none", cursor: "pointer", opacity: parcelaLoading === p.id ? 0.6 : 1 }}
+                                onClick={() => marcarParcelaComoPaga(p.id)}
+                                disabled={parcelaLoading === p.id}
+                              >
+                                {parcelaLoading === p.id ? "Marcando..." : "Marcar como pago"}
+                              </button>
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
               <button className={styles.fecharBtn} onClick={() => setModalParcelamento(false)}>Fechar</button>
             </div>
           </div>
@@ -571,8 +738,8 @@ export default function DetalheConta() {
             </form>
         </Modal>
         <button
-          style={{ marginTop: 32, background: '#00D1B2', color: '#081B33', border: 'none', borderRadius: 8, padding: '8px 22px', fontWeight: 600, cursor: 'pointer' }}
-          onClick={() => router.push('/contas')}
+          className={isMobile ? styles.voltarBtnMobile : styles.addButton}
+          onClick={() => router.back()}
         >
           Voltar
         </button>

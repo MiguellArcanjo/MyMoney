@@ -45,7 +45,7 @@ export async function POST(request: Request) {
             email: usuario.email,
         },
         JWT_SECRET,
-        { expiresIn: '1h' }
+        { expiresIn: '1d' }
     );
 
     return NextResponse.json(

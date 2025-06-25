@@ -16,6 +16,7 @@ export default function MinhaConta() {
   const [editLoading, setEditLoading] = useState(false);
   const [editError, setEditError] = useState("");
   const router = useRouter();
+  const [isMobile, setIsMobile] = useState(false);
 
   const carregando = !usuario;
 
@@ -38,6 +39,15 @@ export default function MinhaConta() {
     }
     fetchUsuario();
   }, [router]);
+
+  useEffect(() => {
+    function handleResize() {
+      setIsMobile(window.innerWidth <= 768);
+    }
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   function handleLogout() {
     localStorage.removeItem("token");
@@ -84,34 +94,43 @@ export default function MinhaConta() {
     <div>
       <SideBar />
       <main className={styles.mainContent}>
-        <h1 className="title">Minha Conta</h1>
-        <div className={styles.card} style={{ minHeight: 320, display: 'flex', flexDirection: 'column', justifyContent: 'flex-start', alignItems: 'stretch' }}>
-          <h2>Dados do Usuário</h2>
-          {carregando ? (
-            <div style={{ width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', flex: 1 }}>
-              <LoadingSpinner size={60} />
-            </div>
-          ) : (
-            <>
-              <div className={styles.infoGroup}>
-                <span>Nome:</span>
-                <span className={styles.infoValue}>{usuario ? usuario.nome : "Carregando..."}</span>
+        {/* Barra de título e menu no mobile */}
+        {isMobile ? (
+          <div className={styles.mobileHeaderBar}>
+            <span className={styles.mobileTitle}>Minha Conta</span>
+          </div>
+        ) : (
+          <h1 className="title">Minha Conta</h1>
+        )}
+        <div className={isMobile ? styles.mobileMainWrapper : undefined}>
+          <div className={styles.card} style={{ minHeight: 320, display: 'flex', flexDirection: 'column', justifyContent: 'flex-start', alignItems: 'stretch' }}>
+            <h2>Dados do Usuário</h2>
+            {carregando ? (
+              <div style={{ width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', flex: 1 }}>
+                <LoadingSpinner size={60} />
               </div>
-              <div className={styles.infoGroup}>
-                <span>Email:</span>
-                <span className={styles.infoValue}>{usuario ? usuario.email : "Carregando..."}</span>
-              </div>
-              <div className={styles.infoGroup}>
-                <span>Salário:</span>
-                <span className={styles.infoValue}>{usuario && usuario.salario !== undefined && usuario.salario !== null ? `R$ ${Number(usuario.salario).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}` : '-'}</span>
-              </div>
-              <div className={styles.buttonGroup}>
-                <button className={styles.actionButton}>Alterar Senha</button>
-                <button className={styles.actionButton} onClick={openEditModal}>Editar Dados</button>
-                <button className={styles.actionButton} onClick={handleLogout}>Logout</button>
-              </div>
-            </>
-          )}
+            ) : (
+              <>
+                <div className={styles.infoGroup}>
+                  <span>Nome:</span>
+                  <span className={styles.infoValue}>{usuario ? usuario.nome : "Carregando..."}</span>
+                </div>
+                <div className={styles.infoGroup}>
+                  <span>Email:</span>
+                  <span className={styles.infoValue}>{usuario ? usuario.email : "Carregando..."}</span>
+                </div>
+                <div className={styles.infoGroup}>
+                  <span>Salário:</span>
+                  <span className={styles.infoValue}>{usuario && usuario.salario !== undefined && usuario.salario !== null ? `R$ ${Number(usuario.salario).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}` : '-'}</span>
+                </div>
+                <div className={styles.buttonGroup}>
+                  <button className={styles.actionButton}>Alterar Senha</button>
+                  <button className={styles.actionButton} onClick={openEditModal}>Editar Dados</button>
+                  <button className={styles.actionButton} onClick={handleLogout}>Logout</button>
+                </div>
+              </>
+            )}
+          </div>
         </div>
         <Modal open={modalOpen} onClose={() => setModalOpen(false)}>
           <h2 style={{ color: '#fff', marginBottom: 16 }}>Editar Dados</h2>

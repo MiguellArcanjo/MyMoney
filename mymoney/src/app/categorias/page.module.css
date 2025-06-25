@@ -159,4 +159,99 @@
   width: 50px;
   height: 32px;
   box-shadow: none;
+}
+
+@media (max-width: 768px) {
+  .mainContent {
+    align-items: center;
+    padding: 0 12px;
+    margin: 0;
+  }
+  .mobileMainWrapper {
+    width: 100%;
+    max-width: 500px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0 12px;
+  }
+  .cardsMobileWrapper {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .contaCardMobile {
+    display: flex;
+    flex-direction: column;
+    background: #0E2A4C;
+    border-radius: 14px;
+    margin-bottom: 10px;
+    padding: 14px 12px 10px 14px;
+    box-shadow: 0 2px 12px 0 rgba(0,0,0,0.08);
+    color: #fff;
+    width: 100%;
+    min-width: 0;
+  }
+  .contaCardMobile .contaNome {
+    color: #00D1B2;
+    font-size: 1.08rem;
+    font-weight: 600;
+    margin-bottom: 4px;
+    cursor: pointer;
+    word-break: break-word;
+  }
+  .contaCardMobile .contaTipo {
+    color: #A5B3C7;
+    font-size: 0.98rem;
+    margin-bottom: 2px;
+    word-break: break-word;
+  }
+  .contaCardMobile .contaAcoes {
+    display: flex;
+    gap: 10px;
+    margin-top: 6px;
+  }
+  .contaCardMobile .contaAcoes button {
+    background: none;
+    color: #00D1B2;
+    border: none;
+    border-radius: 4px;
+    padding: 4px 10px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+  }
+  .contaCardMobile .contaAcoes button:hover {
+    background: #223B5A;
+    color: #fff;
+  }
+  .mobileHeaderBar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 18px 0 12px 0;
+    margin-bottom: 0;
+    position: relative;
+    gap: 12px;
+  }
+  .mobileHeaderBar .sidebar-hamburger {
+    position: static;
+    margin-right: 0;
+    left: 0;
+    top: 0;
+    box-shadow: none;
+  }
+  .mobileTitle {
+    flex: 1;
+    text-align: right;
+    color: #fff;
+    font-size: 2rem;
+    font-weight: bold;
+    margin: 0;
+    line-height: 1.1;
+  }
 } 

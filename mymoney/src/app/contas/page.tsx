@@ -32,6 +32,7 @@ export default function Contas() {
   const [saldosMes, setSaldosMes] = useState<{ [key: number]: number }>({});
   // Estado para armazenar saldos animados
   const [valoresAnimados, setValoresAnimados] = useState<{ [key: number]: number }>({});
+  const [isMobile, setIsMobile] = useState(false);
 
   // Função para calcular saldo da conta
   async function calcularSaldo(conta: any) {
@@ -148,6 +149,15 @@ export default function Contas() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [saldosMes]);
 
+  useEffect(() => {
+    function handleResize() {
+      setIsMobile(window.innerWidth <= 768);
+    }
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     const token = localStorage.getItem("token");
@@ -232,24 +242,56 @@ export default function Contas() {
     <div>
       <SideBar />
       <main className={styles.mainContent}>
-        <h1 className="title">Minhas Contas</h1>
-        <button className={styles.addButton} onClick={() => setModalOpen(true)}>
-          + Adicionar Conta
-        </button>
-        <div style={{ marginBottom: 18, display: 'flex', gap: 6, background: '#10294A', borderRadius: 10, padding: '12px 16px', alignItems: 'center', width: 'fit-content' }}>
-          <span style={{ color: '#A5B3C7', fontSize: 14, marginRight: 4 }}>Mês:</span>
-          <select value={filtroMes} onChange={e => setFiltroMes(Number(e.target.value))} style={{ background: '#142B4D', color: '#fff', border: 'none', borderRadius: 6, padding: '4px 10px', marginRight: 12 }}>
-            {[...Array(12)].map((_, i) => (
-              <option key={i+1} value={i+1}>{(i+1).toString().padStart(2, '0')}</option>
-            ))}
-          </select>
-          <select value={filtroAno} onChange={e => setFiltroAno(Number(e.target.value))} style={{ background: '#142B4D', color: '#fff', border: 'none', borderRadius: 6, padding: '4px 10px' }}>
-            {[...Array(5)].map((_, i) => {
-              const ano = new Date().getFullYear() - 2 + i;
-              return <option key={ano} value={ano}>{ano}</option>
-            })}
-          </select>
-        </div>
+        {/* Header responsivo com menu e título na mesma linha no mobile */}
+        {isMobile ? (
+          <div className={styles.mobileHeaderBar}>
+            <span className={styles.mobileTitle}>Minhas Contas</span>
+          </div>
+        ) : (
+          <h1 className="title">Minhas Contas</h1>
+        )}
+        {/* Botão e filtros alinhados à direita no mobile */}
+        {isMobile ? (
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', width: '100%' }}>
+            <button className={styles.addButton} onClick={() => setModalOpen(true)}>
+              + Adicionar Conta
+            </button>
+            <div style={{ marginBottom: 18, display: 'flex', gap: 6, background: '#10294A', borderRadius: 10, padding: '12px 16px', alignItems: 'center', width: 'fit-content', marginTop: 8 }}>
+              <span style={{ color: '#A5B3C7', fontSize: 14, marginRight: 4 }}>Mês:</span>
+              <select value={filtroMes} onChange={e => setFiltroMes(Number(e.target.value))} style={{ background: '#142B4D', color: '#fff', border: 'none', borderRadius: 6, padding: '4px 10px', marginRight: 12 }}>
+                {[...Array(12)].map((_, i) => (
+                  <option key={i+1} value={i+1}>{(i+1).toString().padStart(2, '0')}</option>
+                ))}
+              </select>
+              <select value={filtroAno} onChange={e => setFiltroAno(Number(e.target.value))} style={{ background: '#142B4D', color: '#fff', border: 'none', borderRadius: 6, padding: '4px 10px' }}>
+                {[...Array(5)].map((_, i) => {
+                  const ano = new Date().getFullYear() - 2 + i;
+                  return <option key={ano} value={ano}>{ano}</option>
+                })}
+              </select>
+            </div>
+          </div>
+        ) : (
+          <>
+            <button className={styles.addButton} onClick={() => setModalOpen(true)}>
+              + Adicionar Conta
+            </button>
+            <div style={{ marginBottom: 18, display: 'flex', gap: 6, background: '#10294A', borderRadius: 10, padding: '12px 16px', alignItems: 'center', width: 'fit-content' }}>
+              <span style={{ color: '#A5B3C7', fontSize: 14, marginRight: 4 }}>Mês:</span>
+              <select value={filtroMes} onChange={e => setFiltroMes(Number(e.target.value))} style={{ background: '#142B4D', color: '#fff', border: 'none', borderRadius: 6, padding: '4px 10px', marginRight: 12 }}>
+                {[...Array(12)].map((_, i) => (
+                  <option key={i+1} value={i+1}>{(i+1).toString().padStart(2, '0')}</option>
+                ))}
+              </select>
+              <select value={filtroAno} onChange={e => setFiltroAno(Number(e.target.value))} style={{ background: '#142B4D', color: '#fff', border: 'none', borderRadius: 6, padding: '4px 10px' }}>
+                {[...Array(5)].map((_, i) => {
+                  const ano = new Date().getFullYear() - 2 + i;
+                  return <option key={ano} value={ano}>{ano}</option>
+                })}
+              </select>
+            </div>
+          </>
+        )}
         {loadingContas ? (
           <div className={styles.card} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 180, height: '180px' }}>
             <LoadingSpinner size={48} inline />
@@ -261,65 +303,81 @@ export default function Contas() {
               <div style={{ color: '#A5B3C7', textAlign: 'center', padding: 24 }}>Nenhuma conta cadastrada.</div>
             ) : (
               <>
-              <table className={styles.tableMetas}>
-                <thead>
-                  <tr>
-                    <th>Nome da Conta</th>
-                    <th>Tipo</th>
-                    <th>Saldo</th>
-                    <th>Ações</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {contasPaginadas.map((conta) => (
-                    <tr key={conta.id}>
-                      <td style={{ cursor: "pointer", color: "#00D1B2" }} onClick={() => router.push(`/contas/${conta.id}`)}>{conta.nome}</td>
-                      <td>{conta.tipo || '-'}</td>
-                      <td>R$ {valoresAnimados[conta.id] !== undefined ? valoresAnimados[conta.id].toLocaleString('pt-BR', { minimumFractionDigits: 2 }) : '0,00'}</td>
-                      <td className={styles.actionCell}>
-                        <button className={styles.actionBtn} onClick={() => openEditModal(conta)}>Editar</button>
-                        <button className={styles.actionBtn} onClick={() => openDeleteModal(conta)}>Excluir</button>
-                      </td>
+                <table className={styles.tableMetas}>
+                  <thead>
+                    <tr>
+                      <th>Nome da Conta</th>
+                      <th>Tipo</th>
+                      <th>Saldo</th>
+                      <th>Ações</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-              {/* Paginação */}
-              {totalPaginas > 1 && (
-                <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 18, marginTop: 18 }}>
-                  <button
-                    onClick={() => setPagina(p => Math.max(1, p - 1))}
-                    disabled={pagina === 1}
-                    style={{
-                      background: pagina === 1 ? '#223B5A' : '#00D1B2',
-                      color: pagina === 1 ? '#A5B3C7' : '#081B33',
-                      border: 'none',
-                      borderRadius: 8,
-                      padding: '8px 18px',
-                      fontWeight: 600,
-                      fontSize: 16,
-                      cursor: pagina === 1 ? 'not-allowed' : 'pointer',
-                      transition: 'background 0.2s',
-                    }}
-                  >Anterior</button>
-                  <span style={{ color: '#A5B3C7', fontWeight: 600, fontSize: 16, minWidth: 32, textAlign: 'center' }}>{pagina} / {totalPaginas}</span>
-                  <button
-                    onClick={() => setPagina(p => Math.min(totalPaginas, p + 1))}
-                    disabled={pagina === totalPaginas}
-                    style={{
-                      background: pagina === totalPaginas ? '#223B5A' : '#00D1B2',
-                      color: pagina === totalPaginas ? '#A5B3C7' : '#081B33',
-                      border: 'none',
-                      borderRadius: 8,
-                      padding: '8px 18px',
-                      fontWeight: 600,
-                      fontSize: 16,
-                      cursor: pagina === totalPaginas ? 'not-allowed' : 'pointer',
-                      transition: 'background 0.2s',
-                    }}
-                  >Próxima</button>
-                </div>
-              )}
+                  </thead>
+                  <tbody>
+                    {contasPaginadas.map((conta) => (
+                      <tr key={conta.id}>
+                        <td style={{ cursor: "pointer", color: "#00D1B2" }} onClick={() => router.push(`/contas/${conta.id}`)}>{conta.nome}</td>
+                        <td>{conta.tipo || '-'}</td>
+                        <td>R$ {valoresAnimados[conta.id] !== undefined ? valoresAnimados[conta.id].toLocaleString('pt-BR', { minimumFractionDigits: 2 }) : '0,00'}</td>
+                        <td className={styles.actionCell}>
+                          <button className={styles.actionBtn} onClick={() => openEditModal(conta)}>Editar</button>
+                          <button className={styles.actionBtn} onClick={() => openDeleteModal(conta)}>Excluir</button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+                {/* Cards responsivos para mobile */}
+                {isMobile && (
+                  <div className={styles.cardsMobileWrapper}>
+                    {contasPaginadas.map((conta) => (
+                      <div className={styles.contaCardMobile} key={conta.id}>
+                        <div className={styles.contaNome} onClick={() => router.push(`/contas/${conta.id}`)}>{conta.nome}</div>
+                        <div className={styles.contaTipo}>{conta.tipo || '-'}</div>
+                        <div className={styles.contaSaldo}>R$ {valoresAnimados[conta.id] !== undefined ? valoresAnimados[conta.id].toLocaleString('pt-BR', { minimumFractionDigits: 2 }) : '0,00'}</div>
+                        <div className={styles.contaAcoes}>
+                          <button onClick={() => openEditModal(conta)}>Editar</button>
+                          <button onClick={() => openDeleteModal(conta)}>Excluir</button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                {/* Paginação */}
+                {totalPaginas > 1 && (
+                  <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 18, marginTop: 18 }}>
+                    <button
+                      onClick={() => setPagina(p => Math.max(1, p - 1))}
+                      disabled={pagina === 1}
+                      style={{
+                        background: pagina === 1 ? '#223B5A' : '#00D1B2',
+                        color: pagina === 1 ? '#A5B3C7' : '#081B33',
+                        border: 'none',
+                        borderRadius: 8,
+                        padding: '8px 18px',
+                        fontWeight: 600,
+                        fontSize: 16,
+                        cursor: pagina === 1 ? 'not-allowed' : 'pointer',
+                        transition: 'background 0.2s',
+                      }}
+                    >Anterior</button>
+                    <span style={{ color: '#A5B3C7', fontWeight: 600, fontSize: 16, minWidth: 32, textAlign: 'center' }}>{pagina} / {totalPaginas}</span>
+                    <button
+                      onClick={() => setPagina(p => Math.min(totalPaginas, p + 1))}
+                      disabled={pagina === totalPaginas}
+                      style={{
+                        background: pagina === totalPaginas ? '#223B5A' : '#00D1B2',
+                        color: pagina === totalPaginas ? '#A5B3C7' : '#081B33',
+                        border: 'none',
+                        borderRadius: 8,
+                        padding: '8px 18px',
+                        fontWeight: 600,
+                        fontSize: 16,
+                        cursor: pagina === totalPaginas ? 'not-allowed' : 'pointer',
+                        transition: 'background 0.2s',
+                      }}
+                    >Próxima</button>
+                  </div>
+                )}
               </>
             )}
           </div>
@@ -396,4 +454,4 @@ export default function Contas() {
       </main>
     </div>
   );
-} 
+}

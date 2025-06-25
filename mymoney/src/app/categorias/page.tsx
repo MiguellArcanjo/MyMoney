@@ -16,6 +16,7 @@ export default function Categorias() {
   const [editId, setEditId] = useState<number | null>(null);
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
     async function fetchCategorias() {
@@ -28,6 +29,15 @@ export default function Categorias() {
       setLoadingCategorias(false);
     }
     fetchCategorias();
+  }, []);
+
+  useEffect(() => {
+    function handleResize() {
+      setIsMobile(window.innerWidth <= 768);
+    }
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
   }, []);
 
   function openAddModal() {
@@ -109,48 +119,86 @@ export default function Categorias() {
     <div>
       <SideBar />
       <main className={styles.mainContent}>
-        <h1 className="title">Categorias</h1>
-        <button className={styles.addButton} onClick={openAddModal}>
-          + Adicionar Categoria
-        </button>
+        {/* Barra de título e menu no mobile */}
+        {isMobile ? (
+          <div className={styles.mobileHeaderBar}>
+            <span className={styles.mobileTitle}>Categorias</span>
+          </div>
+        ) : (
+          <h1 className="title">Categorias</h1>
+        )}
+        {isMobile ? (
+          <div style={{ width: '100%', display: 'flex', justifyContent: 'flex-end', marginBottom: 12 }}>
+            <button className={styles.addButton} onClick={openAddModal}>
+              + Adicionar Categoria
+            </button>
+          </div>
+        ) : (
+          <button className={styles.addButton} onClick={openAddModal}>
+            + Adicionar Categoria
+          </button>
+        )}
         {loadingCategorias ? (
           <div className={styles.card} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 180, height: '180px' }}>
             <LoadingSpinner size={48} inline />
           </div>
         ) : (
-          <div className={styles.card}>
-            <h2 className={styles.tableTitle}>Lista de Categorias</h2>
-            {categorias.length === 0 ? (
-              <div style={{ color: '#A5B3C7', textAlign: 'center', padding: 24 }}>Nenhuma categoria cadastrada.</div>
-            ) : (
-              <table className={styles.tableMetas}>
-                <thead>
-                  <tr>
-                    <th>Categoria</th>
-                    <th>Tipo</th>
-                    <th>Cor</th>
-                    <th>Ações</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {categorias.map((cat) => (
-                    <tr key={cat.id}>
-                      <td>{cat.nome}</td>
-                      <td>{cat.tipo}</td>
-                      <td>
-                        <span
-                          style={{ width: 18, height: 18, borderRadius: 4, background: cat.cor, display: 'inline-block', border: '2px solid #223B5A', verticalAlign: 'middle' }}
-                        ></span>
-                      </td>
-                      <td className={styles.actionCell}>
-                        <button className={styles.actionBtn} onClick={() => openEditModal(cat)}>Editar</button>
-                        <button className={styles.actionBtn} onClick={() => openDeleteModal(cat.id)}>Excluir</button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            )}
+          <div className={isMobile ? styles.mobileMainWrapper : undefined}>
+            <div className={styles.card}>
+              <h2 className={styles.tableTitle}>Lista de Categorias</h2>
+              {categorias.length === 0 ? (
+                <div style={{ color: '#A5B3C7', textAlign: 'center', padding: 24 }}>Nenhuma categoria cadastrada.</div>
+              ) : (
+                <>
+                  {!isMobile && (
+                    <table className={styles.tableMetas}>
+                      <thead>
+                        <tr>
+                          <th>Categoria</th>
+                          <th>Tipo</th>
+                          <th>Cor</th>
+                          <th>Ações</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {categorias.map((cat) => (
+                          <tr key={cat.id}>
+                            <td>{cat.nome}</td>
+                            <td>{cat.tipo}</td>
+                            <td>
+                              <span
+                                style={{ width: 18, height: 18, borderRadius: 4, background: cat.cor, display: 'inline-block', border: '2px solid #223B5A', verticalAlign: 'middle' }}
+                              ></span>
+                            </td>
+                            <td className={styles.actionCell}>
+                              <button className={styles.actionBtn} onClick={() => openEditModal(cat)}>Editar</button>
+                              <button className={styles.actionBtn} onClick={() => openDeleteModal(cat.id)}>Excluir</button>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  )}
+                  {isMobile && (
+                    <div className={styles.cardsMobileWrapper}>
+                      {categorias.map((cat) => (
+                        <div className={styles.contaCardMobile} key={cat.id}>
+                          <div className={styles.contaNome} style={{ color: '#00D1B2', fontWeight: 700 }}>{cat.nome}</div>
+                          <div className={styles.contaTipo}>{cat.tipo}</div>
+                          <div className={styles.contaTipo}>
+                            <span style={{ width: 18, height: 18, borderRadius: 4, background: cat.cor, display: 'inline-block', border: '2px solid #223B5A', verticalAlign: 'middle' }}></span>
+                          </div>
+                          <div className={styles.contaAcoes}>
+                            <button onClick={() => openEditModal(cat)}>Editar</button>
+                            <button onClick={() => openDeleteModal(cat.id)}>Excluir</button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
           </div>
         )}
         <Modal open={modalOpen} onClose={() => setModalOpen(false)}>

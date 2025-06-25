@@ -20,6 +20,7 @@ export default function Metas() {
   const [detalheMeta, setDetalheMeta] = useState<any | null>(null);
   const [receitasPorMeta, setReceitasPorMeta] = useState<{ [metaId: number]: number }>({});
   const carregando = metas.length === 0;
+  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
     async function fetchMetas() {
@@ -28,7 +29,10 @@ export default function Metas() {
       const res = await fetch("/api/metas", {
         headers: { Authorization: "Bearer " + token }
       });
-      if (res.ok) setMetas(await res.json());
+      if (res.ok) {
+        const data = await res.json();
+        setMetas(Array.isArray(data) ? data : (Array.isArray(data.metas) ? data.metas : []));
+      }
       setLoadingMetas(false);
     }
     fetchMetas();
@@ -44,7 +48,8 @@ export default function Metas() {
       if (res.ok) {
         const data = await res.json();
         const receitas: { [metaId: number]: number } = {};
-        data.forEach((l: any) => {
+        let lancs = Array.isArray(data) ? data : (Array.isArray(data.lancamentos) ? data.lancamentos : []);
+        lancs.forEach((l: any) => {
           if (l.tipo === "Receita" && l.metaId) {
             receitas[l.metaId] = (receitas[l.metaId] || 0) + Number(l.valor);
           }
@@ -53,6 +58,15 @@ export default function Metas() {
       }
     }
     fetchReceitasPorMeta();
+  }, []);
+
+  useEffect(() => {
+    function handleResize() {
+      setIsMobile(window.innerWidth <= 768);
+    }
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
   }, []);
 
   function openAddModal() {
@@ -159,69 +173,117 @@ export default function Metas() {
     <div>
       <SideBar />
       <main className={styles.mainContent}>
-        <h1 className="title">Metas de Economia</h1>
-        <button className={styles.addButton} onClick={openAddModal}>
-          + Adicionar Meta
-        </button>
-        <div className={styles.card}>
-          <h2 className={styles.tableTitle}>Lista de Metas</h2>
-          {loadingMetas ? (
-            <div className={styles.card} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 180, height: '180px' }}>
-              <LoadingSpinner size={48} inline />
-            </div>
-          ) : (
-            <table className={styles.tableMetas}>
-              <thead>
-                <tr>
-                  <th>Descrição</th>
-                  <th>Valor Objetivo</th>
-                  <th>Período</th>
-                  <th>Progresso</th>
-                  <th>Status</th>
-                  <th>Ações</th>
-                </tr>
-              </thead>
-              <tbody>
-                {metas.length === 0 ? (
-                  <tr>
-                    <td colSpan={6} style={{ color: '#A5B3C7', textAlign: 'center', padding: 24 }}>Nenhuma meta cadastrada.</td>
-                  </tr>
-                ) : (
-                  metas.map(meta => (
-                    <tr key={meta.id}>
-                      <td>
-                        <span
-                          style={{ color: '#00D1B2', cursor: 'pointer', textDecoration: 'underline' }}
-                          onClick={() => openDetalheModal(meta)}
-                        >
-                          {meta.descricao}
-                        </span>
-                      </td>
-                      <td>R$ {Number(meta.valorObjetivo).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
-                      <td>{formatPeriodo(meta)}</td>
-                      <td>
-                        <div className={styles.progressBar}>
-                          <div
-                            className={styles.progressFill}
-                            style={{ width: `${Math.min(100, (receitasPorMeta[meta.id] || 0) / meta.valorObjetivo * 100)}%` }}
-                          />
-                        </div>
-                        <span className={styles.progressText}>
-                          {Math.min(100, ((receitasPorMeta[meta.id] || 0) / meta.valorObjetivo * 100)).toFixed(1)}%&nbsp;
-                          (R$ {(receitasPorMeta[meta.id] || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })})
-                        </span>
-                      </td>
-                      <td>{meta.status || (new Date(meta.dataFim) < new Date() ? "Concluída" : "Em andamento")}</td>
-                      <td className={styles.actionCell}>
-                        <button className={styles.actionBtn} onClick={() => openEditModal(meta)}>Editar</button>
-                        <button className={styles.actionBtn} onClick={() => openDeleteModal(meta.id)}>Excluir</button>
-                      </td>
-                    </tr>
-                  ))
+        {/* Barra de título e menu no mobile */}
+        {isMobile ? (
+          <div style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'flex-end', marginBottom: 18 }}>
+            <span className={styles.mobileTitle} style={{ textAlign: 'right', width: '100%', marginBottom: 8 }}>Metas de Economia</span>
+            <button className={styles.addButton} onClick={openAddModal}>
+              + Adicionar Meta
+            </button>
+          </div>
+        ) : (
+          <div style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'flex-start', marginBottom: 18 }}>
+            <h1 className={styles.title} style={{ textAlign: 'left', width: '100%', marginBottom: 8 }}>Metas de Economia</h1>
+            <button className={styles.addButton} onClick={openAddModal}>
+              + Adicionar Meta
+            </button>
+          </div>
+        )}
+        <div className={isMobile ? styles.mobileMainWrapper : undefined}>
+          <div className={styles.card}>
+            <h2 className={styles.tableTitle}>Lista de Metas</h2>
+            {loadingMetas ? (
+              <div className={styles.card} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 180, height: '180px' }}>
+                <LoadingSpinner size={48} inline />
+              </div>
+            ) : (
+              <>
+                {!isMobile && (
+                  <table className={styles.tableMetas}>
+                    <thead>
+                      <tr>
+                        <th>Descrição</th>
+                        <th>Valor Objetivo</th>
+                        <th>Período</th>
+                        <th>Progresso</th>
+                        <th>Status</th>
+                        <th>Ações</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {metas.length === 0 ? (
+                        <tr>
+                          <td colSpan={6} style={{ color: '#A5B3C7', textAlign: 'center', padding: 24 }}>Nenhuma meta cadastrada.</td>
+                        </tr>
+                      ) : (
+                        metas.map(meta => (
+                          <tr key={meta.id}>
+                            <td>
+                              <span
+                                style={{ color: '#00D1B2', cursor: 'pointer', textDecoration: 'underline' }}
+                                onClick={() => openDetalheModal(meta)}
+                              >
+                                {meta.descricao}
+                              </span>
+                            </td>
+                            <td>R$ {Number(meta.valorObjetivo).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
+                            <td>{formatPeriodo(meta)}</td>
+                            <td>
+                              <div className={styles.progressBar}>
+                                <div
+                                  className={styles.progressFill}
+                                  style={{ width: `${Math.min(100, (receitasPorMeta[meta.id] || 0) / meta.valorObjetivo * 100)}%` }}
+                                />
+                              </div>
+                              <span className={styles.progressText}>
+                                {Math.min(100, ((receitasPorMeta[meta.id] || 0) / meta.valorObjetivo * 100)).toFixed(1)}%&nbsp;
+                                (R$ {(receitasPorMeta[meta.id] || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })})
+                              </span>
+                            </td>
+                            <td>{meta.status || (new Date(meta.dataFim) < new Date() ? "Concluída" : "Em andamento")}</td>
+                            <td className={styles.actionCell}>
+                              <button className={styles.actionBtn} onClick={() => openEditModal(meta)}>Editar</button>
+                              <button className={styles.actionBtn} onClick={() => openDeleteModal(meta.id)}>Excluir</button>
+                            </td>
+                          </tr>
+                        ))
+                      )}
+                    </tbody>
+                  </table>
                 )}
-              </tbody>
-            </table>
-          )}
+                {isMobile && (
+                  <div className={styles.cardsMobileWrapper}>
+                    {metas.length === 0 ? (
+                      <div style={{ color: '#A5B3C7', textAlign: 'center', padding: 24 }}>Nenhuma meta cadastrada.</div>
+                    ) : (
+                      metas.map(meta => (
+                        <div className={styles.contaCardMobile} key={meta.id}>
+                          <div className={styles.contaNome} style={{ color: '#00D1B2', fontWeight: 700 }}>{meta.descricao}</div>
+                          <div className={styles.contaTipo}>R$ {Number(meta.valorObjetivo).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</div>
+                          <div className={styles.contaTipo}>{formatPeriodo(meta)}</div>
+                          <div className={styles.progressBar} style={{ width: '100%', margin: '8px 0 4px 0' }}>
+                            <div
+                              className={styles.progressFill}
+                              style={{ width: `${Math.min(100, (receitasPorMeta[meta.id] || 0) / meta.valorObjetivo * 100)}%` }}
+                            />
+                          </div>
+                          <span className={styles.progressText}>
+                            {Math.min(100, ((receitasPorMeta[meta.id] || 0) / meta.valorObjetivo * 100)).toFixed(1)}%&nbsp;
+                            (R$ {(receitasPorMeta[meta.id] || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })})
+                          </span>
+                          <div className={styles.contaTipo} style={{ marginTop: 4 }}>{meta.status || (new Date(meta.dataFim) < new Date() ? "Concluída" : "Em andamento")}</div>
+                          <div className={styles.contaAcoes}>
+                            <button onClick={() => openEditModal(meta)}>Editar</button>
+                            <button onClick={() => openDeleteModal(meta.id)}>Excluir</button>
+                          </div>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                )}
+              </>
+            )}
+          </div>
         </div>
         <Modal open={modalOpen} onClose={() => setModalOpen(false)}>
           <h2 className={styles.modalTitle}>{editId ? "Editar Meta" : "Adicionar Nova Meta"}</h2>
