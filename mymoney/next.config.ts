@@ -1,7 +1,9 @@
-import type { NextConfig } from "next";
-
-const nextConfig: NextConfig = {
-  /* config options here */
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  webpack: (config: any) => {
+    config.resolve.alias['@'] = require('path').resolve(__dirname, 'src');
+    return config;
+  },
 };
 
-export default nextConfig;
+module.exports = nextConfig;
