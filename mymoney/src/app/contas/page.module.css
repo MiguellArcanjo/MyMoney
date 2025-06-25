@@ -347,4 +347,52 @@
 }
 .editarBtn:hover {
   background: #00b89c;
+}
+
+.modalAddContainer {
+  /* background: #16273B; */
+  border-radius: 18px;
+  box-shadow: 0 8px 32px 0 rgba(0,0,0,0.18);
+  padding: 38px 38px 28px 38px;
+  min-width: 520px;
+  max-width: 98vw;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 10px;
+}
+
+.modalCloseBtn {
+  position: absolute;
+  top: 18px;
+  right: 22px;
+  background: none;
+  border: none;
+  color: #A5B3C7;
+  font-size: 1.7rem;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+.modalCloseBtn:hover {
+  color: #fff;
+}
+
+.inputGroup {
+  margin-bottom: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.inputGroupRow {
+  display: flex;
+  gap: 18px;
+  margin-bottom: 18px;
+}
+
+.inputMeta:focus {
+  outline: none;
+  border: 1.5px solid #00D1B2;
+  box-shadow: 0 0 0 2px rgba(0,209,178,0.12);
 } 

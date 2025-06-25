@@ -14,12 +14,22 @@ function getTokenFromRequest(req: NextRequest) {
 export async function GET(req: NextRequest) {
   const token = getTokenFromRequest(req);
   if (!token) return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
-  const contas = await prisma.conta.findMany({
-    where: { usuarioId: token.id },
-    include: { lancamentos: true },
-    orderBy: { id: "desc" }
-  });
-  return NextResponse.json(contas);
+  const { searchParams } = new URL(req.url);
+  const page = Number(searchParams.get("page")) || 1;
+  const limit = Number(searchParams.get("limit")) || 10;
+  const skip = (page - 1) * limit;
+  const where = { usuarioId: token.id };
+  const [totalCount, contas] = await Promise.all([
+    prisma.conta.count({ where }),
+    prisma.conta.findMany({
+      where,
+      include: { lancamentos: true },
+      orderBy: { id: "desc" },
+      skip,
+      take: limit
+    })
+  ]);
+  return NextResponse.json({ contas, totalCount });
 }
 
 export async function POST(req: NextRequest) {

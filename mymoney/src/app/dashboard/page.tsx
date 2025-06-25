@@ -28,6 +28,10 @@ export default function Dashboard() {
   const [loadingCat, setLoadingCat] = useState(true);
   const [usuario, setUsuario] = useState<{ nome: string; email: string; salario?: number } | null>(null);
   const [loadingUsuario, setLoadingUsuario] = useState(true);
+  const [saldosMes, setSaldosMes] = useState<{ [key: number]: number }>({});
+  const [loadingSaldosMes, setLoadingSaldosMes] = useState(true);
+  const filtroMes = new Date().getMonth() + 1;
+  const filtroAno = new Date().getFullYear();
 
   useEffect(() => {
     async function fetchContas() {
@@ -36,7 +40,10 @@ export default function Dashboard() {
       const res = await fetch("/api/contas", {
         headers: { Authorization: "Bearer " + token }
       });
-      if (res.ok) setContas(await res.json());
+      if (res.ok) {
+        const data = await res.json();
+        setContas(data.contas || []);
+      }
       setLoadingContas(false);
     }
     fetchContas();
@@ -81,14 +88,93 @@ export default function Dashboard() {
     fetchUsuario();
   }, []);
 
-  // Cálculo dos saldos
+  useEffect(() => {
+    async function calcularSaldoMes(conta: any) {
+      const token = localStorage.getItem("token");
+      if (!token) return 0;
+      const res = await fetch(`/api/lancamentos?contaId=${conta.id}`, {
+        headers: { Authorization: "Bearer " + token }
+      });
+      if (res.ok) {
+        const lancamentos = await res.json();
+        let saldo = 0;
+        lancamentos.forEach((l: any) => {
+          if (l.tipo === "Despesa") {
+            if (l.parcelado && l.parcelasLancamento?.length) {
+              l.parcelasLancamento.forEach((p: any) => {
+                const data = new Date(p.dataVencimento);
+                if (data.getMonth() + 1 === filtroMes && data.getFullYear() === filtroAno) {
+                  saldo -= Number(p.valorParcela);
+                }
+              });
+            } else {
+              const data = new Date(l.data);
+              if (data.getMonth() + 1 === filtroMes && data.getFullYear() === filtroAno) {
+                saldo -= Number(l.valor);
+              }
+            }
+          } else if (l.tipo === "Receita" && !l.metaId) {
+            if (l.parcelado && l.parcelasLancamento?.length) {
+              l.parcelasLancamento.forEach((p: any) => {
+                const data = new Date(p.dataVencimento);
+                if (data.getMonth() + 1 === filtroMes && data.getFullYear() === filtroAno) {
+                  saldo += Number(p.valorParcela);
+                }
+              });
+            } else {
+              const data = new Date(l.data);
+              if (data.getMonth() + 1 === filtroMes && data.getFullYear() === filtroAno) {
+                saldo += Number(l.valor);
+              }
+            }
+          }
+        });
+        return saldo;
+      }
+      return 0;
+    }
+    async function atualizarSaldosMes() {
+      setLoadingSaldosMes(true);
+      const novosSaldos: { [key: number]: number } = {};
+      for (const conta of contas) {
+        novosSaldos[conta.id] = await calcularSaldoMes(conta);
+      }
+      setSaldosMes(novosSaldos);
+      setLoadingSaldosMes(false);
+    }
+    if (contas.length > 0) atualizarSaldosMes();
+    else setLoadingSaldosMes(false);
+  }, [contas, filtroMes, filtroAno]);
+
+  useEffect(() => {
+    console.log('Contas:', contas);
+    console.log('SaldosMes:', saldosMes);
+  }, [contas, saldosMes]);
+
+  // Cálculo dos saldos por conta (considerando apenas o mês/ano atual e parcelas)
+  const now = new Date();
   const saldosPorConta: { [id: number]: number } = {};
   contas.forEach((conta: any) => {
     saldosPorConta[conta.id] = 0;
   });
   lancamentos.forEach((l: any) => {
-    if (l.tipo === "Receita") saldosPorConta[l.contaId] += Number(l.valor);
-    if (l.tipo === "Despesa") saldosPorConta[l.contaId] -= Number(l.valor);
+    if (l.contaId && saldosPorConta.hasOwnProperty(l.contaId)) {
+      if (l.parcelado && l.parcelasLancamento?.length) {
+        l.parcelasLancamento.forEach((p: any) => {
+          const data = new Date(p.dataVencimento);
+          if (data.getMonth() + 1 === filtroMes && data.getFullYear() === filtroAno) {
+            if (l.tipo === "Receita") saldosPorConta[l.contaId] += Number(p.valorParcela);
+            if (l.tipo === "Despesa") saldosPorConta[l.contaId] -= Number(p.valorParcela);
+          }
+        });
+      } else {
+        const data = new Date(l.data);
+        if (data.getMonth() + 1 === filtroMes && data.getFullYear() === filtroAno) {
+          if (l.tipo === "Receita") saldosPorConta[l.contaId] += Number(l.valor);
+          if (l.tipo === "Despesa") saldosPorConta[l.contaId] -= Number(l.valor);
+        }
+      }
+    }
   });
   const saldoGeral = Object.values(saldosPorConta).reduce((acc, v) => acc + v, 0);
 
@@ -139,12 +225,11 @@ export default function Dashboard() {
     ]
   };
 
-  // Lançamentos recentes (últimos 5)
+  // Lançamentos recentes (últimos 4)
   const lancRecentes = [...lancamentos]
     .sort((a, b) => new Date(b.data).getTime() - new Date(a.data).getTime())
-    .slice(0, 5);
+    .slice(0, 4);
 
-  const now = new Date();
   const despesasMes = lancamentos.filter(l => {
     if (l.tipo !== "Despesa") return false;
     const data = new Date(l.data);
@@ -154,7 +239,7 @@ export default function Dashboard() {
   const salario = usuario?.salario || 0;
   const saldoRestanteSalario = salario - totalDespesasMes;
 
-  const carregando = loadingContas || loadingLanc || loadingCat || loadingUsuario;
+  const carregando = loadingContas || loadingLanc || loadingCat || loadingUsuario || loadingSaldosMes;
 
   return (
     <div>
@@ -166,8 +251,7 @@ export default function Dashboard() {
         ) : (
           <>
             <div style={{ display: 'flex', gap: 32, marginBottom: 28 }}>
-              
-              <div style={{ background: '#16273B', borderRadius: 16, padding: '28px 38px', minWidth: 240, minHeight: 100, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'flex-start', boxShadow: '0 2px 12px 0 rgba(0,0,0,0.08)' }}>
+              <div style={{ background: '#0E2A4C', borderRadius: 16, padding: '28px 38px', minWidth: 240, minHeight: 100, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'flex-start', boxShadow: '0 2px 12px 0 rgba(0,0,0,0.08)' }}>
                 <div style={{ color: '#A5B3C7', fontSize: 18, fontWeight: 500 }}>Saldo Restante do Salário (Mês)</div>
                 <div style={{ color: saldoRestanteSalario < 0 ? '#FF5C5C' : '#00D1B2', fontSize: 28, fontWeight: 700, marginTop: 6 }}>
                   R$ {saldoRestanteSalario.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
@@ -179,15 +263,15 @@ export default function Dashboard() {
                 </div>
               ) : (
                 contas.map((conta: any) => (
-                  <div key={conta.id} style={{ background: '#16273B', borderRadius: 16, padding: '28px 38px', minWidth: 200, minHeight: 100, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'flex-start', boxShadow: '0 2px 12px 0 rgba(0,0,0,0.08)' }}>
+                  <div key={conta.id} style={{ background: '#0E2A4C', borderRadius: 16, padding: '28px 38px', minWidth: 200, minHeight: 100, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'flex-start', boxShadow: '0 2px 12px 0 rgba(0,0,0,0.08)' }}>
                     <div style={{ color: '#A5B3C7', fontSize: 18, fontWeight: 500 }}>{conta.nome}</div>
-                    <div style={{ color: '#fff', fontSize: 28, fontWeight: 700, marginTop: 6 }}>R$ {saldosPorConta[conta.id]?.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</div>
+                    <div style={{ color: '#fff', fontSize: 28, fontWeight: 700, marginTop: 6 }}>R$ {saldosMes[conta.id] !== undefined ? Math.abs(Number(saldosMes[conta.id])).toLocaleString('pt-BR', { minimumFractionDigits: 2 }) : '0,00'}</div>
                   </div>
                 ))
               )}
             </div>
             <div style={{ display: 'flex', justifyContent: 'center', gap: 150, marginBottom: 18, width: '100%' }}>
-              <div style={{ background: '#16273B', borderRadius: 16, padding: 32, flex: '0 1 540px', minHeight: 420, maxWidth: 640, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+              <div style={{ background: '#0E2A4C', borderRadius: 16, padding: 32, flex: '0 1 540px', minHeight: 420, maxWidth: 640, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
                 <div style={{ color: '#fff', fontWeight: 600, marginBottom: 18, fontSize: 22 }}>Despesas por Categoria</div>
                 {Object.keys(despesasPorCategoria).length === 0 ? (
                   <div style={{ color: '#A5B3C7', fontSize: 18, marginTop: 60 }}>Nenhuma despesa cadastrada.</div>
@@ -195,7 +279,7 @@ export default function Dashboard() {
                   <Pie data={pieData} options={{ plugins: { legend: { labels: { color: '#fff', font: { size: 18 } } } } }} width={400} height={260} />
                 )}
               </div>
-              <div style={{ background: '#16273B', borderRadius: 16, padding: 32, flex: '0 1 540px', minHeight: 420, maxWidth: 640, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+              <div style={{ background: '#0E2A4C', borderRadius: 16, padding: 32, flex: '0 1 540px', minHeight: 420, maxWidth: 640, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
                 <div style={{ color: '#fff', fontWeight: 600, marginBottom: 18, fontSize: 22 }}>Evolução do Saldo (Ano)</div>
                 {lancamentos.length === 0 ? (
                   <div style={{ color: '#A5B3C7', fontSize: 18, marginTop: 60 }}>Sem dados para exibir o gráfico.</div>

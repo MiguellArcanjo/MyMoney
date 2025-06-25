@@ -38,13 +38,17 @@ export default function DetalheConta() {
   const [filtroTipo, setFiltroTipo] = useState('Todos');
   const [metas, setMetas] = useState<any[]>([]);
   const router = useRouter();
+  const [loadingConta, setLoadingConta] = useState(true);
+  const [loadingLancamentos, setLoadingLancamentos] = useState(true);
+  const [loadingCategorias, setLoadingCategorias] = useState(true);
+  const [loadingMetas, setLoadingMetas] = useState(true);
 
-  const carregando = !conta || categorias.length === 0 || lancamentos.length === 0;
+  const carregando = loadingConta || loadingLancamentos || loadingCategorias || loadingMetas;
 
   useEffect(() => {
     async function fetchConta() {
       const token = localStorage.getItem("token");
-      if (!token || !contaId) return;
+      if (!token || !contaId) { setLoadingConta(false); return; }
       const res = await fetch(`/api/contas/${contaId}`, {
         headers: { Authorization: "Bearer " + token }
       });
@@ -52,21 +56,23 @@ export default function DetalheConta() {
         const data = await res.json();
         setConta(data);
       }
+      setLoadingConta(false);
     }
     async function fetchLancamentos() {
       const token = localStorage.getItem("token");
-      if (!token || !contaId) return;
+      if (!token || !contaId) { setLoadingLancamentos(false); return; }
       const res = await fetch(`/api/lancamentos?contaId=${contaId}`, {
         headers: { Authorization: "Bearer " + token }
       });
       if (res.ok) {
         const data = await res.json();
-        setLancamentos(data);
+        setLancamentos(data.lancamentos || []);
       }
+      setLoadingLancamentos(false);
     }
     async function fetchCategorias() {
       const token = localStorage.getItem("token");
-      if (!token) return;
+      if (!token) { setLoadingCategorias(false); return; }
       const res = await fetch("/api/categorias", {
         headers: { Authorization: "Bearer " + token }
       });
@@ -74,10 +80,11 @@ export default function DetalheConta() {
         const data = await res.json();
         setCategorias(data);
       }
+      setLoadingCategorias(false);
     }
     async function fetchMetas() {
       const token = localStorage.getItem("token");
-      if (!token) return;
+      if (!token) { setLoadingMetas(false); return; }
       const res = await fetch("/api/metas", {
         headers: { Authorization: "Bearer " + token }
       });
@@ -85,6 +92,7 @@ export default function DetalheConta() {
         const data = await res.json();
         setMetas(data);
       }
+      setLoadingMetas(false);
     }
     fetchConta();
     fetchLancamentos();
@@ -125,7 +133,7 @@ export default function DetalheConta() {
     });
     if (res.ok) {
       const data = await res.json();
-      setLancamentos(data);
+      setLancamentos(data.lancamentos || []);
     }
   }
 
@@ -177,7 +185,7 @@ export default function DetalheConta() {
     });
     if (res.ok) {
       const data = await res.json();
-      setLancamentos(data);
+      setLancamentos(data.lancamentos || []);
     }
   }
 
@@ -194,7 +202,7 @@ export default function DetalheConta() {
   }
 
   // Lançamentos filtrados do mês/ano + categoria + tipo
-  const lancamentosFiltrados = lancamentos
+  const lancamentosFiltrados = (Array.isArray(lancamentos) ? lancamentos : [])
     .flatMap(l => {
       if (l.parcelado && l.parcelasLancamento?.length) {
         return l.parcelasLancamento
@@ -228,6 +236,25 @@ export default function DetalheConta() {
     .filter(l => l.tipo === "Despesa")
     .reduce((acc, l) => acc + Number(l.valor), 0);
 
+  // Animação do saldo subindo
+  const [valorAnimado, setValorAnimado] = useState(0);
+  useEffect(() => {
+    let start = valorAnimado;
+    let end = Math.abs(totalGastoMes);
+    if (start === end) return;
+    const duration = 800;
+    const startTime = performance.now();
+    function animate(now: number) {
+      const elapsed = now - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      const value = start + (end - start) * progress;
+      setValorAnimado(Number(value.toFixed(2)));
+      if (progress < 1) requestAnimationFrame(animate);
+    }
+    requestAnimationFrame(animate);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [totalGastoMes]);
+
   const [addMeta, setAddMeta] = useState("");
 
   return (
@@ -240,7 +267,7 @@ export default function DetalheConta() {
             <h2 style={{ color: '#fff', fontSize: 18, fontWeight: 600, marginBottom: 12 }}>Resumo da Conta</h2>
             <div style={{ color: '#A5B3C7', fontSize: 15, marginBottom: 6 }}>Total Gasto no Mês:</div>
             <div style={{ color: '#00D1B2', fontSize: 24, fontWeight: 700 }}>
-              R$ {Math.abs(totalGastoMes).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+              R$ {valorAnimado.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
             </div>
           </div>
         </div>
@@ -428,104 +455,120 @@ export default function DetalheConta() {
           </div>
         )}
         <Modal open={modalAdd} onClose={() => setModalAdd(false)}>
-          <h2 className={styles.modalTitle}>Adicionar Lançamento</h2>
-          <form className={styles.formMeta} onSubmit={handleAddSubmit}>
-            <label className={styles.labelMeta}>Descrição</label>
-            <input
-              className={styles.inputMeta}
-              type="text"
-              placeholder="Ex: Supermercado"
-              value={addDescricao}
-              onChange={e => setAddDescricao(e.target.value)}
-              required
-            />
-            <label className={styles.labelMeta}>Valor</label>
-            <input
-              className={styles.inputMeta}
-              type="number"
-              placeholder="Ex: 150.00"
-              value={addValor}
-              onChange={e => setAddValor(e.target.value)}
-              required
-            />
-            <label className={styles.labelMeta}>Tipo</label>
-            <select
-              className={styles.inputMeta}
-              value={addTipo}
-              onChange={e => setAddTipo(e.target.value)}
-              required
-            >
-              <option value="Despesa">Despesa</option>
-              <option value="Receita">Receita</option>
-            </select>
-            <label className={styles.labelMeta}>Conta</label>
-            <input
-              className={styles.inputMeta}
-              type="text"
-              value={conta ? conta.nome : ""}
-              disabled
-            />
-            <label className={styles.labelMeta}>Categoria</label>
-            <select
-              className={styles.inputMeta}
-              value={addCategoria}
-              onChange={e => setAddCategoria(e.target.value)}
-              required
-            >
-              <option value="">Selecione</option>
-              {categorias
-                .filter(cat => cat.tipo === addTipo)
-                .map(cat => (
-                  <option key={cat.id} value={cat.id}>{cat.nome}</option>
-                ))}
-            </select>
-            <label className={styles.labelMeta}>Data</label>
-            <input
-              className={styles.inputMeta}
-              type="date"
-              value={addData}
-              onChange={e => setAddData(e.target.value)}
-              required
-            />
-            <label className={styles.labelMeta}>Parcelado?</label>
-            <select
-              className={styles.inputMeta}
-              value={addParcelado ? "Sim" : "Não"}
-              onChange={e => setAddParcelado(e.target.value === "Sim")}
-            >
-              <option value="Não">Não</option>
-              <option value="Sim">Sim</option>
-            </select>
-            {addParcelado && (
-              <>
-                <label className={styles.labelMeta}>Quantidade de parcelas</label>
+            <h2 className={styles.modalTitle}>
+              <span style={{marginRight: 8, color: "#00D1B2"}}>+</span>
+              Adicionar Lançamento
+            </h2>
+            <form className={styles.formMeta} onSubmit={handleAddSubmit}>
+              <div className={styles.inputGroup}>
+                <label className={styles.labelMeta}>Descrição</label>
                 <input
                   className={styles.inputMeta}
-                  type="number"
-                  min={2}
-                  value={addParcelas}
-                  onChange={e => setAddParcelas(e.target.value)}
-                  required={addParcelado}
+                  type="text"
+                  placeholder="Ex: Supermercado"
+                  value={addDescricao}
+                  onChange={e => setAddDescricao(e.target.value)}
+                  required
                 />
-              </>
-            )}
-            {addTipo === "Receita" && (
-              <>
-                <label className={styles.labelMeta}>Meta</label>
-                <select
-                  className={styles.inputMeta}
-                  value={addMeta}
-                  onChange={e => setAddMeta(e.target.value)}
-                >
-                  <option value="">Nenhuma</option>
-                  {metas.map((meta: any) => (
-                    <option key={meta.id} value={meta.id}>{meta.descricao}</option>
-                  ))}
-                </select>
-              </>
-            )}
-            <button className={styles.buttonMeta} type="submit">Adicionar Lançamento</button>
-          </form>
+              </div>
+              <div className={styles.inputGroupRow}>
+                <div className={styles.inputGroup} style={{flex: 1}}>
+                  <label className={styles.labelMeta}>Valor</label>
+                  <input
+                    className={styles.inputMeta}
+                    type="number"
+                    placeholder="Ex: 150.00"
+                    value={addValor}
+                    onChange={e => setAddValor(e.target.value)}
+                    required
+                  />
+                </div>
+                <div className={styles.inputGroup} style={{flex: 1}}>
+                  <label className={styles.labelMeta}>Tipo</label>
+                  <select
+                    className={styles.inputMeta}
+                    value={addTipo}
+                    onChange={e => setAddTipo(e.target.value)}
+                    required
+                  >
+                    <option value="Despesa">Despesa</option>
+                    <option value="Receita">Receita</option>
+                  </select>
+                </div>
+              </div>
+              <div className={styles.inputGroupRow}>
+                <div className={styles.inputGroup} style={{flex: 1}}>
+                  <label className={styles.labelMeta}>Categoria</label>
+                  <select
+                    className={styles.inputMeta}
+                    value={addCategoria}
+                    onChange={e => setAddCategoria(e.target.value)}
+                    required
+                  >
+                    <option value="">Selecione</option>
+                    {categorias
+                      .filter(cat => cat.tipo === addTipo)
+                      .map(cat => (
+                        <option key={cat.id} value={cat.id}>{cat.nome}</option>
+                      ))}
+                  </select>
+                </div>
+                <div className={styles.inputGroup} style={{flex: 1}}>
+                  <label className={styles.labelMeta}>Data</label>
+                  <input
+                    className={styles.inputMeta}
+                    type="date"
+                    value={addData}
+                    onChange={e => setAddData(e.target.value)}
+                    required
+                  />
+                </div>
+              </div>
+              <div className={styles.inputGroupRow}>
+                <div className={styles.inputGroup} style={{flex: 1}}>
+                  <label className={styles.labelMeta}>Parcelado?</label>
+                  <select
+                    className={styles.inputMeta}
+                    value={addParcelado ? "Sim" : "Não"}
+                    onChange={e => setAddParcelado(e.target.value === "Sim")}
+                  >
+                    <option value="Não">Não</option>
+                    <option value="Sim">Sim</option>
+                  </select>
+                </div>
+                {addParcelado && (
+                  <div className={styles.inputGroup} style={{flex: 1}}>
+                    <label className={styles.labelMeta}>Quantidade de parcelas</label>
+                    <input
+                      className={styles.inputMeta}
+                      type="number"
+                      min={2}
+                      value={addParcelas}
+                      onChange={e => setAddParcelas(e.target.value)}
+                      required={addParcelado}
+                    />
+                  </div>
+                )}
+              </div>
+              <div className={styles.inputGroupRow}>
+                {addTipo === "Receita" && (
+                  <div className={styles.inputGroup} style={{flex: 1}}>
+                    <label className={styles.labelMeta}>É para alguma meta?</label>
+                    <select
+                      className={styles.inputMeta}
+                      value={addMeta}
+                      onChange={e => setAddMeta(e.target.value)}
+                    >
+                      <option value="">Nenhuma</option>
+                      {metas.map((meta: any) => (
+                        <option key={meta.id} value={meta.id}>{meta.descricao}</option>
+                      ))}
+                    </select>
+                  </div>
+                )}
+              </div>
+              <button className={styles.buttonMeta} type="submit">Adicionar Lançamento</button>
+            </form>
         </Modal>
         <button
           style={{ marginTop: 32, background: '#00D1B2', color: '#081B33', border: 'none', borderRadius: 8, padding: '8px 22px', fontWeight: 600, cursor: 'pointer' }}

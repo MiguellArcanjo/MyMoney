@@ -16,14 +16,22 @@ export async function GET(req: NextRequest) {
   if (!token) return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
   const { searchParams } = new URL(req.url);
   const contaId = Number(searchParams.get("contaId"));
+  const page = Number(searchParams.get("page")) || 1;
+  const limit = Number(searchParams.get("limit")) || 10;
+  const skip = (page - 1) * limit;
   const where: any = { usuarioId: token.id };
   if (contaId) where.contaId = contaId;
-  const lancamentos = await prisma.lancamento.findMany({
-    where,
-    include: { parcelasLancamento: true, categoria: true },
-    orderBy: { data: "desc" }
-  });
-  return NextResponse.json(lancamentos);
+  const [totalCount, lancamentos] = await Promise.all([
+    prisma.lancamento.count({ where }),
+    prisma.lancamento.findMany({
+      where,
+      include: { parcelasLancamento: true, categoria: true, conta: true },
+      orderBy: { data: "desc" },
+      skip,
+      take: limit
+    })
+  ]);
+  return NextResponse.json({ lancamentos, totalCount });
 }
 
 export async function POST(req: NextRequest) {

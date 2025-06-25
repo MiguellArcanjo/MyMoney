@@ -21,6 +21,17 @@ export default function Contas() {
   const [filtroMes, setFiltroMes] = useState(new Date().getMonth() + 1);
   const [filtroAno, setFiltroAno] = useState(new Date().getFullYear());
   const [loadingContas, setLoadingContas] = useState(true);
+  // Paginação para contas
+  const [pagina, setPagina] = useState(1);
+  const itensPorPagina = 10;
+  const [totalPaginas, setTotalPaginas] = useState(1);
+  const [contasPaginadas, setContasPaginadas] = useState<any[]>([]);
+  // Estado para armazenar saldos
+  const [saldos, setSaldos] = useState<{ [key: number]: number }>({});
+  // Estado para armazenar saldos filtrados
+  const [saldosMes, setSaldosMes] = useState<{ [key: number]: number }>({});
+  // Estado para armazenar saldos animados
+  const [valoresAnimados, setValoresAnimados] = useState<{ [key: number]: number }>({});
 
   // Função para calcular saldo da conta
   async function calcularSaldo(conta: any) {
@@ -30,9 +41,10 @@ export default function Contas() {
       headers: { Authorization: "Bearer " + token }
     });
     if (res.ok) {
-      const lancamentos = await res.json();
+      const data = await res.json();
+      const lancamentos = data.lancamentos || [];
       let saldo = 0;
-      lancamentos.forEach((l: any) => {
+      (Array.isArray(lancamentos) ? lancamentos : []).forEach((l: any) => {
         if (l.tipo === "Receita") saldo += Number(l.valor);
         if (l.tipo === "Despesa") saldo -= Number(l.valor);
       });
@@ -49,12 +61,13 @@ export default function Contas() {
       headers: { Authorization: "Bearer " + token }
     });
     if (res.ok) {
-      const lancamentos = await res.json();
+      const data = await res.json();
+      const lancamentos = data.lancamentos || [];
       let saldo = 0;
-      lancamentos.forEach((l: any) => {
+      (Array.isArray(lancamentos) ? lancamentos : []).forEach((l: any) => {
         if (l.tipo === "Despesa") {
           if (l.parcelado && l.parcelasLancamento?.length) {
-            l.parcelasLancamento.forEach((p: any) => {
+            (Array.isArray(l.parcelasLancamento) ? l.parcelasLancamento : []).forEach((p: any) => {
               const data = new Date(p.dataVencimento);
               if (data.getMonth() + 1 === filtroMes && data.getFullYear() === filtroAno) {
                 saldo += Number(p.valorParcela);
@@ -72,11 +85,6 @@ export default function Contas() {
     }
     return 0;
   }
-
-  // Estado para armazenar saldos
-  const [saldos, setSaldos] = useState<{ [key: number]: number }>({});
-  // Estado para armazenar saldos filtrados
-  const [saldosMes, setSaldosMes] = useState<{ [key: number]: number }>({});
 
   useEffect(() => {
     async function atualizarSaldos() {
@@ -104,14 +112,41 @@ export default function Contas() {
     async function fetchContas() {
       const token = localStorage.getItem("token");
       if (!token) return setLoadingContas(false);
-      const res = await fetch("/api/contas", {
+      const res = await fetch(`/api/contas?page=${pagina}&limit=${itensPorPagina}`, {
         headers: { Authorization: "Bearer " + token }
       });
-      if (res.ok) setContas(await res.json());
+      if (res.ok) {
+        const data = await res.json();
+        setContas(data.contas || []);
+        setContasPaginadas(data.contas);
+        setTotalPaginas(Math.ceil(data.totalCount / itensPorPagina));
+      }
       setLoadingContas(false);
     }
     fetchContas();
-  }, []);
+  }, [pagina, itensPorPagina]);
+
+  useEffect(() => {
+    const novosValores: { [key: number]: number } = { ...valoresAnimados };
+    Object.keys(saldosMes).forEach((id) => {
+      const contaId = Number(id);
+      const start = valoresAnimados[contaId] || 0;
+      const end = Math.abs(saldosMes[contaId] || 0);
+      if (start === end) return;
+      const duration = 800;
+      const startTime = performance.now();
+      function animate(now: number) {
+        const elapsed = now - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        const value = start + (end - start) * progress;
+        novosValores[contaId] = Number(value.toFixed(2));
+        setValoresAnimados({ ...novosValores });
+        if (progress < 1) requestAnimationFrame(animate);
+      }
+      requestAnimationFrame(animate);
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [saldosMes]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -127,8 +162,13 @@ export default function Contas() {
       setNome("");
       setTipo("Cartão de Crédito");
       // Atualiza lista
-      const contasRes = await fetch("/api/contas", { headers: { Authorization: "Bearer " + token } });
-      if (contasRes.ok) setContas(await contasRes.json());
+      const contasRes = await fetch(`/api/contas?page=${pagina}&limit=${itensPorPagina}`, { headers: { Authorization: "Bearer " + token } });
+      if (contasRes.ok) {
+        const data = await contasRes.json();
+        setContas(data.contas || []);
+        setContasPaginadas(data.contas);
+        setTotalPaginas(Math.ceil(data.totalCount / itensPorPagina));
+      }
     }
   }
 
@@ -154,8 +194,13 @@ export default function Contas() {
       setTipo("Cartão de Crédito");
       setEditConta(null);
       // Atualiza lista
-      const contasRes = await fetch("/api/contas", { headers: { Authorization: "Bearer " + token } });
-      if (contasRes.ok) setContas(await contasRes.json());
+      const contasRes = await fetch(`/api/contas?page=${pagina}&limit=${itensPorPagina}`, { headers: { Authorization: "Bearer " + token } });
+      if (contasRes.ok) {
+        const data = await contasRes.json();
+        setContas(data.contas || []);
+        setContasPaginadas(data.contas);
+        setTotalPaginas(Math.ceil(data.totalCount / itensPorPagina));
+      }
     }
   }
 
@@ -174,8 +219,13 @@ export default function Contas() {
     setModalDelete(false);
     setDeleteConta(null);
     // Atualiza lista
-    const contasRes = await fetch("/api/contas", { headers: { Authorization: "Bearer " + token } });
-    if (contasRes.ok) setContas(await contasRes.json());
+    const contasRes = await fetch(`/api/contas?page=${pagina}&limit=${itensPorPagina}`, { headers: { Authorization: "Bearer " + token } });
+    if (contasRes.ok) {
+      const data = await contasRes.json();
+      setContas(data.contas || []);
+      setContasPaginadas(data.contas);
+      setTotalPaginas(Math.ceil(data.totalCount / itensPorPagina));
+    }
   }
 
   return (
@@ -210,6 +260,7 @@ export default function Contas() {
             {contas.length === 0 ? (
               <div style={{ color: '#A5B3C7', textAlign: 'center', padding: 24 }}>Nenhuma conta cadastrada.</div>
             ) : (
+              <>
               <table className={styles.tableMetas}>
                 <thead>
                   <tr>
@@ -220,11 +271,11 @@ export default function Contas() {
                   </tr>
                 </thead>
                 <tbody>
-                  {contas.map((conta) => (
+                  {contasPaginadas.map((conta) => (
                     <tr key={conta.id}>
                       <td style={{ cursor: "pointer", color: "#00D1B2" }} onClick={() => router.push(`/contas/${conta.id}`)}>{conta.nome}</td>
                       <td>{conta.tipo || '-'}</td>
-                      <td>R$ {saldosMes[conta.id] !== undefined ? Math.abs(Number(saldosMes[conta.id])).toLocaleString('pt-BR', { minimumFractionDigits: 2 }) : '0,00'}</td>
+                      <td>R$ {valoresAnimados[conta.id] !== undefined ? valoresAnimados[conta.id].toLocaleString('pt-BR', { minimumFractionDigits: 2 }) : '0,00'}</td>
                       <td className={styles.actionCell}>
                         <button className={styles.actionBtn} onClick={() => openEditModal(conta)}>Editar</button>
                         <button className={styles.actionBtn} onClick={() => openDeleteModal(conta)}>Excluir</button>
@@ -233,6 +284,43 @@ export default function Contas() {
                   ))}
                 </tbody>
               </table>
+              {/* Paginação */}
+              {totalPaginas > 1 && (
+                <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 18, marginTop: 18 }}>
+                  <button
+                    onClick={() => setPagina(p => Math.max(1, p - 1))}
+                    disabled={pagina === 1}
+                    style={{
+                      background: pagina === 1 ? '#223B5A' : '#00D1B2',
+                      color: pagina === 1 ? '#A5B3C7' : '#081B33',
+                      border: 'none',
+                      borderRadius: 8,
+                      padding: '8px 18px',
+                      fontWeight: 600,
+                      fontSize: 16,
+                      cursor: pagina === 1 ? 'not-allowed' : 'pointer',
+                      transition: 'background 0.2s',
+                    }}
+                  >Anterior</button>
+                  <span style={{ color: '#A5B3C7', fontWeight: 600, fontSize: 16, minWidth: 32, textAlign: 'center' }}>{pagina} / {totalPaginas}</span>
+                  <button
+                    onClick={() => setPagina(p => Math.min(totalPaginas, p + 1))}
+                    disabled={pagina === totalPaginas}
+                    style={{
+                      background: pagina === totalPaginas ? '#223B5A' : '#00D1B2',
+                      color: pagina === totalPaginas ? '#A5B3C7' : '#081B33',
+                      border: 'none',
+                      borderRadius: 8,
+                      padding: '8px 18px',
+                      fontWeight: 600,
+                      fontSize: 16,
+                      cursor: pagina === totalPaginas ? 'not-allowed' : 'pointer',
+                      transition: 'background 0.2s',
+                    }}
+                  >Próxima</button>
+                </div>
+              )}
+              </>
             )}
           </div>
         )}

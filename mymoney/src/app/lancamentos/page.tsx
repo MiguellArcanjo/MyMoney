@@ -19,6 +19,37 @@ export default function Lancamentos() {
   const [loadingContas, setLoadingContas] = useState(true);
   const [loadingCategorias, setLoadingCategorias] = useState(true);
   const [loadingLancamentos, setLoadingLancamentos] = useState(true);
+  // Estados de paginação
+  const [pagina, setPagina] = useState(1);
+  const itensPorPagina = 10;
+  const [totalPaginas, setTotalPaginas] = useState(1);
+
+  // Lançamentos filtrados (sem filtro para debug)
+  const lancamentosFiltrados = Array.isArray(lancamentos) ? lancamentos : [];
+
+  // Calcular total gasto no mês (apenas despesas filtradas)
+  const totalGastoMes = lancamentosFiltrados
+    .filter(l => l.tipo === "Despesa")
+    .reduce((acc, l) => acc + Number(l.valor), 0);
+
+  // Animação do saldo subindo
+  const [valorAnimado, setValorAnimado] = useState(0);
+  useEffect(() => {
+    let start = valorAnimado;
+    let end = Math.abs(totalGastoMes);
+    if (start === end) return;
+    const duration = 800;
+    const startTime = performance.now();
+    function animate(now: number) {
+      const elapsed = now - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      const value = start + (end - start) * progress;
+      setValorAnimado(Number(value.toFixed(2)));
+      if (progress < 1) requestAnimationFrame(animate);
+    }
+    requestAnimationFrame(animate);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [totalGastoMes]);
 
   // Buscar contas
   useEffect(() => {
@@ -48,58 +79,30 @@ export default function Lancamentos() {
     fetchCategorias();
   }, []);
 
-  // Buscar lançamentos (todos ou filtrados por conta)
+  // Buscar lançamentos (todos ou filtrados por conta) com paginação
   useEffect(() => {
     async function fetchLancamentos() {
       const token = localStorage.getItem("token");
       if (!token) return setLoadingLancamentos(false);
-      let url = "/api/lancamentos";
-      if (contaFiltro) url += `?contaId=${contaFiltro}`;
+      let url = `/api/lancamentos?page=${pagina}&limit=${itensPorPagina}`;
+      if (contaFiltro) url += `&contaId=${contaFiltro}`;
       const res = await fetch(url, {
         headers: { Authorization: "Bearer " + token }
       });
-      if (res.ok) setLancamentos(await res.json());
+      if (res.ok) {
+        const data = await res.json();
+        setLancamentos(data.lancamentos || []);
+        setTotalPaginas(Math.ceil((data.totalCount || 0) / itensPorPagina));
+      }
       setLoadingLancamentos(false);
     }
     fetchLancamentos();
-  }, [contaFiltro]);
-
-  // Lançamentos filtrados
-  const lancamentosFiltrados = lancamentos
-    .flatMap(l => {
-      if (l.parcelado && l.parcelasLancamento?.length) {
-        return l.parcelasLancamento
-          .filter((p: any) => {
-            const data = new Date(p.dataVencimento);
-            return data.getMonth() + 1 === filtroMes && data.getFullYear() === filtroAno;
-          })
-          .map((p: any) => ({
-            ...l,
-            valor: p.valorParcela,
-            data: p.dataVencimento,
-            parcelaInfo: `${p.numeroParcela}/${l.parcelas}`,
-            statusParcela: p.status,
-            idParcela: p.id
-          }));
-      } else {
-        const data = new Date(l.data);
-        if (data.getMonth() + 1 === filtroMes && data.getFullYear() === filtroAno) {
-          return [{ ...l }];
-        }
-        return [];
-      }
-    })
-    .filter(l =>
-      (filtroCategoria === 'Todas' || l.categoria?.nome === filtroCategoria) &&
-      (filtroTipo === 'Todos' || l.tipo === filtroTipo)
-    );
-
-  // Calcular total gasto no mês (apenas despesas filtradas)
-  const totalGastoMes = lancamentosFiltrados
-    .filter(l => l.tipo === "Despesa")
-    .reduce((acc, l) => acc + Number(l.valor), 0);
+  }, [contaFiltro, pagina]);
 
   const carregando = loadingContas || loadingCategorias || loadingLancamentos;
+
+  // Adicionando console.log para depuração antes do return
+  console.log('Contas:', contas);
 
   return (
     <div>
@@ -110,16 +113,16 @@ export default function Lancamentos() {
           <div style={{ background: '#0E2A4C', borderRadius: 12, padding: 24, minWidth: 340, border: '2px dashed #3A4B6A', marginBottom: 8 }}>
             <h2 style={{ color: '#fff', fontSize: 18, fontWeight: 600, marginBottom: 12 }}>Total Gasto no Mês:</h2>
             <div style={{ color: '#00D1B2', fontSize: 24, fontWeight: 700 }}>
-              R$ {Math.abs(totalGastoMes).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+              R$ {valorAnimado.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
             </div>
           </div>
         </div>
         <button className={styles.addButton} onClick={() => setModalOpen(true)}>+ Adicionar Lançamento</button>
         <div style={{ marginBottom: 18, display: 'flex', gap: 6, background: '#10294A', borderRadius: 10, padding: '12px 16px', alignItems: 'center', width: 'fit-content', flexWrap: 'wrap' }}>
           <span style={{ color: '#A5B3C7', fontSize: 14, marginRight: 4 }}>Conta:</span>
-          <select value={contaFiltro} onChange={e => setContaFiltro(Number(e.target.value))} style={{ background: '#142B4D', color: '#fff', border: 'none', borderRadius: 6, padding: '4px 10px', marginRight: 12 }}>
+          <select value={contaFiltro} onChange={e => { setContaFiltro(Number(e.target.value)); setPagina(1); }} style={{ background: '#142B4D', color: '#fff', border: 'none', borderRadius: 6, padding: '4px 10px', marginRight: 12 }}>
             <option value={0}>Todas</option>
-            {contas.map(conta => (
+            {(Array.isArray(contas) ? contas : []).map(conta => (
               <option key={conta.id} value={conta.id}>{conta.nome}</option>
             ))}
           </select>
@@ -159,6 +162,7 @@ export default function Lancamentos() {
             {lancamentosFiltrados.length === 0 ? (
               <div style={{ color: '#A5B3C7', textAlign: 'center', padding: 24 }}>Nenhum lançamento encontrado.</div>
             ) : (
+              <>
               <table className={styles.tableMetas}>
                 <thead>
                   <tr>
@@ -175,7 +179,7 @@ export default function Lancamentos() {
                   {lancamentosFiltrados.map((l: any) => (
                     <tr key={l.id + (l.idParcela ? `-p${l.idParcela}` : '')}>
                       <td>{l.descricao}</td>
-                      <td>{contas.find(c => c.id === l.contaId)?.nome || '-'}</td>
+                      <td>{l.conta?.nome || '-'}</td>
                       <td>{l.categoria?.nome || '-'}</td>
                       <td style={{ color: l.tipo === 'Despesa' ? '#FF5C5C' : '#00D1B2' }}>{l.tipo}</td>
                       <td style={{ color: l.tipo === 'Despesa' ? '#FF5C5C' : '#00D1B2' }}>
@@ -187,6 +191,43 @@ export default function Lancamentos() {
                   ))}
                 </tbody>
               </table>
+              {/* Paginação */}
+              {totalPaginas > 1 && (
+                <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: 18, marginTop: 18 }}>
+                  <button
+                    onClick={() => setPagina(p => Math.max(1, p - 1))}
+                    disabled={pagina === 1}
+                    style={{
+                      background: pagina === 1 ? '#223B5A' : '#00D1B2',
+                      color: pagina === 1 ? '#A5B3C7' : '#081B33',
+                      border: 'none',
+                      borderRadius: 8,
+                      padding: '8px 18px',
+                      fontWeight: 600,
+                      fontSize: 16,
+                      cursor: pagina === 1 ? 'not-allowed' : 'pointer',
+                      transition: 'background 0.2s',
+                    }}
+                  >Anterior</button>
+                  <span style={{ color: '#A5B3C7', fontWeight: 600, fontSize: 16, minWidth: 32, textAlign: 'center' }}>{pagina} / {totalPaginas}</span>
+                  <button
+                    onClick={() => setPagina(p => Math.min(totalPaginas, p + 1))}
+                    disabled={pagina === totalPaginas}
+                    style={{
+                      background: pagina === totalPaginas ? '#223B5A' : '#00D1B2',
+                      color: pagina === totalPaginas ? '#A5B3C7' : '#081B33',
+                      border: 'none',
+                      borderRadius: 8,
+                      padding: '8px 18px',
+                      fontWeight: 600,
+                      fontSize: 16,
+                      cursor: pagina === totalPaginas ? 'not-allowed' : 'pointer',
+                      transition: 'background 0.2s',
+                    }}
+                  >Próxima</button>
+                </div>
+              )}
+              </>
             )}
           </div>
         )}

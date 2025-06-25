@@ -12,11 +12,21 @@ export async function GET(request: Request) {
   if (!decoded || typeof decoded !== "object" || !('id' in decoded)) {
     return NextResponse.json({ error: "Token inválido" }, { status: 401 });
   }
-  const metas = await prisma.meta.findMany({
-    where: { usuarioId: Number(decoded.id) },
-    orderBy: { id: "desc" }
-  });
-  return NextResponse.json(metas);
+  const { searchParams } = new URL(request.url);
+  const page = Number(searchParams.get("page")) || 1;
+  const limit = Number(searchParams.get("limit")) || 10;
+  const skip = (page - 1) * limit;
+  const where = { usuarioId: Number(decoded.id) };
+  const [totalCount, metas] = await Promise.all([
+    prisma.meta.count({ where }),
+    prisma.meta.findMany({
+      where,
+      orderBy: { id: "desc" },
+      skip,
+      take: limit
+    })
+  ]);
+  return NextResponse.json({ metas, totalCount });
 }
 
 export async function POST(request: Request) {
