@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react";
-import SideBar from "@/components/SideBar/SideBar";
+import Sidebar from "@/components/SideBar/Sidebar";
 import Modal from "@/components/Modal/Modal";
 import styles from "./page.module.css";
 import { useRouter } from "next/navigation";
@@ -240,7 +240,7 @@ export default function Contas() {
 
   return (
     <div>
-      <SideBar />
+      <Sidebar />
       <main className={styles.mainContent}>
         {/* Header responsivo com menu e título na mesma linha no mobile */}
         {isMobile ? (

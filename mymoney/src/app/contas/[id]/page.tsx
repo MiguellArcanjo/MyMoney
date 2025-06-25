@@ -1,6 +1,6 @@
 "use client"
 
-import SideBar from "@/components/SideBar/SideBar";
+import Sidebar from "@/components/SideBar/Sidebar";
 import styles from "../page.module.css";
 import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
@@ -314,7 +314,7 @@ export default function DetalheConta() {
 
   return (
     <div>
-      <SideBar />
+      <Sidebar />
       <main className={styles.mainContent}>
         {/* Barra de título e menu no mobile */}
         {isMobile ? (

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import SideBar from "@/components/SideBar/SideBar";
+import Sidebar from "@/components/SideBar/Sidebar";
 import Modal from "@/components/Modal/Modal";
 import styles from "../contas/page.module.css";
 import LoadingSpinner from "@/components/LoadingSpinner";
@@ -193,7 +193,7 @@ export default function Lancamentos() {
 
   return (
     <div>
-      <SideBar />
+      <Sidebar />
       <main className={styles.mainContent}>
         {/* Barra de título e menu no mobile */}
         {isMobile ? (

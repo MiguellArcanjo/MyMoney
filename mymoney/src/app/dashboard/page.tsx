@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import SideBar from "@/components/SideBar/SideBar";
+import Sidebar from "@/components/SideBar/Sidebar";
 import styles from "../contas/page.module.css";
 import { Pie, Line } from "react-chartjs-2";
 import {
@@ -263,7 +263,7 @@ export default function Dashboard() {
 
   return (
     <div>
-      <SideBar />
+      <Sidebar />
       <main className={styles.mainContent}>
         {/* Header responsivo com menu e título na mesma linha no mobile */}
         {isMobile ? (
