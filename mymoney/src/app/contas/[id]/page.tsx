@@ -1,6 +1,6 @@
 "use client"
 
-import Sidebar from "@/components/SideBar/Sidebar";
+import Sidebar from "@/components/SideBar/SideBar";
 import styles from "../page.module.css";
 import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";

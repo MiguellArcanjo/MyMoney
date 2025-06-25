@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Sidebar from "@/components/SideBar/Sidebar";
+import Sidebar from "@/components/SideBar/SideBar";
 import styles from "../contas/page.module.css";
 import { Pie, Line } from "react-chartjs-2";
 import {
