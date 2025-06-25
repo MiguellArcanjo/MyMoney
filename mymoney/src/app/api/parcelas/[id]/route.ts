@@ -11,11 +11,12 @@ function getTokenFromRequest(req: NextRequest) {
   return payload;
 }
 
-export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
+export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   const token = getTokenFromRequest(req);
   if (!token) return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
   const parcela = await prisma.parcela.update({
-    where: { id: Number(params.id) },
+    where: { id: Number(id) },
     data: { status: "Pago" }
   });
   return NextResponse.json(parcela);

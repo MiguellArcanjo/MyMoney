@@ -2,7 +2,8 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { verifyToken } from "@/lib/auth";
 
-export async function PATCH(request: Request, { params }: { params: { id: string } }) {
+export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   const authHeader = request.headers.get("authorization");
   if (!authHeader) {
     return NextResponse.json({ error: "Token não fornecido" }, { status: 401 });
@@ -15,7 +16,7 @@ export async function PATCH(request: Request, { params }: { params: { id: string
   const { nome, tipo, cor } = await request.json();
   const categoria = await prisma.categoria.updateMany({
     where: {
-      id: Number(params.id),
+      id: Number(id),
       usuarioId: Number(decoded.id)
     },
     data: {
@@ -30,7 +31,8 @@ export async function PATCH(request: Request, { params }: { params: { id: string
   return NextResponse.json({ success: true });
 }
 
-export async function DELETE(request: Request, { params }: { params: { id: string } }) {
+export async function DELETE(request: Request, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   const authHeader = request.headers.get("authorization");
   if (!authHeader) {
     return NextResponse.json({ error: "Token não fornecido" }, { status: 401 });
@@ -42,7 +44,7 @@ export async function DELETE(request: Request, { params }: { params: { id: strin
   }
   const categoria = await prisma.categoria.deleteMany({
     where: {
-      id: Number(params.id),
+      id: Number(id),
       usuarioId: Number(decoded.id)
     }
   });
