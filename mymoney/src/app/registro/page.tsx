@@ -38,52 +38,56 @@ export default function Register() {
       <div>
         <form className={styles.formLogin} onSubmit={handleSubmit}>
           <h2>Crie sua Conta</h2>
-          <div>
-            <label>Nome</label>
-            <input
-              type="text"
-              placeholder="Seu nome completo"
-              value={nome}
-              onChange={e => setNome(e.target.value)}
-              required
-            />
-          </div>
-          <div>
-            <label>Email</label>
-            <input
-              type="email"
-              placeholder="seuemail@gmail.com"
-              value={email}
-              onChange={e => setEmail(e.target.value)}
-              required
-            />
-          </div>
-          <div>
-            <label>Senha</label>
-            <input
-              type="password"
-              placeholder="Digite sua senha"
-              value={senha}
-              onChange={e => setSenha(e.target.value)}
-              required
-            />
-          </div>
-          <div>
-            <label>Salário mensal (opcional)</label>
-            <input
-              type="number"
-              placeholder="Ex: 3500.00"
-              value={salario}
-              onChange={e => setSalario(e.target.value)}
-              min={0}
-              step={0.01}
-            />
+          <div className={styles.inputGrid}>
+            <div>
+              <label>Nome</label>
+              <input
+                type="text"
+                placeholder="Seu nome completo"
+                value={nome}
+                onChange={e => setNome(e.target.value)}
+                required
+              />
+            </div>
+            <div>
+              <label>Email</label>
+              <input
+                type="email"
+                placeholder="seuemail@gmail.com"
+                value={email}
+                onChange={e => setEmail(e.target.value)}
+                required
+              />
+            </div>
+            <div>
+              <label>Senha</label>
+              <input
+                type="password"
+                placeholder="Digite sua senha"
+                value={senha}
+                onChange={e => setSenha(e.target.value)}
+                required
+              />
+            </div>
+            <div>
+              <label>Salário mensal (opcional)</label>
+              <input
+                type="number"
+                placeholder="Ex: 3500.00"
+                value={salario}
+                onChange={e => setSalario(e.target.value)}
+                min={0}
+                step={0.01}
+              />
+            </div>
           </div>
           {erro && <span style={{ color: "red" }}>{erro}</span>}
           {sucesso && <span style={{ color: "#00D1B2" }}>Usuário cadastrado! Redirecionando...</span>}
-          <button type="submit" className={styles.buttonLogin} disabled={loading}>
-            {loading ? "Registrando..." : "Registrar"}
-          </button>
+          <div className={styles.buttonContainer}>
+            <button type="submit" className={styles.buttonLogin} disabled={loading}>
+              {loading ? "Registrando..." : "Registrar"}
+            </button>
+          </div>
           <div className={styles.cadastroHint}>
             <span>Já tem conta?</span>
             <span className={styles.cadastroLink} onClick={() => router.push("/")}>Entrar</span>
