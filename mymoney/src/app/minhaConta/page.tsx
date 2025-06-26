@@ -133,13 +133,14 @@ export default function MinhaConta() {
           </div>
         </div>
         <Modal open={modalOpen} onClose={() => setModalOpen(false)}>
-          <h2 style={{ color: '#fff', marginBottom: 16 }}>Editar Dados</h2>
+          <h2 className={styles.modalLabel} style={{ color: '#fff', marginBottom: 16 }}>Editar Dados</h2>
           <form onSubmit={handleEditSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-            <label style={{ color: '#A5B3C7', fontSize: 14 }}>Nome</label>
+            <label className={styles.modalLabel} style={{ color: '#A5B3C7', fontSize: 14 }}>Nome</label>
             <input
               type="text"
               value={editNome}
               onChange={e => setEditNome(e.target.value)}
+              className={styles.modalInput}
               style={{
                 background: '#061426',
                 border: 'none',
@@ -151,11 +152,12 @@ export default function MinhaConta() {
               }}
               required
             />
-            <label style={{ color: '#A5B3C7', fontSize: 14 }}>Email</label>
+            <label className={styles.modalLabel} style={{ color: '#A5B3C7', fontSize: 14 }}>Email</label>
             <input
               type="email"
               value={editEmail}
               onChange={e => setEditEmail(e.target.value)}
+              className={styles.modalInput}
               style={{
                 background: '#061426',
                 border: 'none',
@@ -167,11 +169,12 @@ export default function MinhaConta() {
               }}
               required
             />
-            <label style={{ color: '#A5B3C7', fontSize: 14 }}>Salário mensal (opcional)</label>
+            <label className={styles.modalLabel} style={{ color: '#A5B3C7', fontSize: 14 }}>Salário mensal (opcional)</label>
             <input
               type="number"
               value={editSalario}
               onChange={e => setEditSalario(e.target.value)}
+              className={styles.modalInput}
               style={{
                 background: '#061426',
                 border: 'none',
@@ -185,8 +188,8 @@ export default function MinhaConta() {
               step={0.01}
               placeholder="Ex: 3500.00"
             />
-            {editError && <span style={{ color: 'red', fontSize: 14 }}>{editError}</span>}
-            <button type="submit" style={{
+            {editError && <span className={styles.errorMessage} style={{ color: 'red', fontSize: 14 }}>{editError}</span>}
+            <button type="submit" className={styles.modalInput} style={{
               background: '#00D1B2',
               color: '#222',
               border: 'none',

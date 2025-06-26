@@ -15,6 +15,8 @@ export default function Register() {
   const [loading, setLoading] = useState(false);
   const [senhaVisivel, setSenhaVisivel] = useState(false);
   const [step, setStep] = useState(1);
+  const [emailVerificado, setEmailVerificado] = useState(false);
+  const [emailExiste, setEmailExiste] = useState(false);
   const router = useRouter();
   const [isMobile, setIsMobile] = useState(false);
 
@@ -27,6 +29,44 @@ export default function Register() {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
+  // Verificar email quando o usuário terminar de digitar
+  useEffect(() => {
+    if (!email || email.length < 5) {
+      setEmailVerificado(false);
+      setEmailExiste(false);
+      setErro(""); // Limpar erro quando o email for muito curto
+      return;
+    }
+
+    // Aguardar 500ms após o usuário parar de digitar
+    const timeoutId = setTimeout(async () => {
+      try {
+        const res = await fetch("/api/auth/check-email", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email }),
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          setEmailVerificado(true);
+          setEmailExiste(data.exists);
+          if (data.exists) {
+            setErro("Este email já está cadastrado. Tente fazer login ou use outro email.");
+          } else {
+            setErro(""); // Limpar erro se o email estiver disponível
+          }
+        }
+      } catch (error) {
+        console.error("Erro ao verificar email:", error);
+        setEmailVerificado(false);
+        setEmailExiste(false);
+      }
+    }, 500);
+
+    return () => clearTimeout(timeoutId);
+  }, [email]);
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setErro("");
@@ -36,6 +76,32 @@ export default function Register() {
         setErro("Preencha todos os campos obrigatórios.");
         return;
       }
+
+      // Verificar se o email já foi verificado e existe
+      if (emailVerificado && emailExiste) {
+        setErro("Este email já está cadastrado. Tente fazer login ou use outro email.");
+        return;
+      }
+
+      // Se o email não foi verificado ainda, fazer uma verificação rápida
+      if (!emailVerificado) {
+        setLoading(true);
+        const checkRes = await fetch("/api/auth/check-email", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email }),
+        });
+        setLoading(false);
+
+        if (checkRes.ok) {
+          const checkData = await checkRes.json();
+          if (checkData.exists) {
+            setErro("Este email já está cadastrado. Tente fazer login ou use outro email.");
+            return;
+          }
+        }
+      }
+
       setStep(2);
       return;
     }
@@ -88,13 +154,36 @@ export default function Register() {
                   </div>
                   <div>
                     <label>Email</label>
-                    <input
-                      type="email"
-                      placeholder="seuemail@gmail.com"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      required
-                    />
+                    <div style={{ position: "relative" }}>
+                      <input
+                        type="email"
+                        placeholder="seuemail@gmail.com"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        required
+                        style={{
+                          paddingRight: emailVerificado ? 40 : 16,
+                          borderColor: emailVerificado ? (emailExiste ? "#ff4444" : "#00D1B2") : undefined
+                        }}
+                      />
+                      {emailVerificado && (
+                        <span
+                          style={{
+                            position: "absolute",
+                            right: 12,
+                            top: "50%",
+                            transform: "translateY(-50%)",
+                            fontSize: 18,
+                          }}
+                        >
+                          {emailExiste ? (
+                            <span style={{ color: "#ff4444" }}>✕</span>
+                          ) : (
+                            <span style={{ color: "#00D1B2" }}>✓</span>
+                          )}
+                        </span>
+                      )}
+                    </div>
                   </div>
                   <div className={styles.senhaFullWidth}>
                     <label>Senha</label>
@@ -204,7 +293,7 @@ export default function Register() {
               <button
                 type="submit"
                 className={styles.buttonLogin}
-                disabled={loading}
+                disabled={loading || (step === 1 && emailVerificado && emailExiste)}
               >
                 {step === 1 ? "Próximo" : loading ? "Registrando..." : "Registrar"}
               </button>

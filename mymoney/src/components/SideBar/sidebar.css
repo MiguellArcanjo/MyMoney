@@ -18,6 +18,10 @@
   font-weight: bold;
   margin-left: 32px;
   margin-bottom: 24px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
 }
 
 .sidebar-nav ul {
@@ -37,6 +41,10 @@
   border-radius: 10px;
   display: block;
   transition: background 0.2s, color 0.2s;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
 }
 
 .sidebar-nav a:hover {
@@ -68,6 +76,10 @@
   cursor: pointer;
   transition: background 0.2s, color 0.2s;
   font-family: inherit;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
 }
 
 .sidebar-logout-btn:hover {

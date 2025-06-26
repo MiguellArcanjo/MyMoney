@@ -22,6 +22,10 @@
     font-size: 1.2rem;
     font-weight: bold;
     margin-bottom: 18px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    width: 100%;
 }
 
 .infoGroup {
@@ -32,11 +36,26 @@
     margin-bottom: 8px;
     width: 100%;
     justify-content: flex-start;
+    min-width: 0;
+}
+
+.infoGroup span:first-child {
+    flex-shrink: 0;
+    min-width: fit-content;
+}
+
+.infoGroup span:last-child {
+    flex: 1;
+    min-width: 0;
 }
 
 .infoValue {
     color: #00D1B2;
     font-weight: bold;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 100%;
 }
 
 .buttonGroup {
@@ -57,6 +76,10 @@
     cursor: pointer;
     transition: background 0.2s;
     width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    min-width: 0;
 }
 
 .actionButton:hover {
@@ -98,6 +121,10 @@
   font-size: 1.4rem;
   font-weight: bold;
   margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
 }
 
 .mobileMainWrapper {
@@ -180,4 +207,38 @@
     padding: 40px 40px 50px 40px;
     margin-bottom: 32px;
   }
+}
+
+/* Classes para truncamento em elementos do modal */
+.modalInput {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    width: 100%;
+    min-width: 0;
+}
+
+.modalLabel {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    width: 100%;
+    min-width: 0;
+}
+
+.errorMessage {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    width: 100%;
+    min-width: 0;
+}
+
+/* Classe geral para truncamento */
+.textTruncate {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    width: 100%;
+    min-width: 0;
 } 

@@ -22,6 +22,8 @@
   display: flex;
   flex-direction: column;
   gap: 18px;
+  overflow: hidden;
+  min-width: 0;
 }
 
 .closeBtn {
