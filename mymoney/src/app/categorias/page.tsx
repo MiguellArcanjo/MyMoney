@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react";
-import SideBar from "../../components/SideBar/SideBar";
+import SideBar from "../../components/sidebar/SideBar";
 import Modal from "../../components/Modal/Modal";
 import styles from "./page.module.css";
 import LoadingSpinner from "../../components/LoadingSpinner";
