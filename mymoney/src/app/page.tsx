@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
 import styles from "./page.module.css";
 import LoadingSpinner from "@/components/LoadingSpinner";
 
@@ -12,13 +11,11 @@ export default function Login() {
   const [erro, setErro] = useState("");
   const [loading, setLoading] = useState(false);
   const [senhaVisivel, setSenhaVisivel] = useState(false);
-  const router = useRouter();
   const [isMobile, setIsMobile] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
-    function handleResize() {
-      setIsMobile(window.innerWidth <= 700);
-    }
+    const handleResize = () => setIsMobile(window.innerWidth <= 700);
     handleResize();
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
@@ -47,7 +44,7 @@ export default function Login() {
     <div className={styles.containerPageLogin}>
       <div className={styles.authContainer}>
         {!isMobile && (
-          <div className={styles.splitLeft}>
+          <div className={styles.splitLeftElegant}>
             <img src="/logo.png" alt="Logo" className={styles.splitLogo} />
             <div>
               <div className={styles.welcomeTitle}>Bem-vindo de volta!</div>
