@@ -299,25 +299,58 @@ export default function Dashboard() {
                 )}
               </div>
             ) : (
-              <div style={{ display: 'flex', gap: 32, marginBottom: 28 }}>
-                <div style={{ background: '#0E2A4C', borderRadius: 16, padding: '28px 38px', minWidth: 240, minHeight: 100, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'flex-start', boxShadow: '0 2px 12px 0 rgba(0,0,0,0.08)' }}>
-                  <div style={{ color: '#A5B3C7', fontSize: 18, fontWeight: 500 }}>Saldo Restante do Salário (Mês)</div>
-                  <div style={{ color: saldoRestanteSalario < 0 ? '#FF5C5C' : '#00D1B2', fontSize: 28, fontWeight: 700, marginTop: 6 }}>
-                    R$ {saldoRestanteSalario.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                  </div>
-                </div>
-                {contas.length === 0 ? (
-                  <div style={{ color: '#A5B3C7', fontSize: 18, display: 'flex', alignItems: 'center', paddingLeft: 12 }}>
-                    Nenhuma conta cadastrada.
-                  </div>
-                ) : (
-                  contas.map((conta: any) => (
-                    <div key={conta.id} style={{ background: '#0E2A4C', borderRadius: 16, padding: '28px 38px', minWidth: 200, minHeight: 100, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'flex-start', boxShadow: '0 2px 12px 0 rgba(0,0,0,0.08)' }}>
-                      <div style={{ color: '#A5B3C7', fontSize: 18, fontWeight: 500 }}>{conta.nome}</div>
-                      <div style={{ color: '#fff', fontSize: 28, fontWeight: 700, marginTop: 6 }}>R$ {saldosPorConta[conta.id] !== undefined ? Math.abs(Number(saldosPorConta[conta.id])).toLocaleString('pt-BR', { minimumFractionDigits: 2 }) : '0,00'}</div>
-                    </div>
-                  ))
-                )}
+              <div
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(3, 1fr)',
+                  gap: 32,
+                  marginBottom: 28,
+                  width: '100%',
+                }}
+              >
+                {(() => {
+                  const cardStyle = {
+                    background: '#0E2A4C',
+                    borderRadius: 16,
+                    padding: '28px 38px',
+                    height: 140,
+                    display: 'flex',
+                    flexDirection: 'column' as const,
+                    justifyContent: 'center' as const,
+                    alignItems: 'flex-start' as const,
+                    boxShadow: '0 2px 12px 0 rgba(0,0,0,0.08)',
+                    marginRight: 15
+                  };
+                  const totalCards = 1 + contas.length;
+                  const remainder = totalCards % 3;
+                  const placeholders = remainder === 0 ? 0 : 3 - remainder;
+                  const allCards = [
+                    // Card do salário
+                    <div key="salario" style={cardStyle}>
+                      <div style={{ color: '#A5B3C7', fontSize: 18, fontWeight: 500 }}>Saldo Restante do Salário (Mês)</div>
+                      <div style={{ color: saldoRestanteSalario < 0 ? '#FF5C5C' : '#00D1B2', fontSize: 28, fontWeight: 700, marginTop: 6 }}>
+                        R$ {saldoRestanteSalario.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                      </div>
+                    </div>,
+                    // Cards das contas
+                    ...(contas.length === 0
+                      ? [<div key="no-conta" style={cardStyle}>Nenhuma conta cadastrada.</div>]
+                      : contas.map((conta: any) => (
+                          <div key={conta.id} style={cardStyle}>
+                            <div style={{ color: '#A5B3C7', fontSize: 18, fontWeight: 500 }}>{conta.nome}</div>
+                            <div style={{ color: '#fff', fontSize: 28, fontWeight: 700, marginTop: 6 }}>
+                              R$ {saldosPorConta[conta.id] !== undefined ? Math.abs(Number(saldosPorConta[conta.id])).toLocaleString('pt-BR', { minimumFractionDigits: 2 }) : '0,00'}
+                            </div>
+                          </div>
+                        ))
+                    ),
+                    // Placeholders visíveis para completar a linha
+                    ...Array.from({ length: placeholders }).map((_, i) => (
+                      <div key={`ph-${i}`} style={cardStyle}></div>
+                    ))
+                  ];
+                  return <>{allCards}</>;
+                })()}
               </div>
             )}
             {!isMobile && (
@@ -340,7 +373,7 @@ export default function Dashboard() {
                 </div>
               </div>
             )}
-            <div className={styles.card} style={{ marginTop: 8, width: isMobile ? '100%' : undefined, maxWidth: isMobile ? 480 : undefined, marginLeft: isMobile ? 'auto' : undefined, marginRight: isMobile ? 'auto' : undefined }}>
+            <div className={styles.card} style={{ marginBottom: 20,marginTop: 8, width: isMobile ? '100%' : undefined, maxWidth: isMobile ? 480 : undefined, marginLeft: isMobile ? 'auto' : undefined, marginRight: isMobile ? 'auto' : undefined }}>
               <h2 className={styles.tableTitle}>Lançamentos Recentes</h2>
               {isMobile ? (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 10, width: '100%', maxWidth: 480, margin: '0 auto', padding: '0 6px' }}>

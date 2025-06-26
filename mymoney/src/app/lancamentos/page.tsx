@@ -303,7 +303,7 @@ export default function Lancamentos() {
               <LoadingSpinner size={48} inline />
             </div>
           ) : (
-            <div className={styles.card} style={{ marginTop: 24, width: '86vw' }}>
+            <div className={styles.card} style={{ marginTop: 24, width: '86vw', marginBottom: 20}}>
               <h2 className={styles.tableTitle}>Lançamentos</h2>
               {lancamentosFiltrados.length === 0 ? (
                 <div style={{ color: '#A5B3C7', textAlign: 'center', padding: 24 }}>Nenhum lançamento encontrado.</div>

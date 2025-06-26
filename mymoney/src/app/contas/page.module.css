@@ -55,6 +55,7 @@
   border-collapse: collapse;
   background: transparent;
   table-layout: fixed;
+
 }
 
 .tableMetas th, .tableMetas td {
@@ -461,12 +462,12 @@
 }
 
 /* Responsividade para tabela de contas */
-@media (max-width: 1000px) {
+@media (max-width: 1500px) {
   .mainContent {
     padding: 24px 0 0 0;
   }
   .card {
-    width: 86vw;
+    width: 80vw !important;
   }
   .tableMetas th, .tableMetas td {
     font-size: 0.95rem;

@@ -1,0 +1,245 @@
+/* ===== Layout Principal ===== */
+.containerPageLogin {
+    background-color: #081B33;
+    width: 100%;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .authContainer {
+    display: flex;
+    width: 1200px;
+    min-height: 700px;
+    border-radius: 24px;
+    overflow: hidden;
+  }
+  
+  /* ===== Lado Esquerdo ===== */
+  .splitLeft {
+    flex: 1.1;
+    background: linear-gradient(135deg, #00D1B2 0%, #0E2A4C 100%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 80px 56px;
+  }
+  
+  .splitLogo {
+    max-width: 120px;
+    margin-bottom: 32px;
+    filter: drop-shadow(0 2px 12px rgba(0,0,0,0.5));
+  }
+  
+  .welcomeTitle {
+    color: #fff;
+    font-size: 2.4rem;
+    font-weight: 700;
+    margin-bottom: 14px;
+    text-align: center;
+  }
+  
+  .welcomeText {
+    color: #A5B3C7;
+    font-size: 1.15rem;
+    text-align: center;
+    max-width: 340px;
+  }
+  
+  /* ===== Lado Direito ===== */
+  .splitRight {
+    flex: 1;
+    background: rgba(14, 42, 76, 0.8);
+    backdrop-filter: blur(12px);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0 24px 24px 0;
+    padding: 0 40px;
+  }
+  
+  /* ===== Formulário ===== */
+  .formLogin {
+    display: flex;
+    flex-direction: column;
+    background: transparent;
+    padding: 48px;
+    border-radius: 20px;
+    gap: 28px;
+    width: 100%;
+    max-width: 480px;
+  }
+  
+  .formLogin h2 {
+    color: #fff;
+    font-size: 28px;
+    font-weight: 700;
+    text-align: center;
+  }
+  
+  .formLogin label {
+    color: #A5B3C7;
+    font-size: 14px;
+  }
+  
+  .formLogin div {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    gap: 6px;
+  }
+  
+  .formLogin input {
+    background: #061426;
+    border: 1px solid transparent;
+    border-radius: 12px;
+    padding: 14px 18px;
+    color: #A5B3C7;
+    font-size: 16px;
+    outline: none;
+    transition: border 0.3s;
+  }
+  
+  .formLogin input:focus {
+    border: 1px solid #00D1B2;
+  }
+  
+  .formLogin input::placeholder {
+    color: #5C6A7C;
+  }
+  
+  /* ===== Grid dos Inputs ===== */
+  .inputGridCadastro {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    width: 100%;
+  }
+  
+  .inputGridCadastro > div {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  
+  .senhaFullWidth {
+    grid-column: 1 / span 2;
+  }
+  
+  /* ===== Select Customizado ===== */
+  .inputInteractiveWrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    height: 48px;
+  }
+  
+.inputInteractiveWrapper {
+    width: 100%;
+    height: 48px;
+    background-color: #061426;
+    color: #A5B3C7;
+    font-size: 16px;
+    border-radius: 12px;
+    border: 1px solid transparent;
+    padding: 0 18px;
+    outline: none;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    transition: border 0.3s;
+
+    /* Ícone da seta */
+    background-image: url("data:image/svg+xml;utf8,<svg fill='A5B3C7' xmlns='http://www.w3.org/2000/svg' height='16' viewBox='0 0 24 24' width='16'><path d='M7 10l5 5 5-5'/></svg>");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    background-size: 16px 16px;
+    padding-right: 42px;
+}
+
+.inputInteractiveWrapper {
+    border: 1px solid #00D1B2;
+}
+
+.inputInteractiveWrapper  {
+    border: 1px solid #00D1B2;
+}
+  
+  /* ===== Botão ===== */
+  .buttonLogin {
+    background-color: #00D1B2;
+    border: none;
+    padding: 16px;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 16px;
+    cursor: pointer;
+    width: 100%;
+    transition: background-color 0.3s;
+  }
+  
+  .buttonLogin:hover {
+    background-color: #00bfa6;
+  }
+  
+  /* ===== Texto Cadastro Hint ===== */
+  .cadastroHint {
+    margin-top: 12px;
+    text-align: center;
+    color: #A3B3C2;
+    font-size: 14px;
+    display: flex;
+    justify-content: center;
+    gap: 4px;
+  }
+  
+  .cadastroLink {
+    color: #00D1B2;
+    cursor: pointer;
+    font-weight: 500;
+    text-decoration: none;
+  }
+  
+  .cadastroLink:hover {
+    text-decoration: underline;
+  }
+  
+  /* ===== Responsivo ===== */
+  @media (max-width: 900px) {
+    .authContainer {
+      flex-direction: column;
+      width: 90%;
+      border-radius: 20px;
+    }
+  
+    .splitLeft, .splitRight {
+      border-radius: 0;
+      width: 100%;
+      padding: 32px;
+    }
+  
+    .splitRight {
+      border-radius: 0 0 20px 20px;
+    }
+  
+    .formLogin {
+      padding: 32px;
+      max-width: 100%;
+    }
+  
+    .splitLogo {
+      max-width: 80px;
+    }
+  
+    .inputGridCadastro {
+      grid-template-columns: 1fr;
+    }
+  
+    .senhaFullWidth {
+      grid-column: auto;
+    }
+  }
+  
