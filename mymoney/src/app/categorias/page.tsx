@@ -1,10 +1,10 @@
 "use client"
 
 import { useEffect, useState } from "react";
-import SideBar from "../../components/sidebar/SideBar";
-import Modal from "../../components/Modal/Modal";
+import SideBar from "@/components/sidebar/SideBar";
+import Modal from "@/components/Modal/Modal";
 import styles from "./page.module.css";
-import LoadingSpinner from "../../components/LoadingSpinner";
+import LoadingSpinner from "@/components/LoadingSpinner";
 
 export default function Categorias() {
   const [categorias, setCategorias] = useState<any[]>([]);
