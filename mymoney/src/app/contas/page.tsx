@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react";
-import SideBar from "@/components/sidebar/SideBar";
+import SideBar from "@/components/SideBar/sideBar";
 import Modal from "@/components/Modal/Modal";
 import styles from "./page.module.css";
 import { useRouter } from "next/navigation";
