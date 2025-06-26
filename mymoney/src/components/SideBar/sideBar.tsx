@@ -1,7 +1,7 @@
 "use client"
 
 import { usePathname, useRouter } from "next/navigation";
-import "./SideBar.css";
+import "./sidebar.css";
 import { useState, useEffect } from "react";
 import Modal from "../Modal/Modal";
 import { useSidebar } from "./SidebarContext";
