@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import styles from "./modal.module.css";
-import { useSidebar } from "../sidebar/SidebarContext";
+import { useSidebar } from "../SideBar/SidebarContext";
 
 interface ModalProps {
   open: boolean;
