@@ -126,7 +126,7 @@ export default function Register() {
     <div className={styles.containerPageLogin}>
       <div className={styles.authContainer}>
         {!isMobile && (
-          <div className={styles.splitLeft}>
+          <div className={styles.splitLeftElegant}>
             <img src="/logo.png" alt="Logo" className={styles.splitLogo} />
             <div>
               <div className={styles.welcomeTitle}>Crie sua Conta</div>
