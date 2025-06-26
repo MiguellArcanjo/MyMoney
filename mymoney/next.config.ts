@@ -1,11 +1,9 @@
-const path = require('path');
+import type { NextConfig } from 'next'
 
-/** @type {import('next').NextConfig} */
-const nextConfig = {
-  webpack: (config: any) => {
-    config.resolve.alias['@'] = path.resolve(__dirname, 'src');
-    return config;
-  },
-};
+const nextConfig: NextConfig = {
+  experimental: {
+    esmExternals: 'loose'
+  }
+}
 
-module.exports = nextConfig;
+export default nextConfig

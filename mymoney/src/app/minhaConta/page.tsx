@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import SideBar from "@/components/SideBar/SideBar";
+import SideBar from "@/components/SideBar";
 import Modal from "@/components/Modal/Modal";
 import styles from "./page.module.css";
 import LoadingSpinner from "@/components/LoadingSpinner";
