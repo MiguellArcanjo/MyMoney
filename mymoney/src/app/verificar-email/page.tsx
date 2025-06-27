@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import styles from "./page.module.css";
 
@@ -76,58 +76,60 @@ export default function VerificarEmail() {
   }
 
   return (
-    <div className={styles.container}>
-      <div className={styles.card}>
-        <div className={styles.logo}>
-          <img src="/logo.png" alt="Logo" />
-        </div>
-        
-        <h1>Verificação de Email</h1>
-        
-        {status === 'verificando' && (
-          <div className={styles.status}>
-            <div className={styles.spinner}></div>
-            <p>Verificando seu email...</p>
+    <Suspense>
+      <div className={styles.container}>
+        <div className={styles.card}>
+          <div className={styles.logo}>
+            <img src="/logo.png" alt="Logo" />
           </div>
-        )}
-
-        {status === 'sucesso' && (
-          <div className={styles.status}>
-            <div className={styles.successIcon}>✓</div>
-            <p>{mensagem}</p>
-            <p className={styles.redirect}>Redirecionando para o login...</p>
-          </div>
-        )}
-
-        {status === 'erro' && (
-          <div className={styles.status}>
-            <div className={styles.errorIcon}>✕</div>
-            <p>{mensagem}</p>
-            <div className={styles.actions}>
-              <button 
-                onClick={reenviarEmail} 
-                disabled={loading}
-                className={styles.button}
-              >
-                {loading ? 'Reenviando...' : 'Reenviar Email'}
-              </button>
-              <button 
-                onClick={() => router.push("/")}
-                className={styles.buttonSecondary}
-              >
-                Voltar ao Login
-              </button>
+          
+          <h1>Verificação de Email</h1>
+          
+          {status === 'verificando' && (
+            <div className={styles.status}>
+              <div className={styles.spinner}></div>
+              <p>Verificando seu email...</p>
             </div>
-          </div>
-        )}
+          )}
 
-        {status === 'reenviando' && (
-          <div className={styles.status}>
-            <div className={styles.spinner}></div>
-            <p>Reenviando email de verificação...</p>
-          </div>
-        )}
+          {status === 'sucesso' && (
+            <div className={styles.status}>
+              <div className={styles.successIcon}>✓</div>
+              <p>{mensagem}</p>
+              <p className={styles.redirect}>Redirecionando para o login...</p>
+            </div>
+          )}
+
+          {status === 'erro' && (
+            <div className={styles.status}>
+              <div className={styles.errorIcon}>✕</div>
+              <p>{mensagem}</p>
+              <div className={styles.actions}>
+                <button 
+                  onClick={reenviarEmail} 
+                  disabled={loading}
+                  className={styles.button}
+                >
+                  {loading ? 'Reenviando...' : 'Reenviar Email'}
+                </button>
+                <button 
+                  onClick={() => router.push("/")}
+                  className={styles.buttonSecondary}
+                >
+                  Voltar ao Login
+                </button>
+              </div>
+            </div>
+          )}
+
+          {status === 'reenviando' && (
+            <div className={styles.status}>
+              <div className={styles.spinner}></div>
+              <p>Reenviando email de verificação...</p>
+            </div>
+          )}
+        </div>
       </div>
-    </div>
+    </Suspense>
   );
 } 
