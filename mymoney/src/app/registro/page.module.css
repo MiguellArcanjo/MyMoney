@@ -74,7 +74,7 @@
   }
   
   .formLogin h2 {
-    color: #fff;
+    color: var(--text);
     font-size: 28px;
     font-weight: 700;
     text-align: center;

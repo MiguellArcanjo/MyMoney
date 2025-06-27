@@ -140,7 +140,7 @@ export default function MinhaConta() {
               type="text"
               value={editNome}
               onChange={e => setEditNome(e.target.value)}
-              className={styles.modalInput}
+              className={styles.inputStyled}
               style={{
                 background: '#061426',
                 border: 'none',
@@ -157,7 +157,7 @@ export default function MinhaConta() {
               type="email"
               value={editEmail}
               onChange={e => setEditEmail(e.target.value)}
-              className={styles.modalInput}
+              className={styles.inputStyled}
               style={{
                 background: '#061426',
                 border: 'none',
@@ -174,7 +174,7 @@ export default function MinhaConta() {
               type="number"
               value={editSalario}
               onChange={e => setEditSalario(e.target.value)}
-              className={styles.modalInput}
+              className={styles.inputStyled}
               style={{
                 background: '#061426',
                 border: 'none',

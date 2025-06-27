@@ -5,6 +5,7 @@ import "./sidebar.css";
 import { useState, useEffect } from "react";
 import Modal from "../Modal/Modal";
 import { useSidebar } from "./SidebarContext";
+import ThemeSwitch from "../ThemeSwitch";
 
 export default function SideBar() {
   const pathname = usePathname();
@@ -89,6 +90,9 @@ export default function SideBar() {
           <li><a href="/metas" className={pathname === "/metas" ? "active" : ""}>Metas</a></li>
           <li><a href="/minhaConta" className={pathname === "/minhaConta" ? "active" : ""}>Minha conta</a></li>
           <li className="sidebar-exit"><button className="sidebar-logout-btn" onClick={() => setShowLogoutModal(true)}>Sair</button></li>
+          <li style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginTop: 18 }}>
+            <ThemeSwitch />
+          </li>
         </ul>
       </nav>
       <Modal open={showLogoutModal} onClose={() => setShowLogoutModal(false)}>

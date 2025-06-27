@@ -4,18 +4,19 @@
 }
 
 .card {
-    background: #0E2A4C;
+    background: var(--bg-card);
     border-radius: 18px;
     padding: 32px 40px;
     max-width: 600px;
     min-width: 450px;
-    color: #fff;
+    color: var(--text);
     box-shadow: 0 4px 24px 0 rgba(0,0,0,0.10);
     display: flex;
     flex-direction: column;
     gap: 24px;
     position: relative;
     min-height: 320px;
+    border: 1px solid var(--border);
 }
 
 .card h2 {
@@ -26,6 +27,7 @@
     text-overflow: ellipsis;
     white-space: nowrap;
     width: 100%;
+    color: var(--text);
 }
 
 .infoGroup {
@@ -50,7 +52,7 @@
 }
 
 .infoValue {
-    color: #00D1B2;
+    color: var(--primary);
     font-weight: bold;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -63,11 +65,12 @@
     flex-direction: column;
     gap: 12px;
     margin-top: 18px;
+    color: var(--text-secondary);
 }
 
 .actionButton {
-    background: #00D1B2;
-    color: #061426;
+    background: var(--primary);
+    color: var(--bg);
     border: none;
     border-radius: 8px;
     padding: 10px 24px;
@@ -117,7 +120,7 @@
 .mobileTitle {
   flex: 1;
   text-align: center;
-  color: #fff;
+  color: var(--text);
   font-size: 1.4rem;
   font-weight: bold;
   margin: 0;
@@ -241,4 +244,21 @@
     white-space: nowrap;
     width: 100%;
     min-width: 0;
+}
+
+.inputStyled {
+  background: var(--bg-card);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px 16px;
+  font-size: 16px;
+}
+
+.inputStyled:focus {
+  border: 1px solid var(--primary);
+}
+
+.inputStyled::placeholder {
+  color: var(--text-secondary);
 } 

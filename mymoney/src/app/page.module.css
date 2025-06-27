@@ -70,7 +70,7 @@
 }
 
 .formLogin h2 {
-  color: #fff;
+  color: var(--text);
   font-size: 28px;
   font-weight: 700;
   text-align: center;
@@ -89,26 +89,27 @@
 }
 
 .formLogin input {
-  background: #061426;
-  border: 1px solid transparent;
+  background: var(--bg-card);
+  color: var(--text);
+  border: 1px solid var(--border);
   border-radius: 12px;
   padding: 14px 18px;
-  color: #A5B3C7;
   font-size: 16px;
   outline: none;
   transition: border 0.3s;
 }
 
 .formLogin input:focus {
-  border: 1px solid #00D1B2;
+  border: 1px solid var(--primary);
 }
 
 .formLogin input::placeholder {
-  color: #5C6A7C;
+  color: var(--text-secondary);
 }
 
 .buttonLogin {
-  background-color: #00D1B2;
+  background-color: var(--primary);
+  color: var(--bg);
   border: none;
   padding: 16px;
   border-radius: 12px;
@@ -126,7 +127,7 @@
 .cadastroHint {
   margin-top: 12px;
   text-align: center;
-  color: #A3B3C2;
+  color: var(--text-secondary);
   font-size: 14px;
   display: flex;
   justify-content: center;
@@ -239,8 +240,14 @@
 .esqueciSenhaHint {
   margin-top: 10px;
   text-align: center;
-  color: #A3B3C2;
+  color: var(--text-secondary);
   font-size: 14px;
   display: flex;
   justify-content: center;
+}
+
+.card {
+  background: var(--bg-card);
+  color: var(--text);
+  border: 1px solid var(--border);
 }
