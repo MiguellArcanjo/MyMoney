@@ -306,3 +306,18 @@
     transform: translate(10%, -10%) rotate(360deg);
   }
 }
+
+.spinner {
+  border: 3px solid #223B5A;
+  border-top: 3px solid #00D1B2;
+  border-radius: 50%;
+  width: 18px;
+  height: 18px;
+  animation: spin 1s linear infinite;
+  display: inline-block;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}

@@ -29,6 +29,16 @@ export async function POST(request: Request) {
         );
     }
 
+    if (!usuario.emailVerificado) {
+        return NextResponse.json(
+            { 
+                message: 'Email não verificado. Verifique sua caixa de entrada e clique no link de verificação.',
+                emailNaoVerificado: true
+            },
+            { status: 401 }
+        );
+    }
+
     const senhaValida = await bcrypt.compare(senha, usuario.senha);
 
     if (!senhaValida) {

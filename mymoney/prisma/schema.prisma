@@ -20,6 +20,9 @@ model Usuario {
   senha String
   salario Float?
   objetivoFinanceiro String?
+  emailVerificado Boolean @default(false)
+  tokenVerificacao String?
+  tokenExpiracao DateTime?
   
   contas Conta[]
   categorias Categoria[]

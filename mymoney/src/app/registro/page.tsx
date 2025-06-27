@@ -19,6 +19,7 @@ export default function Register() {
   const [emailExiste, setEmailExiste] = useState(false);
   const router = useRouter();
   const [isMobile, setIsMobile] = useState(false);
+  const [reenviando, setReenviando] = useState(false);
 
   useEffect(() => {
     function handleResize() {
@@ -114,8 +115,9 @@ export default function Register() {
     });
     setLoading(false);
     if (res.ok) {
+      // Armazenar email no localStorage para reenvio de verificação
+      localStorage.setItem('emailParaVerificacao', email);
       setSucesso(true);
-      setTimeout(() => router.push("/"), 1500);
     } else {
       const data = await res.json();
       setErro(data.message || "Erro ao registrar usuário.");
@@ -276,9 +278,37 @@ export default function Register() {
 
             {erro && <span style={{ color: "red" }}>{erro}</span>}
             {sucesso && (
-              <span style={{ color: "#00D1B2" }}>
-                Usuário cadastrado! Redirecionando...
-              </span>
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16, marginTop: 16 }}>
+                <span style={{ color: '#00D1B2', fontWeight: 600, fontSize: 18, textAlign: 'center' }}>
+                  Usuário cadastrado! Verifique seu email para ativar sua conta.
+                </span>
+                <button
+                  type="button"
+                  className={styles.buttonLogin}
+                  style={{ maxWidth: 300, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}
+                  onClick={async () => {
+                    setReenviando(true);
+                    const res = await fetch('/api/auth/reenviar-verificacao', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({ email }),
+                    });
+                    setReenviando(false);
+                    if (res.ok) {
+                      alert('Email de verificação reenviado! Verifique sua caixa de entrada.');
+                    } else {
+                      const data = await res.json();
+                      alert(data.message || 'Erro ao reenviar email.');
+                    }
+                  }}
+                  disabled={reenviando}
+                >
+                  {reenviando && (
+                    <span className={styles.spinner} style={{ width: 18, height: 18, borderWidth: 3 }} />
+                  )}
+                  Reenviar verificação de email
+                </button>
+              </div>
             )}
             <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
               {step === 2 && (

@@ -36,7 +36,14 @@ export default function Login() {
       localStorage.setItem("token", data.token);
       router.push("/dashboard");
     } else {
-      setErro("Email ou senha inválidos.");
+      const data = await res.json();
+      if (data.emailNaoVerificado) {
+        setErro("Email não verificado. Verifique sua caixa de entrada e clique no link de verificação.");
+        // Armazenar email para reenvio de verificação
+        localStorage.setItem('emailParaVerificacao', email);
+      } else {
+        setErro("Email ou senha inválidos.");
+      }
     }
   }
 

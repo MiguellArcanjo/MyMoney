@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcrypt';
+import { enviarEmailVerificacao } from '@/lib/email';
+import { gerarTokenVerificacao, calcularExpiracao } from '@/lib/tokens';
 
 const prisma = new PrismaClient();
 
@@ -31,6 +33,10 @@ export async function POST(request: Request) {
     // Criptografar senha
     const senhaHash = await bcrypt.hash(senha, 10);
 
+    // Gerar token de verificação
+    const tokenVerificacao = gerarTokenVerificacao();
+    const expiracao = calcularExpiracao(24); // 24 horas
+
     // Criar usuário
     const usuario = await prisma.usuario.create({
       data: {
@@ -39,12 +45,30 @@ export async function POST(request: Request) {
         senha: senhaHash,
         salario: salario ? Number(salario) : undefined,
         objetivoFinanceiro: objetivo || undefined,
+        emailVerificado: false,
+        tokenVerificacao,
+        tokenExpiracao: expiracao,
       },
     });
 
+    // Enviar email de verificação
+    const emailEnviado = await enviarEmailVerificacao(email, nome, tokenVerificacao);
+
+    if (!emailEnviado) {
+      // Se não conseguir enviar o email, deletar o usuário criado
+      await prisma.usuario.delete({
+        where: { id: usuario.id },
+      });
+      
+      return NextResponse.json(
+        { message: 'Erro ao enviar email de verificação. Tente novamente.' },
+        { status: 500 }
+      );
+    }
+
     return NextResponse.json(
       {
-        message: 'Usuário cadastrado com sucesso',
+        message: 'Usuário cadastrado com sucesso! Verifique seu email para ativar sua conta.',
         user: {
           id: usuario.id,
           nome: usuario.nome,
