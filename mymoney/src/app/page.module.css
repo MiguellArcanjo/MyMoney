@@ -235,3 +235,12 @@
     transform: translate(10%, -10%) rotate(360deg);
   }
 }
+
+.esqueciSenhaHint {
+  margin-top: 10px;
+  text-align: center;
+  color: #A3B3C2;
+  font-size: 14px;
+  display: flex;
+  justify-content: center;
+}

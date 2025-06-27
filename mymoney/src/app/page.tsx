@@ -113,6 +113,14 @@ export default function Login() {
             <button type="submit" className={styles.buttonLogin} disabled={loading}>
               {loading ? <LoadingSpinner size={22} inline /> : "Entrar"}
             </button>
+            <div className={styles.esqueciSenhaHint}>
+              <span
+                className={styles.cadastroLink}
+                onClick={() => router.push("/esqueci-senha")}
+              >
+                Esqueci a senha
+              </span>
+            </div>
             <div className={styles.cadastroHint}>
               <span>Não tem conta? </span>
               <span

@@ -20,7 +20,7 @@ export async function enviarEmailVerificacao(email: string, nome: string, token:
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f4f4f4;">
         <div style="background-color: #0E2A4C; color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0;">
-          <h1 style="margin: 0; color: #00D1B2;">MyMoney</h1>
+          <h1 style="margin: 0; color: #00D1B2;">Organizze</h1>
           <p style="margin: 10px 0 0 0; opacity: 0.9;">Verificação de Email</p>
         </div>
         
@@ -28,7 +28,7 @@ export async function enviarEmailVerificacao(email: string, nome: string, token:
           <h2 style="color: #0E2A4C; margin-bottom: 20px;">Olá, ${nome}!</h2>
           
           <p style="color: #333; line-height: 1.6; margin-bottom: 20px;">
-            Obrigado por se cadastrar no MyMoney! Para começar a usar sua conta, 
+            Obrigado por se cadastrar no Organizze! Para começar a usar sua conta, 
             precisamos verificar seu endereço de email.
           </p>
           
@@ -56,7 +56,7 @@ export async function enviarEmailVerificacao(email: string, nome: string, token:
           <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;">
           
           <p style="color: #999; font-size: 12px; text-align: center;">
-            Se você não se cadastrou no MyMoney, pode ignorar este email.
+            Se você não se cadastrou no Organizze, pode ignorar este email.
           </p>
         </div>
       </div>
@@ -83,47 +83,35 @@ export async function enviarEmailRedefinicaoSenha(email: string, nome: string, t
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f4f4f4;">
         <div style="background-color: #0E2A4C; color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0;">
-          <h1 style="margin: 0; color: #00D1B2;">MyMoney</h1>
+          <h1 style="margin: 0; color: #00D1B2;">Organizze</h1>
           <p style="margin: 10px 0 0 0; opacity: 0.9;">Redefinição de Senha</p>
         </div>
-        
         <div style="background-color: white; padding: 30px; border-radius: 0 0 10px 10px;">
           <h2 style="color: #0E2A4C; margin-bottom: 20px;">Olá, ${nome}!</h2>
-          
           <p style="color: #333; line-height: 1.6; margin-bottom: 20px;">
-            Recebemos uma solicitação para redefinir sua senha. 
-            Clique no botão abaixo para criar uma nova senha.
+            Recebemos uma solicitação para redefinir sua senha.<br />
+            Clique no botão abaixo para criar uma nova senha. Se você não solicitou, ignore este e-mail.
           </p>
-          
           <div style="text-align: center; margin: 30px 0;">
-            <a href="${linkRedefinicao}" 
-               style="background-color: #00D1B2; color: white; padding: 15px 30px; 
-                      text-decoration: none; border-radius: 8px; font-weight: bold; 
+            <a href="${linkRedefinicao}"
+               style="background-color: #00D1B2; color: white; padding: 15px 30px;
+                      text-decoration: none; border-radius: 8px; font-weight: bold;
                       display: inline-block; font-size: 16px;">
               Redefinir Senha
             </a>
           </div>
-          
           <p style="color: #666; font-size: 14px; margin-bottom: 20px;">
             Se o botão não funcionar, copie e cole este link no seu navegador:
           </p>
-          
           <p style="color: #00D1B2; font-size: 14px; word-break: break-all; margin-bottom: 20px;">
             ${linkRedefinicao}
           </p>
-          
           <p style="color: #666; font-size: 14px; margin-bottom: 20px;">
             Este link expira em 1 hora por motivos de segurança.
           </p>
-          
-          <p style="color: #666; font-size: 14px; margin-bottom: 20px;">
-            Se você não solicitou a redefinição de senha, pode ignorar este email.
-          </p>
-          
           <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;">
-          
           <p style="color: #999; font-size: 12px; text-align: center;">
-            MyMoney - Controle suas finanças de forma inteligente
+            Organizze - Controle suas finanças de forma inteligente
           </p>
         </div>
       </div>
