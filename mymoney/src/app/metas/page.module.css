@@ -5,16 +5,19 @@
   flex-direction: column;
   align-items: flex-start;
   min-height: 100vh;
+  background-color: var(--bg);
+  transition: background-color 0.3s ease;
 }
 
 .title {
   color: var(--text);
   font-size: 2rem;
   margin-bottom: 18px;
+  transition: color 0.3s ease;
 }
 
 .addButton {
-  background: #00D1B2;
+  background: var(--primary);
   color: #081B33;
   border: none;
   border-radius: 8px;
@@ -23,30 +26,37 @@
   font-weight: bold;
   cursor: pointer;
   margin-bottom: 18px;
-  transition: background 0.2s;
+  transition: all 0.3s ease;
 }
+
 .addButton:hover {
   background: #00b89c;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 209, 178, 0.3);
 }
 
 .card {
-  background: #0E2A4C;
+  background: var(--bg-card);
   border-radius: 16px;
   padding: 24px 24px 16px 24px;
   width: 100%;
   max-width: 86vw;
-  color: #fff;
-  box-shadow: 0 px 24px 0 rgba(0,0,0,0.10);
+  color: var(--text);
+  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
   margin-top: 8px;
   display: flex;
   flex-direction: column;
   align-items: stretch;
+  border: 1px solid var(--border);
+  transition: all 0.3s ease;
 }
 
 .tableTitle {
   font-size: 1.1rem;
   font-weight: bold;
   margin-bottom: 16px;
+  color: var(--text);
+  transition: color 0.3s ease;
 }
 
 .tableMetas {
@@ -60,11 +70,12 @@
   padding: 12px 12px;
   text-align: left;
   font-size: 1rem;
-  border-bottom: 1.5px solid #223B5A;
+  border-bottom: 1.5px solid var(--border);
+  transition: border-color 0.3s ease;
 }
 
 .tableMetas thead th {
-  border-bottom: 2px solid #223B5A;
+  border-bottom: 2px solid var(--border);
 }
 
 .tableMetas tbody tr:last-child td {
@@ -72,27 +83,32 @@
 }
 
 .tableMetas th {
-  color: #A5B3C7;
+  color: var(--text-secondary);
   font-weight: 600;
   background: none;
+  transition: color 0.3s ease;
 }
 
 .tableMetas tbody tr {
   background: none;
+  transition: background-color 0.3s ease;
+}
+
+.tableMetas tbody tr:hover {
+  background: rgba(0, 209, 178, 0.05);
 }
 
 .actionBtn {
     position: relative;
     background: none;
-    color: #00D1B2;
+    color: var(--primary);
     border: none;
     border-radius: 4px;
     padding: 4px 12px;
     font-size: 0.97rem;
     font-weight: 500;
-    /* margin-right: 6px; */
     cursor: pointer;
-    transition: background 0.2s, color 0.2s;
+    transition: all 0.3s ease;
     right: 10px;
 }
 
@@ -101,15 +117,16 @@
 }
 
 .actionBtn:hover {
-  background: #223B5A;
-  color: #fff;
+  background: var(--border);
+  color: var(--text);
 }
 
 .modalTitle {
-  color: #fff;
+  color: var(--text);
   font-size: 1.25rem;
   font-weight: bold;
   margin-bottom: 18px;
+  transition: color 0.3s ease;
 }
 
 .formMeta {
@@ -119,28 +136,36 @@
 }
 
 .labelMeta {
-  color: #A5B3C7;
+  color: var(--text-secondary);
   font-size: 14px;
   font-weight: 500;
+  transition: color 0.3s ease;
 }
 
 .inputMeta {
-  background: #061426;
-  border: none;
+  background: var(--bg);
+  border: 1px solid var(--border);
   border-radius: 10px;
   padding: 12px 16px;
-  color: #A5B3C7;
+  color: var(--text);
   font-size: 16px;
   margin-bottom: 4px;
+  transition: all 0.3s ease;
+}
+
+.inputMeta:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px rgba(0, 209, 178, 0.2);
 }
 
 .inputMeta::placeholder {
-  color: #5C6A7C;
+  color: var(--text-secondary);
   opacity: 1;
 }
 
 .buttonMeta {
-  background: #00D1B2;
+  background: var(--primary);
   color: #081B33;
   border: none;
   border-radius: 8px;
@@ -150,35 +175,39 @@
   margin-top: 12px;
   width: 100px;
   cursor: pointer;
-  transition: background 0.2s;
+  transition: all 0.3s ease;
 }
 
 .buttonMeta:hover {
   background: #00b89c;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 209, 178, 0.3);
 }
 
 .progressBar {
   width: 120px;
-  background: #223B5A;
+  background: var(--border);
   border-radius: 8px;
   height: 10px;
   overflow: hidden;
   margin-bottom: 4px;
   position: relative;
+  transition: background-color 0.3s ease;
 }
 
 .progressFill {
-  background: #00D1B2;
+  background: var(--primary);
   height: 100%;
   transition: width 0.4s cubic-bezier(0.4,0,0.2,1);
 }
 
 .progressText {
-  color: #00D1B2;
+  color: var(--primary);
   font-size: 13px;
   margin-left: 2px;
   font-weight: 500;
   display: inline-block;
+  transition: color 0.3s ease;
 }
 
 @media (max-width: 768px) {
@@ -199,71 +228,91 @@
   .mobileTitle {
     flex: 1;
     text-align: center;
-    color: #fff;
-    font-size: 1.4rem;
+    font-size: 1.5rem;
     font-weight: bold;
-    margin: 0;
-    padding-top: 0;
+    color: var(--text);
+    transition: color 0.3s ease;
+  }
+  .card {
+    max-width: 100%;
+    margin: 8px 0;
+    padding: 16px;
+  }
+  .tableMetas {
+    font-size: 0.9rem;
+  }
+  .tableMetas th, .tableMetas td {
+    padding: 8px 6px;
+  }
+  .actionBtn {
+    padding: 6px 8px;
+    font-size: 0.85rem;
+    right: 5px;
   }
   .mobileMainWrapper {
     width: 100%;
-    max-width: 500px;
-    margin: 0 auto;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 0 12px;
+    max-width: 100%;
   }
   .cardsMobileWrapper {
-    width: 100%;
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 12px;
+    width: 100%;
   }
   .contaCardMobile {
-    display: flex;
-    flex-direction: column;
-    background: #0E2A4C;
-    border-radius: 14px;
-    margin-bottom: 10px;
-    padding: 14px 12px 10px 14px;
-    box-shadow: 0 2px 12px 0 rgba(0,0,0,0.08);
-    color: #fff;
-    width: 100%;
-    min-width: 0;
+    background: var(--bg-card);
+    border-radius: 12px;
+    padding: 16px;
+    border: 1px solid var(--border);
+    transition: all 0.3s ease;
   }
   .contaCardMobile .contaNome {
-    color: #00D1B2;
-    font-size: 1.08rem;
+    font-size: 1.1rem;
     font-weight: 600;
+    color: var(--text);
     margin-bottom: 4px;
-    cursor: pointer;
-    word-break: break-word;
+    transition: color 0.3s ease;
   }
   .contaCardMobile .contaTipo {
-    color: #A5B3C7;
-    font-size: 0.98rem;
-    margin-bottom: 2px;
-    word-break: break-word;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    margin-bottom: 12px;
+    transition: color 0.3s ease;
   }
   .contaCardMobile .contaAcoes {
     display: flex;
-    gap: 10px;
-    margin-top: 6px;
+    gap: 8px;
+    justify-content: flex-end;
   }
   .contaCardMobile .contaAcoes button {
     background: none;
-    color: #00D1B2;
     border: none;
+    color: var(--primary);
+    padding: 6px 10px;
     border-radius: 4px;
-    padding: 4px 10px;
-    font-size: 0.95rem;
-    font-weight: 500;
     cursor: pointer;
-    transition: background 0.2s, color 0.2s;
+    font-size: 0.85rem;
+    transition: all 0.3s ease;
   }
   .contaCardMobile .contaAcoes button:hover {
-    background: #223B5A;
-    color: #fff;
+    background: var(--border);
+    color: var(--text);
+  }
+}
+
+@media (max-width: 480px) {
+  .mainContent {
+    padding: 0 8px;
+  }
+  .card {
+    padding: 12px;
+  }
+  .tableMetas th, .tableMetas td {
+    padding: 6px 4px;
+    font-size: 0.8rem;
+  }
+  .actionBtn {
+    padding: 4px 6px;
+    font-size: 0.8rem;
   }
 } 

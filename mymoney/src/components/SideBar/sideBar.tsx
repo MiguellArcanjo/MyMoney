@@ -34,6 +34,10 @@ export default function SideBar() {
     };
   }, [isMobile, isOpen]);
 
+  useEffect(() => {
+    setShowLogoutModal(false);
+  }, [pathname]);
+
   function handleLogout() {
     localStorage.removeItem("token");
     router.push("/");
@@ -59,6 +63,7 @@ export default function SideBar() {
                 <li><a href="/lancamentos" className={pathname === "/lancamentos" ? "active" : ""} onClick={() => setIsOpen(false)}>Lançamentos</a></li>
                 <li><a href="/categorias" className={pathname === "/categorias" ? "active" : ""} onClick={() => setIsOpen(false)}>Categorias</a></li>
                 <li><a href="/metas" className={pathname === "/metas" ? "active" : ""} onClick={() => setIsOpen(false)}>Metas</a></li>
+                <li><a href="/simulador" className={pathname === "/simulador" ? "active" : ""} onClick={() => setIsOpen(false)}>Simulador</a></li>
                 <li><a href="/minhaConta" className={pathname === "/minhaConta" ? "active" : ""} onClick={() => setIsOpen(false)}>Minha conta</a></li>
                 <li className="sidebar-exit"><button className="sidebar-logout-btn" onClick={() => setShowLogoutModal(true)}>Sair</button></li>
               </ul>
@@ -88,6 +93,7 @@ export default function SideBar() {
           <li><a href="/lancamentos" className={pathname === "/lancamentos" ? "active" : ""}>Lançamentos</a></li>
           <li><a href="/categorias" className={pathname === "/categorias" ? "active" : ""}>Categorias</a></li>
           <li><a href="/metas" className={pathname === "/metas" ? "active" : ""}>Metas</a></li>
+          <li><a href="/simulador" className={pathname === "/simulador" ? "active" : ""}>Simulador</a></li>
           <li><a href="/minhaConta" className={pathname === "/minhaConta" ? "active" : ""}>Minha conta</a></li>
           <li className="sidebar-exit"><button className="sidebar-logout-btn" onClick={() => setShowLogoutModal(true)}>Sair</button></li>
           <li style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginTop: 18 }}>

@@ -239,7 +239,7 @@ export default function Contas() {
   }
 
   return (
-    <div>
+    <div className={`mainContent contas-tour-mainContent`}>
       <SideBar />
       <main className={styles.mainContent}>
         {/* Header responsivo com menu e título na mesma linha no mobile */}
@@ -248,22 +248,22 @@ export default function Contas() {
             <span className={styles.mobileTitle}>Minhas Contas</span>
           </div>
         ) : (
-          <h1 className="title">Minhas Contas</h1>
+          <h1 className="title contas-tour-title">Minhas Contas</h1>
         )}
         {/* Botão e filtros alinhados à direita no mobile */}
         {isMobile ? (
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', width: '100%' }}>
-            <button className={styles.addButton} onClick={() => setModalOpen(true)}>
+            <button className={styles.addButton + ' contas-tour-addButton'} onClick={() => setModalOpen(true)}>
               + Adicionar Conta
             </button>
-            <div style={{ marginBottom: 18, display: 'flex', gap: 6, background: '#10294A', borderRadius: 10, padding: '12px 16px', alignItems: 'center', width: 'fit-content', marginTop: 8 }}>
-              <span style={{ color: '#A5B3C7', fontSize: 14, marginRight: 4 }}>Mês:</span>
-              <select value={filtroMes} onChange={e => setFiltroMes(Number(e.target.value))} style={{ background: '#142B4D', color: '#fff', border: 'none', borderRadius: 6, padding: '4px 10px', marginRight: 12 }}>
+            <div className={styles.filtrosBar}>
+              <span className={styles.filtrosLabel}>Mês:</span>
+              <select value={filtroMes} onChange={e => setFiltroMes(Number(e.target.value))} className={styles.filtrosSelect}>
                 {[...Array(12)].map((_, i) => (
                   <option key={i+1} value={i+1}>{(i+1).toString().padStart(2, '0')}</option>
                 ))}
               </select>
-              <select value={filtroAno} onChange={e => setFiltroAno(Number(e.target.value))} style={{ background: '#142B4D', color: '#fff', border: 'none', borderRadius: 6, padding: '4px 10px' }}>
+              <select value={filtroAno} onChange={e => setFiltroAno(Number(e.target.value))} className={styles.filtrosSelect}>
                 {[...Array(5)].map((_, i) => {
                   const ano = new Date().getFullYear() - 2 + i;
                   return <option key={ano} value={ano}>{ano}</option>
@@ -273,17 +273,17 @@ export default function Contas() {
           </div>
         ) : (
           <>
-            <button className={styles.addButton} onClick={() => setModalOpen(true)}>
+            <button className={styles.addButton + ' contas-tour-addButton'} onClick={() => setModalOpen(true)}>
               + Adicionar Conta
             </button>
-            <div style={{ marginBottom: 18, display: 'flex', gap: 6, background: '#10294A', borderRadius: 10, padding: '12px 16px', alignItems: 'center', width: 'fit-content' }}>
-              <span style={{ color: '#A5B3C7', fontSize: 14, marginRight: 4 }}>Mês:</span>
-              <select value={filtroMes} onChange={e => setFiltroMes(Number(e.target.value))} style={{ background: '#142B4D', color: '#fff', border: 'none', borderRadius: 6, padding: '4px 10px', marginRight: 12 }}>
+            <div className={styles.filtrosBar}>
+              <span className={styles.filtrosLabel}>Mês:</span>
+              <select value={filtroMes} onChange={e => setFiltroMes(Number(e.target.value))} className={styles.filtrosSelect}>
                 {[...Array(12)].map((_, i) => (
                   <option key={i+1} value={i+1}>{(i+1).toString().padStart(2, '0')}</option>
                 ))}
               </select>
-              <select value={filtroAno} onChange={e => setFiltroAno(Number(e.target.value))} style={{ background: '#142B4D', color: '#fff', border: 'none', borderRadius: 6, padding: '4px 10px' }}>
+              <select value={filtroAno} onChange={e => setFiltroAno(Number(e.target.value))} className={styles.filtrosSelect}>
                 {[...Array(5)].map((_, i) => {
                   const ano = new Date().getFullYear() - 2 + i;
                   return <option key={ano} value={ano}>{ano}</option>
@@ -297,10 +297,10 @@ export default function Contas() {
             <LoadingSpinner size={48} inline />
           </div>
         ) : (
-          <div className={styles.card}>
+          <div className={styles.card + ' contas-tour-card'}>
             <h2 className={styles.tableTitle}>Lista de Contas</h2>
             {contas.length === 0 ? (
-              <div style={{ color: '#A5B3C7', textAlign: 'center', padding: 24 }}>Nenhuma conta cadastrada.</div>
+              <div style={{ color: 'var(--text-secondary)', textAlign: 'center', padding: 24 }}>Nenhuma conta cadastrada.</div>
             ) : (
               <>
                 <table className={styles.tableMetas}>
@@ -315,7 +315,7 @@ export default function Contas() {
                   <tbody>
                     {contasPaginadas.map((conta) => (
                       <tr key={conta.id}>
-                        <td style={{ cursor: "pointer", color: "#00D1B2" }} onClick={() => router.push(`/contas/${conta.id}`)}>{conta.nome}</td>
+                        <td style={{ cursor: "pointer", color: "var(--primary)" }} onClick={() => router.push(`/contas/${conta.id}`)}>{conta.nome}</td>
                         <td>{conta.tipo || '-'}</td>
                         <td>R$ {valoresAnimados[conta.id] !== undefined ? valoresAnimados[conta.id].toLocaleString('pt-BR', { minimumFractionDigits: 2 }) : '0,00'}</td>
                         <td className={styles.actionCell}>
@@ -344,37 +344,17 @@ export default function Contas() {
                 )}
                 {/* Paginação */}
                 {totalPaginas > 1 && (
-                  <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 18, marginTop: 18 }}>
+                  <div className={styles.pagination}>
                     <button
                       onClick={() => setPagina(p => Math.max(1, p - 1))}
                       disabled={pagina === 1}
-                      style={{
-                        background: pagina === 1 ? '#223B5A' : '#00D1B2',
-                        color: pagina === 1 ? '#A5B3C7' : '#081B33',
-                        border: 'none',
-                        borderRadius: 8,
-                        padding: '8px 18px',
-                        fontWeight: 600,
-                        fontSize: 16,
-                        cursor: pagina === 1 ? 'not-allowed' : 'pointer',
-                        transition: 'background 0.2s',
-                      }}
+                      className={`${styles.paginationButton} ${pagina === 1 ? '' : styles.active}`}
                     >Anterior</button>
-                    <span style={{ color: '#A5B3C7', fontWeight: 600, fontSize: 16, minWidth: 32, textAlign: 'center' }}>{pagina} / {totalPaginas}</span>
+                    <span style={{ color: 'var(--text-secondary)', fontWeight: 600, fontSize: 16, minWidth: 32, textAlign: 'center' }}>{pagina} / {totalPaginas}</span>
                     <button
                       onClick={() => setPagina(p => Math.min(totalPaginas, p + 1))}
                       disabled={pagina === totalPaginas}
-                      style={{
-                        background: pagina === totalPaginas ? '#223B5A' : '#00D1B2',
-                        color: pagina === totalPaginas ? '#A5B3C7' : '#081B33',
-                        border: 'none',
-                        borderRadius: 8,
-                        padding: '8px 18px',
-                        fontWeight: 600,
-                        fontSize: 16,
-                        cursor: pagina === totalPaginas ? 'not-allowed' : 'pointer',
-                        transition: 'background 0.2s',
-                      }}
+                      className={`${styles.paginationButton} ${pagina === totalPaginas ? '' : styles.active}`}
                     >Próxima</button>
                   </div>
                 )}
@@ -441,12 +421,12 @@ export default function Contas() {
         </Modal>
         <Modal open={modalDelete} onClose={() => setModalDelete(false)}>
           <h2 className={styles.modalTitle}>Confirmar Exclusão</h2>
-          <p style={{ color: '#A5B3C7', marginBottom: 24 }}>Tem certeza que deseja excluir esta conta?</p>
+          <p style={{ color: 'var(--text-secondary)', marginBottom: 24 }}>Tem certeza que deseja excluir esta conta?</p>
           <div style={{ display: 'flex', gap: 16 }}>
-            <button className={styles.buttonMeta} style={{ background: '#00D1B2', color: '#081B33' }} onClick={handleDelete}>
+            <button className={styles.buttonMeta} style={{ background: 'var(--primary)', color: 'var(--background)' }} onClick={handleDelete}>
               Confirmar
             </button>
-            <button className={styles.buttonMeta} style={{ background: '#223B5A', color: '#fff' }} onClick={() => setModalDelete(false)}>
+            <button className={styles.buttonMeta} style={{ background: 'var(--background)', color: 'var(--text-secondary)' }} onClick={() => setModalDelete(false)}>
               Cancelar
             </button>
           </div>

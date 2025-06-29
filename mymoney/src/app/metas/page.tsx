@@ -213,14 +213,14 @@ export default function Metas() {
                     <tbody>
                       {metas.length === 0 ? (
                         <tr>
-                          <td colSpan={6} style={{ color: '#A5B3C7', textAlign: 'center', padding: 24 }}>Nenhuma meta cadastrada.</td>
+                          <td colSpan={6} style={{ color: 'var(--text-secondary)', textAlign: 'center', padding: 24 }}>Nenhuma meta cadastrada.</td>
                         </tr>
                       ) : (
                         metas.map(meta => (
                           <tr key={meta.id}>
                             <td>
                               <span
-                                style={{ color: '#00D1B2', cursor: 'pointer', textDecoration: 'underline' }}
+                                style={{ color: 'var(--primary)', cursor: 'pointer', textDecoration: 'underline' }}
                                 onClick={() => openDetalheModal(meta)}
                               >
                                 {meta.descricao}
@@ -254,11 +254,11 @@ export default function Metas() {
                 {isMobile && (
                   <div className={styles.cardsMobileWrapper}>
                     {metas.length === 0 ? (
-                      <div style={{ color: '#A5B3C7', textAlign: 'center', padding: 24 }}>Nenhuma meta cadastrada.</div>
+                      <div style={{ color: 'var(--text-secondary)', textAlign: 'center', padding: 24 }}>Nenhuma meta cadastrada.</div>
                     ) : (
                       metas.map(meta => (
                         <div className={styles.contaCardMobile} key={meta.id}>
-                          <div className={styles.contaNome} style={{ color: '#00D1B2', fontWeight: 700 }}>{meta.descricao}</div>
+                          <div className={styles.contaNome} style={{ color: 'var(--primary)', fontWeight: 700 }}>{meta.descricao}</div>
                           <div className={styles.contaTipo}>R$ {Number(meta.valorObjetivo).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</div>
                           <div className={styles.contaTipo}>{formatPeriodo(meta)}</div>
                           <div className={styles.progressBar} style={{ width: '100%', margin: '8px 0 4px 0' }}>
@@ -327,12 +327,12 @@ export default function Metas() {
         </Modal>
         <Modal open={confirmDeleteOpen} onClose={() => setConfirmDeleteOpen(false)}>
           <h2 className={styles.modalTitle}>Confirmar Exclusão</h2>
-          <p style={{ color: '#A5B3C7', marginBottom: 24 }}>Tem certeza que deseja excluir esta meta?</p>
+          <p style={{ color: 'var(--text-secondary)', marginBottom: 24 }}>Tem certeza que deseja excluir esta meta?</p>
           <div style={{ display: 'flex', gap: 16 }}>
-            <button className={styles.buttonMeta} style={{ background: '#00D1B2', color: '#081B33' }} onClick={handleDelete}>
+            <button className={styles.buttonMeta} style={{ background: 'var(--primary)', color: '#081B33' }} onClick={handleDelete}>
               Confirmar
             </button>
-            <button className={styles.buttonMeta} style={{ background: '#223B5A', color: '#fff' }} onClick={() => setConfirmDeleteOpen(false)}>
+            <button className={styles.buttonMeta} style={{ background: 'var(--border)', color: 'var(--text)' }} onClick={() => setConfirmDeleteOpen(false)}>
               Cancelar
             </button>
           </div>
@@ -341,22 +341,22 @@ export default function Metas() {
           {detalheMeta && (
             <div>
               <h2 className={styles.modalTitle}>Detalhes da Meta</h2>
-              <div style={{ color: '#A5B3C7', marginBottom: 12 }}>
-                <div>Descrição: <span style={{ color: '#00D1B2', fontWeight: 600 }}>{detalheMeta.descricao}</span></div>
-                <div>Valor Objetivo: <span style={{ color: '#00D1B2', fontWeight: 600 }}>R$ {Number(detalheMeta.valorObjetivo).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span></div>
-                <div>Período: <span style={{ color: '#00D1B2', fontWeight: 600 }}>{formatPeriodo(detalheMeta)}</span></div>
-                <div>Valor Economizado: <span style={{ color: '#00D1B2', fontWeight: 600 }}>R$ {(receitasPorMeta[detalheMeta.id] || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span></div>
-                <div>Status: <span style={{ color: '#fff' }}>{detalheMeta.status || (new Date(detalheMeta.dataFim) < new Date() ? "Concluída" : "Em andamento")}</span></div>
+              <div style={{ color: 'var(--text-secondary)', marginBottom: 12 }}>
+                <div>Descrição: <span style={{ color: 'var(--primary)', fontWeight: 600 }}>{detalheMeta.descricao}</span></div>
+                <div>Valor Objetivo: <span style={{ color: 'var(--primary)', fontWeight: 600 }}>R$ {Number(detalheMeta.valorObjetivo).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span></div>
+                <div>Período: <span style={{ color: 'var(--primary)', fontWeight: 600 }}>{formatPeriodo(detalheMeta)}</span></div>
+                <div>Valor Economizado: <span style={{ color: 'var(--primary)', fontWeight: 600 }}>R$ {(receitasPorMeta[detalheMeta.id] || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span></div>
+                <div>Status: <span style={{ color: 'var(--text)' }}>{detalheMeta.status || (new Date(detalheMeta.dataFim) < new Date() ? "Concluída" : "Em andamento")}</span></div>
               </div>
               <div style={{ margin: '18px 0 8px 0' }}>
-                <div style={{ color: '#A5B3C7', fontSize: 15, marginBottom: 4 }}>Progresso:</div>
-                <div className={styles.progressBar} style={{ width: '100%', height: 16, background: '#081B33' }}>
+                <div style={{ color: 'var(--text-secondary)', fontSize: 15, marginBottom: 4 }}>Progresso:</div>
+                <div className={styles.progressBar} style={{ width: '100%', height: 16, background: 'var(--bg)' }}>
                   <div
                     className={styles.progressFill}
                     style={{ width: `${Math.min(100, (receitasPorMeta[detalheMeta.id] || 0) / detalheMeta.valorObjetivo * 100)}%`, height: '100%' }}
                   />
                 </div>
-                <div className={styles.progressText} style={{ color: '#A5B3C7', fontSize: 15, marginTop: 6 }}>
+                <div className={styles.progressText} style={{ color: 'var(--text-secondary)', fontSize: 15, marginTop: 6 }}>
                   {Math.min(100, ((receitasPorMeta[detalheMeta.id] || 0) / detalheMeta.valorObjetivo * 100)).toFixed(1)}% da meta concluída
                 </div>
               </div>

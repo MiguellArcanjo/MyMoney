@@ -147,7 +147,7 @@ export default function Categorias() {
             <div className={styles.card}>
               <h2 className={styles.tableTitle}>Lista de Categorias</h2>
               {categorias.length === 0 ? (
-                <div style={{ color: '#A5B3C7', textAlign: 'center', padding: 24 }}>Nenhuma categoria cadastrada.</div>
+                <div style={{ color: 'var(--text-secondary)', textAlign: 'center', padding: 24 }}>Nenhuma categoria cadastrada.</div>
               ) : (
                 <>
                   {!isMobile && (
@@ -167,7 +167,7 @@ export default function Categorias() {
                             <td>{cat.tipo}</td>
                             <td>
                               <span
-                                style={{ width: 18, height: 18, borderRadius: 4, background: cat.cor, display: 'inline-block', border: '2px solid #223B5A', verticalAlign: 'middle' }}
+                                style={{ width: 18, height: 18, borderRadius: 4, background: cat.cor, display: 'inline-block', border: '2px solid var(--border)', verticalAlign: 'middle' }}
                               ></span>
                             </td>
                             <td className={styles.actionCell}>
@@ -183,10 +183,10 @@ export default function Categorias() {
                     <div className={styles.cardsMobileWrapper}>
                       {categorias.map((cat) => (
                         <div className={styles.contaCardMobile} key={cat.id}>
-                          <div className={styles.contaNome} style={{ color: '#00D1B2', fontWeight: 700 }}>{cat.nome}</div>
+                          <div className={styles.contaNome} style={{ color: 'var(--primary)', fontWeight: 700 }}>{cat.nome}</div>
                           <div className={styles.contaTipo}>{cat.tipo}</div>
                           <div className={styles.contaTipo}>
-                            <span style={{ width: 18, height: 18, borderRadius: 4, background: cat.cor, display: 'inline-block', border: '2px solid #223B5A', verticalAlign: 'middle' }}></span>
+                            <span style={{ width: 18, height: 18, borderRadius: 4, background: cat.cor, display: 'inline-block', border: '2px solid var(--border)', verticalAlign: 'middle' }}></span>
                           </div>
                           <div className={styles.contaAcoes}>
                             <button onClick={() => openEditModal(cat)}>Editar</button>
@@ -237,12 +237,12 @@ export default function Categorias() {
         </Modal>
         <Modal open={confirmDeleteOpen} onClose={() => setConfirmDeleteOpen(false)}>
           <h2 className={styles.modalTitle}>Confirmar Exclusão</h2>
-          <p style={{ color: '#A5B3C7', marginBottom: 24 }}>Tem certeza que deseja excluir esta categoria?</p>
+          <p style={{ color: 'var(--text-secondary)', marginBottom: 24 }}>Tem certeza que deseja excluir esta categoria?</p>
           <div style={{ display: 'flex', gap: 16 }}>
-            <button className={styles.buttonMeta} style={{ background: '#00D1B2', color: '#081B33' }} onClick={handleDelete}>
+            <button className={styles.buttonMeta} style={{ background: 'var(--primary)', color: '#081B33' }} onClick={handleDelete}>
               Confirmar
             </button>
-            <button className={styles.buttonMeta} style={{ background: '#223B5A', color: '#fff' }} onClick={() => setConfirmDeleteOpen(false)}>
+            <button className={styles.buttonMeta} style={{ background: 'var(--border)', color: 'var(--text)' }} onClick={() => setConfirmDeleteOpen(false)}>
               Cancelar
             </button>
           </div>

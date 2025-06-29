@@ -1,0 +1,226 @@
+.mainContent {
+  margin-left: 240px;
+  padding: 40px 32px 0 32px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  min-height: 100vh;
+  background-color: var(--bg);
+  transition: background-color 0.3s ease;
+}
+
+.title {
+  color: var(--text);
+  font-size: 2rem;
+  margin-bottom: 18px;
+  transition: color 0.3s ease;
+}
+
+.card {
+  background: var(--bg-card);
+  border-radius: 16px;
+  padding: 24px 24px 16px 24px;
+  width: 100%;
+  color: var(--text);
+  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+  margin-top: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  border: 1px solid var(--border);
+  transition: all 0.3s ease;
+}
+
+.totalGasto {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 32px 24px;
+  margin-bottom: 32px;
+  text-align: center;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.totalGastoLabel {
+  color: var(--text-secondary);
+  font-size: 1.1rem;
+  margin-bottom: 8px;
+  font-weight: 600;
+  transition: color 0.3s ease;
+}
+
+.totalGastoValor {
+  color: var(--primary);
+  font-size: 2rem;
+  font-weight: bold;
+  transition: color 0.3s ease;
+}
+
+.dashboardGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 32px;
+  margin-bottom: 28px;
+  width: 100%;
+}
+
+.dashboardCard {
+  background: var(--bg-card);
+  border-radius: 16px;
+  padding: 28px 38px;
+  min-height: 140px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  box-shadow: 0 2px 12px 0 rgba(0,0,0,0.08);
+  border: 1px solid var(--border);
+  transition: all 0.3s ease;
+}
+
+.dashboardCardTitle {
+  color: var(--text-secondary);
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 8px;
+  transition: color 0.3s ease;
+}
+
+.dashboardCardValue {
+  color: var(--primary);
+  font-size: 2rem;
+  font-weight: bold;
+  margin-top: 6px;
+  transition: color 0.3s ease;
+}
+
+.dashboardChartRow {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  gap: 48px;
+  margin-bottom: 18px;
+  width: 100%;
+}
+
+.dashboardChartCard {
+  background: var(--bg-card);
+  border-radius: 16px;
+  padding: 32px 24px;
+  flex: 1 1 400px;
+  min-height: 320px;
+  max-width: 480px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border);
+  transition: all 0.3s ease;
+}
+
+.dashboardChartTitle {
+  color: var(--text);
+  font-weight: 600;
+  margin-bottom: 12px;
+  font-size: 1.2rem;
+  transition: color 0.3s ease;
+}
+
+.recentTable {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  background: var(--bg-card);
+  border-radius: 16px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+  border: 1px solid var(--border);
+  margin-bottom: 20px;
+  margin-top: 8px;
+  transition: all 0.3s ease;
+  overflow: hidden;
+}
+
+.recentTable th, .recentTable td {
+  padding: 16px 18px;
+  text-align: left;
+  font-size: 1rem;
+  border-bottom: 1.5px solid var(--border);
+  color: var(--text);
+  background: transparent;
+  transition: background 0.2s;
+}
+
+.recentTable thead th {
+  border-bottom: 2px solid var(--border);
+  color: var(--text-secondary);
+  font-weight: 600;
+  background: rgba(0,0,0,0.03);
+}
+
+.recentTable tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.recentTable tbody tr {
+  transition: background 0.2s;
+}
+
+.recentTable tbody tr:hover {
+  background: rgba(0,209,178,0.07);
+}
+
+.recentTable th:first-child, .recentTable td:first-child {
+  border-top-left-radius: 16px;
+  border-bottom-left-radius: 16px;
+}
+
+.recentTable th:last-child, .recentTable td:last-child {
+  border-top-right-radius: 16px;
+  border-bottom-right-radius: 16px;
+}
+
+@media (max-width: 768px) {
+  .mainContent {
+    align-items: center;
+    padding: 0 12px;
+    margin: 0;
+  }
+  .totalGasto {
+    padding: 20px 8px;
+    font-size: 1rem;
+  }
+  .totalGastoValor {
+    font-size: 1.3rem;
+  }
+  .card {
+    max-width: 100%;
+    margin: 8px 0;
+    padding: 16px;
+  }
+}
+
+@media (max-width: 900px) {
+  .dashboardGrid {
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+  .dashboardChartRow {
+    flex-direction: column;
+    gap: 24px;
+  }
+  .dashboardChartCard {
+    max-width: 100%;
+    min-width: 0;
+    padding: 18px 6px;
+  }
+  .mainContent {
+    padding: 24px 8px 0 8px;
+  }
+} 

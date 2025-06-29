@@ -5,16 +5,19 @@
   flex-direction: column;
   align-items: flex-start;
   min-height: 100vh;
+  background-color: var(--bg);
+  transition: background-color 0.3s ease;
 }
 
 .title {
   color: var(--text);
   font-size: 2rem;
   margin-bottom: 18px;
+  transition: color 0.3s ease;
 }
 
 .addButton {
-  background: #00D1B2;
+  background: var(--primary);
   color: #081B33;
   border: none;
   border-radius: 8px;
@@ -24,30 +27,35 @@
   cursor: pointer;
   margin-top: 20px;
   margin-bottom: 18px;
-  transition: background 0.2s;
+  transition: all 0.3s ease;
 }
 .addButton:hover {
   background: #00b89c;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 209, 178, 0.3);
 }
 
 .card {
-  background: #0E2A4C;
+  background: var(--bg-card);
   border-radius: 16px;
   padding: 24px 24px 16px 24px;
   width: 86vw;
-
-  color: #fff;
-  box-shadow: 0 4px 24px 0 rgba(0,0,0,0.10);
+  color: var(--text);
+  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
   margin-top: 8px;
   display: flex;
   flex-direction: column;
   align-items: stretch;
+  border: 1px solid var(--border);
+  transition: all 0.3s ease;
 }
 
 .tableTitle {
   font-size: 1.1rem;
   font-weight: bold;
   margin-bottom: 16px;
+  color: var(--text);
+  transition: color 0.3s ease;
 }
 
 .tableMetas {
@@ -55,30 +63,47 @@
   border-collapse: collapse;
   background: transparent;
   table-layout: fixed;
-
 }
 
 .tableMetas th, .tableMetas td {
   padding: 12px 12px;
   text-align: left;
   font-size: 1rem;
-  border-bottom: 1.5px solid #223B5A;
+  border-bottom: 1.5px solid var(--border);
   vertical-align: middle;
+  transition: border-color 0.3s ease;
 }
 
 .tableMetas thead th {
-  border-bottom: 2px solid #223B5A;
+  border-bottom: 2px solid var(--border);
 }
 
 .tableMetas tbody tr:last-child td {
   border-bottom: none;
 }
 
+.tableMetas th {
+  color: var(--text-secondary);
+  font-weight: 600;
+  background: none;
+  transition: color 0.3s ease;
+}
+
+.tableMetas tbody tr {
+  background: none;
+  transition: background-color 0.3s ease;
+}
+
+.tableMetas tbody tr:hover {
+  background: rgba(0, 209, 178, 0.05);
+}
+
 .modalTitle {
-  color: #fff;
+  color: var(--text);
   font-size: 1.25rem;
   font-weight: bold;
   margin-bottom: 18px;
+  transition: color 0.3s ease;
 }
 
 .formMeta {
@@ -88,28 +113,36 @@
 }
 
 .labelMeta {
-  color: #A5B3C7;
+  color: var(--text-secondary);
   font-size: 14px;
   font-weight: 500;
+  transition: color 0.3s ease;
 }
 
 .inputMeta {
-  background: #061426;
-  border: none;
+  background: var(--bg);
+  border: 1px solid var(--border);
   border-radius: 10px;
   padding: 12px 16px;
-  color: #A5B3C7;
+  color: var(--text);
   font-size: 16px;
   margin-bottom: 4px;
+  transition: all 0.3s ease;
+}
+
+.inputMeta:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px rgba(0, 209, 178, 0.2);
 }
 
 .inputMeta::placeholder {
-  color: #5C6A7C;
+  color: var(--text-secondary);
   opacity: 1;
 }
 
 .buttonMeta {
-  background: #00D1B2;
+  background: var(--primary);
   color: #081B33;
   border: none;
   border-radius: 8px;
@@ -119,24 +152,26 @@
   margin-top: 12px;
   width: 200px;
   cursor: pointer;
-  transition: background 0.2s;
+  transition: all 0.3s ease;
 }
 .buttonMeta:hover {
   background: #00b89c;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 209, 178, 0.3);
 }
 
 .actionBtn {
   position: relative;
   right: 10px;
   background: none;
-  color: #00D1B2;
+  color: var(--primary);
   border: none;
   border-radius: 4px;
   padding: 4px 12px;
   font-size: 0.97rem;
   font-weight: 500;
   cursor: pointer;
-  transition: background 0.2s, color 0.2s;
+  transition: all 0.3s ease;
   vertical-align: middle;
 }
 
@@ -145,8 +180,8 @@
 }
 
 .actionBtn:hover {
-  background: #223B5A;
-  color: #fff;
+  background: var(--border);
+  color: var(--text);
 }
 
 .parcelamentoModalOverlay {
@@ -400,28 +435,40 @@
 }
 
 .filtrosBar {
-  margin-bottom: 18px;
   display: flex;
-  gap: 6px;
-  background: #10294A;
+  gap: 16px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+  align-items: center;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
   border-radius: 10px;
   padding: 12px 16px;
-  align-items: center;
   width: fit-content;
+  transition: all 0.3s ease;
 }
+
 .filtrosLabel {
-  color: #A5B3C7;
+  color: var(--text-secondary);
   font-size: 14px;
-  margin-right: 4px;
+  font-weight: 500;
+  transition: color 0.3s ease;
 }
+
 .filtrosSelect {
-  background: #142B4D;
-  color: #fff;
-  border: none;
-  border-radius: 6px;
-  padding: 4px 10px;
-  margin-right: 12px;
-  font-size: 1rem;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 12px;
+  color: var(--text);
+  font-size: 14px;
+  transition: all 0.3s ease;
+}
+
+.filtrosSelect:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px rgba(0, 209, 178, 0.2);
 }
 
 .mobileHeaderBar {
@@ -556,20 +603,11 @@
   .filtrosBar {
     flex-direction: column;
     align-items: stretch;
+    gap: 12px;
     width: 100%;
-    padding: 8px 4px;
-    gap: 6px;
-  }
-  .filtrosLabel {
-    font-size: 12px;
-    margin-bottom: 2px;
   }
   .filtrosSelect {
     width: 100%;
-    font-size: 0.95rem;
-    padding: 4px 8px;
-    margin-right: 0;
-    margin-bottom: 4px;
   }
   .mobileCenterContent {
     display: flex;
@@ -697,5 +735,47 @@
   }
   .parcelamentoInfo span {
     font-size: 0.92rem;
+  }
+}
+
+.totalGasto {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 32px 24px;
+  margin-bottom: 32px;
+  text-align: center;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.totalGastoLabel {
+  color: var(--text-secondary);
+  font-size: 1.1rem;
+  margin-bottom: 8px;
+  font-weight: 600;
+  transition: color 0.3s ease;
+}
+
+.totalGastoValor {
+  color: var(--primary);
+  font-size: 2rem;
+  font-weight: bold;
+  transition: color 0.3s ease;
+}
+
+@media (max-width: 768px) {
+  .totalGasto {
+    padding: 20px 8px;
+    font-size: 1rem;
+  }
+  .totalGastoValor {
+    font-size: 1.3rem;
   }
 } 

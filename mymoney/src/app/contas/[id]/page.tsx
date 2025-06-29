@@ -330,11 +330,11 @@ export default function DetalheConta() {
           <h1 className="title">{conta ? `${conta.nome} - Detalhes` : "Detalhes da Conta"}</h1>
         )}
         <div className={isMobile ? styles.mobileMainWrapper : undefined}>
-          {/* Card de resumo alinhado à direita */}
-          <div style={{ width: '100%', display: 'flex', justifyContent: isMobile ? 'flex-end' : 'flex-start', marginBottom: 24 }}>
-            <div style={{ background: '#0E2A4C', borderRadius: 12, padding: 24, minWidth: 220, maxWidth: 420, width: '50%', border: '2px dashed #3A4B6A', marginBottom: 8 }}>
-              <h2 style={{ color: '#fff', fontSize: 18, fontWeight: 600, marginBottom: 12 }}>Total Gasto no Mês:</h2>
-              <div style={{ color: '#00D1B2', fontSize: 24, fontWeight: 700 }}>
+          {/* Card de resumo centralizado e largo */}
+          <div style={{ width: '100%', marginBottom: 32 }}>
+            <div className={styles.totalGasto}>
+              <div className={styles.totalGastoLabel}>Total Gasto no Mês:</div>
+              <div className={styles.totalGastoValor}>
                 R$ {valorAnimado.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
               </div>
             </div>

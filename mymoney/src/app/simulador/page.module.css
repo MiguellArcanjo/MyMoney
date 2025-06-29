@@ -1,0 +1,219 @@
+.container {
+  display: flex;
+  min-height: 100vh;
+}
+
+.main {
+  flex: 1;
+  padding: 32px;
+  background-color: var(--bg);
+  overflow-y: auto;
+}
+
+.content {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.formCard {
+  background-color: var(--bg-card);
+  border-radius: 12px;
+  padding: 32px;
+  border: 1px solid var(--border);
+  margin-bottom: 32px;
+}
+
+.formTitle {
+  color: var(--text);
+  font-size: 1.5rem;
+  margin-bottom: 24px;
+  font-weight: 600;
+}
+
+.formGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 24px;
+  margin-bottom: 32px;
+}
+
+.formField {
+  display: flex;
+  flex-direction: column;
+}
+
+.label {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--text);
+  font-weight: 500;
+}
+
+.input {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background-color: var(--bg-card);
+  color: var(--text);
+  font-size: 16px;
+  transition: border-color 0.3s ease;
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--primary);
+}
+
+.button {
+  background-color: var(--primary);
+  color: #081B33;
+  border: none;
+  border-radius: 8px;
+  padding: 14px 32px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 209, 178, 0.3);
+}
+
+.button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.resultCard {
+  background-color: var(--bg-card);
+  border-radius: 12px;
+  padding: 32px;
+  border: 1px solid var(--border);
+  margin-bottom: 32px;
+}
+
+.chartContainer {
+  height: 400px;
+  margin-bottom: 24px;
+}
+
+.summary {
+  background-color: rgba(0, 209, 178, 0.1);
+  border: 1px solid rgba(0, 209, 178, 0.3);
+  border-radius: 8px;
+  padding: 16px;
+  text-align: center;
+}
+
+.summaryText {
+  color: var(--text);
+  font-size: 16px;
+  margin: 0;
+  font-weight: 500;
+}
+
+.summaryHighlight {
+  color: var(--primary);
+}
+
+.tableCard {
+  background-color: var(--bg-card);
+  border-radius: 12px;
+  padding: 32px;
+  border: 1px solid var(--border);
+}
+
+.tableGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+.tableItem {
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  text-align: center;
+  transition: transform 0.2s ease;
+}
+
+.tableItem:hover {
+  transform: translateY(-2px);
+}
+
+.tableItemPositive {
+  background-color: rgba(0, 209, 178, 0.1);
+}
+
+.tableItemNegative {
+  background-color: rgba(255, 107, 107, 0.1);
+}
+
+.monthLabel {
+  color: var(--text-secondary);
+  font-size: 14px;
+  margin-bottom: 4px;
+}
+
+.monthValue {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.monthValuePositive {
+  color: var(--primary);
+}
+
+.monthValueNegative {
+  color: #ff6b6b;
+}
+
+@media (max-width: 768px) {
+  .main {
+    padding: 16px;
+  }
+  
+  .formCard,
+  .resultCard,
+  .tableCard {
+    padding: 20px;
+  }
+  
+  .formGrid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  
+  .tableGrid {
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 12px;
+  }
+  
+  .chartContainer {
+    height: 300px;
+  }
+}
+
+@media (max-width: 480px) {
+  .main {
+    padding: 12px;
+  }
+  
+  .formCard,
+  .resultCard,
+  .tableCard {
+    padding: 16px;
+  }
+  
+  .tableGrid {
+    grid-template-columns: 1fr;
+  }
+} 

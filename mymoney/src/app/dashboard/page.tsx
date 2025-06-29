@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import SideBar from "@/components/SideBar/sideBar";
-import styles from "../contas/page.module.css";
+import styles from "./page.module.css";
 import { Pie, Line } from "react-chartjs-2";
 import {
   Chart as ChartJS,
@@ -265,163 +265,83 @@ export default function Dashboard() {
     <div>
       <SideBar />
       <main className={styles.mainContent}>
-        {/* Header responsivo com menu e título na mesma linha no mobile */}
-        {isMobile ? (
-          <div className={styles.mobileHeaderBar} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', marginBottom: 18 }}>
-            <span className={styles.mobileTitle}>Dashboard</span>
+        <h1 className={styles.title}>Dashboard</h1>
+        <div className={styles.totalGasto}>
+          <div className={styles.totalGastoLabel}>Saldo Geral do Mês:</div>
+          <div className={styles.totalGastoValor}>
+            R$ {saldoGeral.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
           </div>
-        ) : (
-          <h1 className={styles.title}>Dashboard</h1>
-        )}
+        </div>
         {carregando ? (
           <LoadingSpinner size={60} />
         ) : (
           <>
-            {isMobile ? (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 14, width: '100%' }}>
-                <div style={{ background: '#0E2A4C', borderRadius: 14, padding: '14px 10px', minWidth: 0, minHeight: 70, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'flex-start', boxShadow: '0 2px 12px 0 rgba(0,0,0,0.08)' }}>
-                  <div style={{ color: '#A5B3C7', fontSize: 14, fontWeight: 500 }}>Saldo Restante do Salário (Mês)</div>
-                  <div style={{ color: saldoRestanteSalario < 0 ? '#FF5C5C' : '#00D1B2', fontSize: 18, fontWeight: 700, marginTop: 4 }}>
-                    R$ {saldoRestanteSalario.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                  </div>
-                </div>
-                {contas.length === 0 ? (
-                  <div style={{ color: '#A5B3C7', fontSize: 14, display: 'flex', alignItems: 'center', paddingLeft: 4 }}>
-                    Nenhuma conta cadastrada.
-                  </div>
-                ) : (
-                  contas.map((conta: any) => (
-                    <div key={conta.id} style={{ background: '#0E2A4C', borderRadius: 14, padding: '14px 10px', minWidth: 0, minHeight: 70, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'flex-start', boxShadow: '0 2px 12px 0 rgba(0,0,0,0.08)' }}>
-                      <div style={{ color: '#A5B3C7', fontSize: 14, fontWeight: 500 }}>{conta.nome}</div>
-                      <div style={{ color: '#fff', fontSize: 18, fontWeight: 700, marginTop: 4 }}>R$ {saldosPorConta[conta.id] !== undefined ? Math.abs(Number(saldosPorConta[conta.id])).toLocaleString('pt-BR', { minimumFractionDigits: 2 }) : '0,00'}</div>
-                    </div>
-                  ))
-                )}
-              </div>
-            ) : (
-              <div
-                style={{
-                  display: 'grid',
-                  gridTemplateColumns: 'repeat(3, 1fr)',
-                  gap: 32,
-                  marginBottom: 28,
-                  width: '100%',
-                }}
-              >
-                {(() => {
-                  const cardStyle = {
-                    background: '#0E2A4C',
-                    borderRadius: 16,
-                    padding: '28px 38px',
-                    height: 140,
-                    display: 'flex',
-                    flexDirection: 'column' as const,
-                    justifyContent: 'center' as const,
-                    alignItems: 'flex-start' as const,
-                    boxShadow: '0 2px 12px 0 rgba(0,0,0,0.08)',
-                    marginRight: 15
-                  };
-                  const totalCards = 1 + contas.length;
-                  const remainder = totalCards % 3;
-                  const placeholders = remainder === 0 ? 0 : 3 - remainder;
-                  const allCards = [
-                    // Card do salário
-                    <div key="salario" style={cardStyle}>
-                      <div style={{ color: '#A5B3C7', fontSize: 18, fontWeight: 500 }}>Saldo Restante do Salário (Mês)</div>
-                      <div style={{ color: saldoRestanteSalario < 0 ? '#FF5C5C' : '#00D1B2', fontSize: 28, fontWeight: 700, marginTop: 6 }}>
-                        R$ {saldoRestanteSalario.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                      </div>
-                    </div>,
-                    // Cards das contas
-                    ...(contas.length === 0
-                      ? [<div key="no-conta" style={cardStyle}>Nenhuma conta cadastrada.</div>]
-                      : contas.map((conta: any) => (
-                          <div key={conta.id} style={cardStyle}>
-                            <div style={{ color: '#A5B3C7', fontSize: 18, fontWeight: 500 }}>{conta.nome}</div>
-                            <div style={{ color: '#fff', fontSize: 28, fontWeight: 700, marginTop: 6 }}>
-                              R$ {saldosPorConta[conta.id] !== undefined ? Math.abs(Number(saldosPorConta[conta.id])).toLocaleString('pt-BR', { minimumFractionDigits: 2 }) : '0,00'}
-                            </div>
-                          </div>
-                        ))
-                    ),
-                    // Placeholders visíveis para completar a linha
-                    ...Array.from({ length: placeholders }).map((_, i) => (
-                      <div key={`ph-${i}`} style={cardStyle}></div>
-                    ))
-                  ];
-                  return <>{allCards}</>;
-                })()}
-              </div>
-            )}
-            {!isMobile && (
-              <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', gap: 150, marginBottom: 18, width: '100%' }}>
-                <div style={{ background: '#0E2A4C', borderRadius: 16, padding: 40, flex: '0 1 540px', minHeight: 320, maxWidth: 400, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-                  <div style={{ color: '#fff', fontWeight: 600, marginBottom: 12, fontSize: 22 }}>Despesas por Categoria</div>
-                  {Object.keys(despesasPorCategoria).length === 0 ? (
-                    <div style={{ color: '#A5B3C7', fontSize: 18, marginTop: 20 }}>Nenhuma despesa cadastrada.</div>
-                  ) : (
-                    <Pie data={pieData} options={{ plugins: { legend: { labels: { color: '#fff', font: { size: 18 } } } } }} style={{ width: '100%', maxWidth: 400, height: 'auto' }} />
-                  )}
-                </div>
-                <div style={{ background: '#0E2A4C', borderRadius: 16, padding: 40, flex: '0 1 540px', minHeight: 320, maxWidth: 400, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-                  <div style={{ color: '#fff', fontWeight: 600, marginBottom: 12, fontSize: 22 }}>Evolução do Saldo (Ano)</div>
-                  {lancamentos.length === 0 ? (
-                    <div style={{ color: '#A5B3C7', fontSize: 18, marginTop: 20 }}>Sem dados para exibir o gráfico.</div>
-                  ) : (
-                    <Line data={lineData} options={{ plugins: { legend: { labels: { color: '#fff', font: { size: 18 } } } }, scales: { x: { ticks: { color: '#fff' } }, y: { ticks: { color: '#fff' } } } }} style={{ width: '100%', maxWidth: 400, height: 'auto' }} />
-                  )}
+            {/* Cards principais */}
+            <div className={styles.dashboardGrid}>
+              <div className={styles.dashboardCard}>
+                <div className={styles.dashboardCardTitle}>Saldo Restante do Salário (Mês)</div>
+                <div className={styles.dashboardCardValue} style={{ color: saldoRestanteSalario < 0 ? '#FF5C5C' : 'var(--primary)' }}>
+                  R$ {saldoRestanteSalario.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                 </div>
               </div>
-            )}
-            <div className={styles.card} style={{ marginBottom: 20,marginTop: 8, width: isMobile ? '100%' : undefined, maxWidth: isMobile ? 480 : undefined, marginLeft: isMobile ? 'auto' : undefined, marginRight: isMobile ? 'auto' : undefined }}>
-              <h2 className={styles.tableTitle}>Lançamentos Recentes</h2>
-              {isMobile ? (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 10, width: '100%', maxWidth: 480, margin: '0 auto', padding: '0 6px' }}>
-                  {lancRecentes.length === 0 && (
-                    <div style={{ color: '#A5B3C7', textAlign: 'center', padding: 18 }}>Nenhum lançamento recente.</div>
-                  )}
-                  {lancRecentes.map((l: any) => (
-                    <div key={l.id} style={{ background: '#142B4D', borderRadius: 10, padding: 12, marginBottom: 2, boxShadow: '0 1px 6px 0 #0002', color: '#fff', display: 'flex', flexDirection: 'column', gap: 4, width: '100%', maxWidth: 480, margin: '0 auto' }}>
-                      <div style={{ fontWeight: 600, color: '#00D1B2' }}>{l.descricao}</div>
-                      <div style={{ fontSize: 13 }}>Conta: <span style={{ color: '#A5B3C7' }}>{contas.find(c => c.id === l.contaId)?.nome || '-'}</span></div>
-                      <div style={{ fontSize: 13 }}>Categoria: <span style={{ color: '#A5B3C7' }}>{l.categoria?.nome || '-'}</span></div>
-                      <div style={{ fontSize: 13 }}>Valor: <span style={{ color: l.tipo === 'Despesa' ? '#FF5C5C' : '#00D1B2' }}>R$ {l.tipo === 'Despesa' ? '-' : '+'}{Math.abs(Number(l.valor)).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span></div>
-                      <div style={{ fontSize: 13 }}>Data: <span style={{ color: '#A5B3C7' }}>{l.data ? new Date(l.data).toLocaleDateString('pt-BR') : '-'}</span></div>
-                    </div>
-                  ))}
-                </div>
+              {contas.length === 0 ? (
+                <div className={styles.dashboardCard} style={{ justifyContent: 'center', alignItems: 'center' }}>Nenhuma conta cadastrada.</div>
               ) : (
-                <table className={styles.tableMetas}>
-                  <thead>
-                    <tr>
-                      <th>Descrição</th>
-                      <th>Conta</th>
-                      <th>Categoria</th>
-                      <th>Valor</th>
-                      <th>Data</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {lancRecentes.length === 0 && (
-                      <tr>
-                        <td colSpan={5} style={{ color: '#A5B3C7', textAlign: 'center', padding: 24 }}>Nenhum lançamento recente.</td>
-                      </tr>
-                    )}
-                    {lancRecentes.map((l: any) => (
-                      <tr key={l.id}>
-                        <td>{l.descricao}</td>
-                        <td>{contas.find(c => c.id === l.contaId)?.nome || '-'}</td>
-                        <td>{l.categoria?.nome || '-'}</td>
-                        <td style={{ color: l.tipo === 'Despesa' ? '#FF5C5C' : '#00D1B2' }}>
-                          R$ {l.tipo === 'Despesa' ? '-' : '+'}{Math.abs(Number(l.valor)).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                        </td>
-                        <td>{l.data ? new Date(l.data).toLocaleDateString('pt-BR') : '-'}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+                contas.map((conta: any) => (
+                  <div key={conta.id} className={styles.dashboardCard}>
+                    <div className={styles.dashboardCardTitle}>{conta.nome}</div>
+                    <div className={styles.dashboardCardValue}>R$ {saldosPorConta[conta.id] !== undefined ? Math.abs(Number(saldosPorConta[conta.id])).toLocaleString('pt-BR', { minimumFractionDigits: 2 }) : '0,00'}</div>
+                  </div>
+                ))
               )}
             </div>
+            {/* Gráficos */}
+            <div className={styles.dashboardChartRow}>
+              <div className={styles.dashboardChartCard}>
+                <div className={styles.dashboardChartTitle}>Despesas por Categoria</div>
+                {Object.keys(despesasPorCategoria).length === 0 ? (
+                  <div style={{ color: 'var(--text-secondary)', fontSize: 18, marginTop: 20 }}>Nenhuma despesa cadastrada.</div>
+                ) : (
+                  <Pie data={pieData} options={{ plugins: { legend: { labels: { color: 'var(--text)', font: { size: 18 } } } } }} style={{ width: '100%', maxWidth: 400, height: 'auto' }} />
+                )}
+              </div>
+              <div className={styles.dashboardChartCard}>
+                <div className={styles.dashboardChartTitle}>Evolução do Saldo (Ano)</div>
+                {lancamentos.length === 0 ? (
+                  <div style={{ color: 'var(--text-secondary)', fontSize: 18, marginTop: 20 }}>Sem dados para exibir o gráfico.</div>
+                ) : (
+                  <Line data={lineData} options={{ plugins: { legend: { labels: { color: 'var(--text)', font: { size: 18 } } } }, scales: { x: { ticks: { color: 'var(--text)' } }, y: { ticks: { color: 'var(--text)' } } } }} style={{ width: '100%', maxWidth: 400, height: 'auto' }} />
+                )}
+              </div>
+            </div>
+            {/* Lançamentos Recentes */}
+            <table className={styles.recentTable}>
+              <thead>
+                <tr>
+                  <th>Descrição</th>
+                  <th>Conta</th>
+                  <th>Categoria</th>
+                  <th>Valor</th>
+                  <th>Data</th>
+                </tr>
+              </thead>
+              <tbody>
+                {lancRecentes.length === 0 && (
+                  <tr><td colSpan={5} style={{ color: 'var(--text-secondary)', textAlign: 'center', padding: 18 }}>Nenhum lançamento recente.</td></tr>
+                )}
+                {lancRecentes.map((l: any) => (
+                  <tr key={l.id}>
+                    <td style={{ color: 'var(--primary)', fontWeight: 600 }}>{l.descricao}</td>
+                    <td>{contas.find(c => c.id === l.contaId)?.nome || '-'}</td>
+                    <td>{l.categoria?.nome || '-'}</td>
+                    <td style={{ color: l.tipo === 'Despesa' ? '#FF5C5C' : 'var(--primary)', fontWeight: 600 }}>
+                      R$ {l.tipo === 'Despesa' ? '-' : '+'}{Math.abs(Number(l.valor)).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                    </td>
+                    <td>{l.data ? new Date(l.data).toLocaleDateString('pt-BR') : '-'}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </>
         )}
       </main>
