@@ -271,27 +271,33 @@
     color: var(--text);
   }
   .mobileHeaderBar {
+    width: 100%;
     display: flex;
     align-items: center;
-    justify-content: center;
-    width: 100%;
-    padding: 18px 0 12px 0;
-    margin-bottom: 0;
+    margin-bottom: 12px;
+    padding: 16px 18px 0 18px;
     position: relative;
+    z-index: 9999;
   }
   .mobileHeaderBar .sidebar-hamburger {
-    position: absolute;
-    left: 0;
-    top: 50%;
-    transform: translateY(-50%);
+    margin-right: 12px;
   }
   .mobileTitle {
-    flex: 1;
-    text-align: center;
+    color: var(--text);
     font-size: 1.5rem;
     font-weight: bold;
-    color: var(--text);
     transition: color 0.3s ease;
+  }
+  .mobileActionButton {
+    width: 100%;
+    display: flex;
+    justify-content: flex-start;
+    margin-bottom: 18px;
+    padding: 0 18px;
+  }
+  .mobileActionButton .addButton {
+    width: 100%;
+    max-width: none;
   }
   .card {
     max-width: 100%;
@@ -327,3 +333,9 @@
     font-size: 0.8rem;
   }
 } 
+
+@media (max-width: 1500px) {
+  .card {
+    width: 80vw !important;
+  }
+}

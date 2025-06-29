@@ -176,6 +176,26 @@
   color: #ff6b6b;
 }
 
+.mobileHeaderBar {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  margin-bottom: 12px;
+  padding: 16px 18px 0 18px;
+  position: relative;
+  z-index: 9999;
+  box-sizing: border-box;
+}
+
+.mobileTitle {
+  color: var(--text);
+  font-size: 1.5rem;
+  font-weight: bold;
+  transition: color 0.3s ease;
+  flex: 1;
+  text-align: left;
+}
+
 @media (max-width: 768px) {
   .main {
     padding: 16px;
@@ -215,5 +235,16 @@
   
   .tableGrid {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (min-width: 769px) {
+  .main {
+    margin-left: 220px;
+  }
+  .content {
+    max-width: none;
+    margin: 0;
+    width: 100%;
   }
 } 

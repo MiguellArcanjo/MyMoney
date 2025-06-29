@@ -6,6 +6,7 @@ import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Modal from "@/components/Modal/Modal";
 import LoadingSpinner from "@/components/LoadingSpinner";
+import { useSidebar } from "@/components/SideBar/SidebarContext";
 
 export default function DetalheConta() {
   const params = useParams();
@@ -53,6 +54,7 @@ export default function DetalheConta() {
   const [addFrequencia, setAddFrequencia] = useState("mensal");
   const [addDataTermino, setAddDataTermino] = useState("");
   const [wizardStep, setWizardStep] = useState(1);
+  const { setIsOpen } = useSidebar();
 
   const carregando = loadingConta || loadingLancamentos || loadingCategorias || loadingMetas;
 
@@ -337,7 +339,11 @@ export default function DetalheConta() {
         {/* Barra de título e menu no mobile */}
         {isMobile ? (
           <div className={styles.mobileHeaderBar}>
-            <button className="sidebar-hamburger" onClick={() => document.querySelector('.sidebar-hamburger')?.dispatchEvent(new Event('click', { bubbles: true }))}>
+            <button
+              className="sidebar-hamburger"
+              style={{ position: 'static', top: 'unset', left: 'unset', marginRight: 12, zIndex: 10000 }}
+              onClick={() => setIsOpen(true)}
+            >
               <span className="sidebar-hamburger-bar" />
               <span className="sidebar-hamburger-bar" />
               <span className="sidebar-hamburger-bar" />
@@ -359,42 +365,10 @@ export default function DetalheConta() {
           </div>
           {/* Botão e filtros alinhados à direita no mobile */}
           {isMobile ? (
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', width: '100%' }}>
+            <div className={styles.mobileActionButton}>
               <button className={styles.addButton} onClick={() => setModalAdd(true)}>
                 + Adicionar Lançamento
               </button>
-              <div style={{ marginBottom: 18, display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 8, background: 'none', borderRadius: 0, padding: 0, width: '100%', marginTop: 8 }}>
-                <div style={{ display: 'flex', gap: 6, background: '#10294A', borderRadius: 10, padding: '12px 16px', alignItems: 'center', width: 'fit-content', flexWrap: 'wrap' }}>
-                  <span style={{ color: '#A5B3C7', fontSize: 14, marginRight: 4 }}>Categoria:</span>
-                  <select value={filtroCategoria} onChange={e => setFiltroCategoria(e.target.value)} style={{ background: '#142B4D', color: '#fff', border: 'none', borderRadius: 6, padding: '4px 10px', marginRight: 12 }}>
-                    <option value="Todas">Todas</option>
-                    {categorias.map(cat => (
-                      <option key={cat.id} value={cat.nome}>{cat.nome}</option>
-                    ))}
-                  </select>
-                  <span style={{ color: '#A5B3C7', fontSize: 14, marginRight: 4 }}>Tipo:</span>
-                  <select value={filtroTipo} onChange={e => setFiltroTipo(e.target.value)} style={{ background: '#142B4D', color: '#fff', border: 'none', borderRadius: 6, padding: '4px 10px', marginRight: 12 }}>
-                    <option value="Todos">Todos</option>
-                    <option value="Despesa">Despesa</option>
-                    <option value="Receita">Receita</option>
-                  </select>
-                </div>
-                <div style={{ display: 'flex', gap: 6, background: '#10294A', borderRadius: 10, padding: '12px 16px', alignItems: 'center', width: 'fit-content', flexWrap: 'wrap' }}>
-                  <span style={{ color: '#A5B3C7', fontSize: 14, marginRight: 4 }}>Mês:</span>
-                  <select value={filtroMes} onChange={e => setFiltroMes(Number(e.target.value))} style={{ background: '#142B4D', color: '#fff', border: 'none', borderRadius: 6, padding: '4px 10px', marginRight: 12 }}>
-                    {[...Array(12)].map((_, i) => (
-                      <option key={i+1} value={i+1}>{(i+1).toString().padStart(2, '0')}</option>
-                    ))}
-                  </select>
-                  <span style={{ color: '#A5B3C7', fontSize: 14, marginRight: 4 }}>Ano:</span>
-                  <select value={filtroAno} onChange={e => setFiltroAno(Number(e.target.value))} style={{ background: '#142B4D', color: '#fff', border: 'none', borderRadius: 6, padding: '4px 10px' }}>
-                    {[...Array(5)].map((_, i) => {
-                      const ano = new Date().getFullYear() - 2 + i;
-                      return <option key={ano} value={ano}>{ano}</option>
-                    })}
-                  </select>
-                </div>
-              </div>
             </div>
           ) : (
             <>
@@ -430,6 +404,40 @@ export default function DetalheConta() {
                 </select>
               </div>
             </>
+          )}
+          {isMobile && (
+            <div style={{ marginBottom: 18, display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 8, background: 'none', borderRadius: 0, padding: 0, width: '100%', marginTop: 8 }}>
+              <div style={{ display: 'flex', gap: 6, background: '#10294A', borderRadius: 10, padding: '12px 16px', alignItems: 'center', width: 'fit-content', flexWrap: 'wrap' }}>
+                <span style={{ color: '#A5B3C7', fontSize: 14, marginRight: 4 }}>Categoria:</span>
+                <select value={filtroCategoria} onChange={e => setFiltroCategoria(e.target.value)} style={{ background: '#142B4D', color: '#fff', border: 'none', borderRadius: 6, padding: '4px 10px', marginRight: 12 }}>
+                  <option value="Todas">Todas</option>
+                  {categorias.map(cat => (
+                    <option key={cat.id} value={cat.nome}>{cat.nome}</option>
+                  ))}
+                </select>
+                <span style={{ color: '#A5B3C7', fontSize: 14, marginRight: 4 }}>Tipo:</span>
+                <select value={filtroTipo} onChange={e => setFiltroTipo(e.target.value)} style={{ background: '#142B4D', color: '#fff', border: 'none', borderRadius: 6, padding: '4px 10px', marginRight: 12 }}>
+                  <option value="Todos">Todos</option>
+                  <option value="Despesa">Despesa</option>
+                  <option value="Receita">Receita</option>
+                </select>
+              </div>
+              <div style={{ display: 'flex', gap: 6, background: '#10294A', borderRadius: 10, padding: '12px 16px', alignItems: 'center', width: 'fit-content', flexWrap: 'wrap' }}>
+                <span style={{ color: '#A5B3C7', fontSize: 14, marginRight: 4 }}>Mês:</span>
+                <select value={filtroMes} onChange={e => setFiltroMes(Number(e.target.value))} style={{ background: '#142B4D', color: '#fff', border: 'none', borderRadius: 6, padding: '4px 10px', marginRight: 12 }}>
+                  {[...Array(12)].map((_, i) => (
+                    <option key={i+1} value={i+1}>{(i+1).toString().padStart(2, '0')}</option>
+                  ))}
+                </select>
+                <span style={{ color: '#A5B3C7', fontSize: 14, marginRight: 4 }}>Ano:</span>
+                <select value={filtroAno} onChange={e => setFiltroAno(Number(e.target.value))} style={{ background: '#142B4D', color: '#fff', border: 'none', borderRadius: 6, padding: '4px 10px' }}>
+                  {[...Array(5)].map((_, i) => {
+                    const ano = new Date().getFullYear() - 2 + i;
+                    return <option key={ano} value={ano}>{ano}</option>
+                  })}
+                </select>
+              </div>
+            </div>
           )}
           <div className={styles.card} style={{ marginTop: 24 }}>
             <h2 className={styles.tableTitle}>Lançamentos</h2>

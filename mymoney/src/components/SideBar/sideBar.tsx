@@ -46,29 +46,33 @@ export default function SideBar() {
   if (isMobile) {
     return (
       <>
-        {!isOpen && (
-          <button className="sidebar-hamburger" onClick={() => setIsOpen(true)}>
-            <span className="sidebar-hamburger-bar" />
-            <span className="sidebar-hamburger-bar" />
-            <span className="sidebar-hamburger-bar" />
-          </button>
-        )}
         {isOpen && (
-          <aside className="sidebar sidebar-mobile">
-            <div className="sidebar-title">Organizze <button className="sidebar-close" style={{zIndex: 10001, position: 'absolute', right: 0, top: '50%', transform: 'translateY(-50%)'}} onClick={() => setIsOpen(false)}>&times;</button></div>
-            <nav className="sidebar-nav">
-              <ul>
-                <li><a href="/dashboard" className={pathname === "/dashboard" ? "active" : ""} onClick={() => setIsOpen(false)}>Dashboard</a></li>
-                <li><a href="/contas" className={pathname === "/contas" ? "active" : ""} onClick={() => setIsOpen(false)}>Contas</a></li>
-                <li><a href="/lancamentos" className={pathname === "/lancamentos" ? "active" : ""} onClick={() => setIsOpen(false)}>Lançamentos</a></li>
-                <li><a href="/categorias" className={pathname === "/categorias" ? "active" : ""} onClick={() => setIsOpen(false)}>Categorias</a></li>
-                <li><a href="/metas" className={pathname === "/metas" ? "active" : ""} onClick={() => setIsOpen(false)}>Metas</a></li>
-                <li><a href="/simulador" className={pathname === "/simulador" ? "active" : ""} onClick={() => setIsOpen(false)}>Simulador</a></li>
-                <li><a href="/minhaConta" className={pathname === "/minhaConta" ? "active" : ""} onClick={() => setIsOpen(false)}>Minha conta</a></li>
-                <li className="sidebar-exit"><button className="sidebar-logout-btn" onClick={() => setShowLogoutModal(true)}>Sair</button></li>
-              </ul>
-            </nav>
-          </aside>
+          <>
+            <div style={{
+              position: 'fixed',
+              top: 0,
+              left: 0,
+              width: '100vw',
+              height: '100vh',
+              background: 'rgba(8, 27, 51, 0.55)',
+              zIndex: 9999,
+            }} onClick={() => setIsOpen(false)} />
+            <aside className="sidebar sidebar-mobile" style={{ zIndex: 10001 }}>
+              <div className="sidebar-title">Organizze <button className="sidebar-close" style={{zIndex: 10002, position: 'absolute', right: 0, top: '50%', transform: 'translateY(-50%)'}} onClick={() => setIsOpen(false)}>&times;</button></div>
+              <nav className="sidebar-nav">
+                <ul>
+                  <li><a href="/dashboard" className={pathname === "/dashboard" ? "active" : ""} onClick={() => setIsOpen(false)}>Dashboard</a></li>
+                  <li><a href="/contas" className={pathname === "/contas" ? "active" : ""} onClick={() => setIsOpen(false)}>Contas</a></li>
+                  <li><a href="/lancamentos" className={pathname === "/lancamentos" ? "active" : ""} onClick={() => setIsOpen(false)}>Lançamentos</a></li>
+                  <li><a href="/categorias" className={pathname === "/categorias" ? "active" : ""} onClick={() => setIsOpen(false)}>Categorias</a></li>
+                  <li><a href="/metas" className={pathname === "/metas" ? "active" : ""} onClick={() => setIsOpen(false)}>Metas</a></li>
+                  <li><a href="/simulador" className={pathname === "/simulador" ? "active" : ""} onClick={() => setIsOpen(false)}>Simulador</a></li>
+                  <li><a href="/minhaConta" className={pathname === "/minhaConta" ? "active" : ""} onClick={() => setIsOpen(false)}>Minha conta</a></li>
+                  <li className="sidebar-exit"><button className="sidebar-logout-btn" onClick={() => setShowLogoutModal(true)}>Sair</button></li>
+                </ul>
+              </nav>
+            </aside>
+          </>
         )}
         <Modal open={showLogoutModal} onClose={() => setShowLogoutModal(false)}>
           <div style={{ padding: 24, background: '#0E2A4C', borderRadius: 12, minWidth: 280, color: '#fff', textAlign: 'center' }}>

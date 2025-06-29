@@ -5,6 +5,7 @@ import SideBar from "@/components/SideBar/sideBar";
 import Modal from "@/components/Modal/Modal";
 import styles from "./page.module.css";
 import LoadingSpinner from "@/components/LoadingSpinner";
+import { useSidebar } from "@/components/SideBar/SidebarContext";
 
 export default function Metas() {
   const [metas, setMetas] = useState<any[]>([]);
@@ -21,6 +22,7 @@ export default function Metas() {
   const [receitasPorMeta, setReceitasPorMeta] = useState<{ [metaId: number]: number }>({});
   const carregando = metas.length === 0;
   const [isMobile, setIsMobile] = useState(false);
+  const { setIsOpen } = useSidebar();
 
   useEffect(() => {
     async function fetchMetas() {
@@ -175,15 +177,28 @@ export default function Metas() {
       <main className={styles.mainContent}>
         {/* Barra de título e menu no mobile */}
         {isMobile ? (
-          <div style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'flex-end', marginBottom: 18 }}>
-            <span className={styles.mobileTitle} style={{ textAlign: 'right', width: '100%', marginBottom: 8 }}>Metas de Economia</span>
-            <button className={styles.addButton} onClick={openAddModal}>
-              + Adicionar Meta
+          <div className={styles.mobileHeaderBar}>
+            <button
+              className="sidebar-hamburger"
+              style={{ position: 'static', top: 'unset', left: 'unset', marginRight: 12, zIndex: 10000 }}
+              onClick={() => setIsOpen(true)}
+            >
+              <span className="sidebar-hamburger-bar" />
+              <span className="sidebar-hamburger-bar" />
+              <span className="sidebar-hamburger-bar" />
             </button>
+            <span className={styles.mobileTitle}>Metas de Economia</span>
           </div>
         ) : (
           <div style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'flex-start', marginBottom: 18 }}>
             <h1 className={styles.title} style={{ textAlign: 'left', width: '100%', marginBottom: 8 }}>Metas de Economia</h1>
+            <button className={styles.addButton} onClick={openAddModal}>
+              + Adicionar Meta
+            </button>
+          </div>
+        )}
+        {isMobile && (
+          <div className={styles.mobileActionButton}>
             <button className={styles.addButton} onClick={openAddModal}>
               + Adicionar Meta
             </button>

@@ -294,6 +294,15 @@
   transition: color 0.3s ease;
 }
 
+@media (max-width: 1500px) {
+  .mainContent {
+    padding: 24px 0 0 0;
+  }
+  .card {
+    width: 80vw !important;
+  }
+}
+
 @media (max-width: 768px) {
   .mainContent {
     align-items: center;

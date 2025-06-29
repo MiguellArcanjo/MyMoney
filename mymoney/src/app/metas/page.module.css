@@ -210,6 +210,15 @@
   transition: color 0.3s ease;
 }
 
+@media (max-width: 1500px) {
+  .mainContent {
+    padding: 24px 0 0 0;
+  }
+  .card {
+    width: 80vw !important;
+  }
+}
+
 @media (max-width: 768px) {
   .mainContent {
     align-items: center;
@@ -217,21 +226,33 @@
     margin: 0;
   }
   .mobileHeaderBar {
+    width: 100%;
     display: flex;
     align-items: center;
-    justify-content: center;
-    width: 100%;
-    padding: 18px 0 12px 0;
-    margin-bottom: 0;
+    margin-bottom: 12px;
+    padding: 16px 18px 0 18px;
     position: relative;
+    z-index: 9999;
+  }
+  .mobileHeaderBar .sidebar-hamburger {
+    margin-right: 12px;
   }
   .mobileTitle {
-    flex: 1;
-    text-align: center;
+    color: var(--text);
     font-size: 1.5rem;
     font-weight: bold;
-    color: var(--text);
     transition: color 0.3s ease;
+  }
+  .mobileActionButton {
+    width: 100%;
+    display: flex;
+    justify-content: flex-start;
+    margin-bottom: 18px;
+    padding: 0 18px;
+  }
+  .mobileActionButton .addButton {
+    width: 100%;
+    max-width: none;
   }
   .card {
     max-width: 100%;

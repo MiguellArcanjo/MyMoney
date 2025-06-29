@@ -15,6 +15,7 @@ import {
 } from "chart.js";
 import LoadingSpinner from "@/components/LoadingSpinner";
 import styles from "./page.module.css";
+import { useSidebar } from "@/components/SideBar/SidebarContext";
 
 ChartJS.register(
   CategoryScale,
@@ -61,6 +62,8 @@ export default function Simulador() {
   const [loadingDados, setLoadingDados] = useState(true);
   const [dadosFinanceiros, setDadosFinanceiros] = useState<DadosFinanceiros | null>(null);
   const [dadosCarregados, setDadosCarregados] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+  const { setIsOpen } = useSidebar();
 
   async function carregarDadosFinanceiros() {
     const token = localStorage.getItem("token");
@@ -101,6 +104,15 @@ export default function Simulador() {
 
   useEffect(() => {
     carregarDadosFinanceiros();
+  }, []);
+
+  useEffect(() => {
+    function handleResize() {
+      setIsMobile(window.innerWidth <= 768);
+    }
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
   }, []);
 
   const recarregarDados = () => {
@@ -224,9 +236,24 @@ export default function Simulador() {
     <div className={styles.container}>
       <SideBar />
       <main className={styles.main}>
+        {/* Header responsivo com menu e título no mobile */}
+        {isMobile ? (
+          <div className={styles.mobileHeaderBar}>
+            <button
+              className="sidebar-hamburger"
+              style={{ position: 'static', top: 'unset', left: 'unset', marginRight: 12, zIndex: 10000 }}
+              onClick={() => setIsOpen(true)}
+            >
+              <span className="sidebar-hamburger-bar" />
+              <span className="sidebar-hamburger-bar" />
+              <span className="sidebar-hamburger-bar" />
+            </button>
+            <span className={styles.mobileTitle}>Simulador Financeiro</span>
+          </div>
+        ) : (
+          <h1 className={styles.formTitle} style={{ marginBottom: 32 }}>Simulador Financeiro</h1>
+        )}
         <div className={styles.content}>
-          <h1 className="title">Simulador Financeiro</h1>
-          
           {dadosCarregados && dadosFinanceiros && (
             <div className={styles.summary} style={{ marginBottom: '24px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>

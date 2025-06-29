@@ -5,6 +5,7 @@ import SideBar from "@/components/SideBar/sideBar";
 import Modal from "@/components/Modal/Modal";
 import styles from "./page.module.css";
 import LoadingSpinner from "@/components/LoadingSpinner";
+import { useSidebar } from "@/components/SideBar/SidebarContext";
 
 export default function Categorias() {
   const [categorias, setCategorias] = useState<any[]>([]);
@@ -17,6 +18,7 @@ export default function Categorias() {
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const { setIsOpen } = useSidebar();
 
   useEffect(() => {
     async function fetchCategorias() {
@@ -122,13 +124,22 @@ export default function Categorias() {
         {/* Barra de título e menu no mobile */}
         {isMobile ? (
           <div className={styles.mobileHeaderBar}>
+            <button
+              className="sidebar-hamburger"
+              style={{ position: 'static', top: 'unset', left: 'unset', marginRight: 12, zIndex: 10000 }}
+              onClick={() => setIsOpen(true)}
+            >
+              <span className="sidebar-hamburger-bar" />
+              <span className="sidebar-hamburger-bar" />
+              <span className="sidebar-hamburger-bar" />
+            </button>
             <span className={styles.mobileTitle}>Categorias</span>
           </div>
         ) : (
           <h1 className="title">Categorias</h1>
         )}
         {isMobile ? (
-          <div style={{ width: '100%', display: 'flex', justifyContent: 'flex-end', marginBottom: 12 }}>
+          <div className={styles.mobileActionButton}>
             <button className={styles.addButton} onClick={openAddModal}>
               + Adicionar Categoria
             </button>

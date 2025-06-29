@@ -6,6 +6,7 @@ import Modal from "@/components/Modal/Modal";
 import styles from "./page.module.css";
 import { useRouter } from "next/navigation";
 import LoadingSpinner from "@/components/LoadingSpinner";
+import { useSidebar } from "@/components/SideBar/SidebarContext";
 
 export default function Contas() {
   const [contas, setContas] = useState<any[]>([]);
@@ -33,6 +34,7 @@ export default function Contas() {
   // Estado para armazenar saldos animados
   const [valoresAnimados, setValoresAnimados] = useState<{ [key: number]: number }>({});
   const [isMobile, setIsMobile] = useState(false);
+  const { setIsOpen } = useSidebar();
 
   // Função para calcular saldo da conta
   async function calcularSaldo(conta: any) {
@@ -245,6 +247,15 @@ export default function Contas() {
         {/* Header responsivo com menu e título na mesma linha no mobile */}
         {isMobile ? (
           <div className={styles.mobileHeaderBar}>
+            <button
+              className="sidebar-hamburger"
+              style={{ position: 'static', top: 'unset', left: 'unset', marginRight: 12, zIndex: 10000 }}
+              onClick={() => setIsOpen(true)}
+            >
+              <span className="sidebar-hamburger-bar" />
+              <span className="sidebar-hamburger-bar" />
+              <span className="sidebar-hamburger-bar" />
+            </button>
             <span className={styles.mobileTitle}>Minhas Contas</span>
           </div>
         ) : (
@@ -252,24 +263,10 @@ export default function Contas() {
         )}
         {/* Botão e filtros alinhados à direita no mobile */}
         {isMobile ? (
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', width: '100%' }}>
+          <div className={styles.mobileActionButton}>
             <button className={styles.addButton + ' contas-tour-addButton'} onClick={() => setModalOpen(true)}>
               + Adicionar Conta
             </button>
-            <div className={styles.filtrosBar}>
-              <span className={styles.filtrosLabel}>Mês:</span>
-              <select value={filtroMes} onChange={e => setFiltroMes(Number(e.target.value))} className={styles.filtrosSelect}>
-                {[...Array(12)].map((_, i) => (
-                  <option key={i+1} value={i+1}>{(i+1).toString().padStart(2, '0')}</option>
-                ))}
-              </select>
-              <select value={filtroAno} onChange={e => setFiltroAno(Number(e.target.value))} className={styles.filtrosSelect}>
-                {[...Array(5)].map((_, i) => {
-                  const ano = new Date().getFullYear() - 2 + i;
-                  return <option key={ano} value={ano}>{ano}</option>
-                })}
-              </select>
-            </div>
           </div>
         ) : (
           <>
@@ -291,6 +288,22 @@ export default function Contas() {
               </select>
             </div>
           </>
+        )}
+        {isMobile && (
+          <div className={styles.filtrosBar}>
+            <span className={styles.filtrosLabel}>Mês:</span>
+            <select value={filtroMes} onChange={e => setFiltroMes(Number(e.target.value))} className={styles.filtrosSelect}>
+              {[...Array(12)].map((_, i) => (
+                <option key={i+1} value={i+1}>{(i+1).toString().padStart(2, '0')}</option>
+              ))}
+            </select>
+            <select value={filtroAno} onChange={e => setFiltroAno(Number(e.target.value))} className={styles.filtrosSelect}>
+              {[...Array(5)].map((_, i) => {
+                const ano = new Date().getFullYear() - 2 + i;
+                return <option key={ano} value={ano}>{ano}</option>
+              })}
+            </select>
+          </div>
         )}
         {loadingContas ? (
           <div className={styles.card} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 180, height: '180px' }}>

@@ -6,6 +6,7 @@ import SideBar from "../../components/SideBar/sideBar";
 import Modal from "@/components/Modal/Modal";
 import styles from "./page.module.css";
 import LoadingSpinner from "@/components/LoadingSpinner";
+import { useSidebar } from "@/components/SideBar/SidebarContext";
 
 export default function MinhaConta() {
   const [usuario, setUsuario] = useState<{ nome: string; email: string; salario?: number } | null>(null);
@@ -17,6 +18,7 @@ export default function MinhaConta() {
   const [editError, setEditError] = useState("");
   const router = useRouter();
   const [isMobile, setIsMobile] = useState(false);
+  const { setIsOpen } = useSidebar();
 
   const carregando = !usuario;
 
@@ -97,6 +99,15 @@ export default function MinhaConta() {
         {/* Barra de título e menu no mobile */}
         {isMobile ? (
           <div className={styles.mobileHeaderBar}>
+            <button
+              className="sidebar-hamburger"
+              style={{ position: 'static', top: 'unset', left: 'unset', marginRight: 12, zIndex: 10000 }}
+              onClick={() => setIsOpen(true)}
+            >
+              <span className="sidebar-hamburger-bar" />
+              <span className="sidebar-hamburger-bar" />
+              <span className="sidebar-hamburger-bar" />
+            </button>
             <span className={styles.mobileTitle}>Minha Conta</span>
           </div>
         ) : (

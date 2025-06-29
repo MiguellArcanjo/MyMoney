@@ -472,30 +472,37 @@
 }
 
 .mobileHeaderBar {
+  width: 100%;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  width: 100%;
-  padding: 18px 0 12px 0;
-  margin-bottom: 0;
+  margin-bottom: 12px;
+  padding: 16px 18px 0 18px;
   position: relative;
-  gap: 12px;
+  z-index: 9999;
 }
+
 .mobileHeaderBar .sidebar-hamburger {
-  position: static;
-  margin-right: 0;
-  left: 0;
-  top: 0;
-  box-shadow: none;
+  margin-right: 12px;
 }
+
 .mobileTitle {
-  flex: 1;
-  text-align: right;
   color: var(--text);
-  font-size: 2rem;
+  font-size: 1.5rem;
   font-weight: bold;
-  margin: 0;
-  line-height: 1.1;
+  transition: color 0.3s ease;
+}
+
+.mobileActionButton {
+  width: 100%;
+  display: flex;
+  justify-content: flex-start;
+  margin-bottom: 18px;
+  padding: 0 18px;
+}
+
+.mobileActionButton .addButton {
+  width: 100%;
+  max-width: none;
 }
 
 .mobileMainWrapper {
