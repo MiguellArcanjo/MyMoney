@@ -9,7 +9,7 @@ import LoadingSpinner from "@/components/LoadingSpinner";
 
 export default function DetalheConta() {
   const params = useParams();
-  const contaId = params?.id;
+  const contaId = Number(params?.id);
   const [conta, setConta] = useState<any>(null);
   const [lancamentos, setLancamentos] = useState<any[]>([]);
   const [modalParcelamento, setModalParcelamento] = useState(false);
@@ -48,6 +48,11 @@ export default function DetalheConta() {
   const [totalPaginas, setTotalPaginas] = useState(1);
   const [lancamentosTotais, setLancamentosTotais] = useState<any[]>([]);
   const [isMobile, setIsMobile] = useState(false);
+  const [addMeta, setAddMeta] = useState("");
+  const [addRecorrente, setAddRecorrente] = useState(false);
+  const [addFrequencia, setAddFrequencia] = useState("mensal");
+  const [addDataTermino, setAddDataTermino] = useState("");
+  const [wizardStep, setWizardStep] = useState(1);
 
   const carregando = loadingConta || loadingLancamentos || loadingCategorias || loadingMetas;
 
@@ -67,11 +72,13 @@ export default function DetalheConta() {
     async function fetchLancamentos() {
       const token = localStorage.getItem("token");
       if (!token || !contaId) { setLoadingLancamentos(false); return; }
-      const res = await fetch(`/api/lancamentos?contaId=${contaId}&page=${pagina}&limit=${itensPorPagina}`, {
+      console.log("contaId usado na busca:", contaId);
+      const res = await fetch(`/api/lancamentos?contaId=${contaId}&page=${pagina}&limit=${itensPorPagina}&mes=${filtroMes}&ano=${filtroAno}`, {
         headers: { Authorization: "Bearer " + token }
       });
       if (res.ok) {
         const data = await res.json();
+        console.log("Lançamentos recebidos da API:", data.lancamentos);
         setLancamentos(data.lancamentos || []);
         setTotalPaginas(Math.ceil((data.totalCount || 0) / itensPorPagina));
       }
@@ -196,7 +203,10 @@ export default function DetalheConta() {
         parcelas: addParcelado ? Number(addParcelas) : null,
         contaId: contaId,
         categoriaId: addCategoria,
-        metaId: addTipo === "Receita" && addMeta ? addMeta : undefined
+        metaId: addTipo === "Receita" && addMeta ? addMeta : undefined,
+        recorrente: addRecorrente,
+        frequencia: addRecorrente ? addFrequencia : undefined,
+        dataTermino: addRecorrente && addDataTermino ? addDataTermino : undefined
       })
     });
     setModalAdd(false);
@@ -207,6 +217,10 @@ export default function DetalheConta() {
     setAddData("");
     setAddParcelado(false);
     setAddParcelas("");
+    setAddMeta("");
+    setAddRecorrente(false);
+    setAddFrequencia("mensal");
+    setAddDataTermino("");
     // Atualiza lançamentos
     const res = await fetch(`/api/lancamentos?contaId=${contaId}`, {
       headers: { Authorization: "Bearer " + token }
@@ -229,15 +243,22 @@ export default function DetalheConta() {
     if (parcelamentoInfo) openParcelamentoModal(parcelamentoInfo);
   }
 
-  // Lançamentos filtrados por mês/ano, categoria e tipo (filtros aplicados no frontend)
+  console.log("Lançamentos completos:", lancamentos);
+  console.log("Datas dos lançamentos:", lancamentos.map(l => l.data));
+
+  const getAnoMes = (data: any) => {
+    if (!data) return '';
+    if (typeof data === 'string') return data.slice(0, 7);
+    if (data instanceof Date) return `${data.getFullYear()}-${String(data.getMonth() + 1).padStart(2, '0')}`;
+    return '';
+  };
+  const filtroAnoMes = `${filtroAno}-${String(filtroMes).padStart(2, '0')}`;
+
   const lancamentosFiltrados = (Array.isArray(lancamentos) ? lancamentos : [])
     .flatMap(l => {
       if (l.parcelado && l.parcelasLancamento?.length) {
         return l.parcelasLancamento
-          .filter((p: any) => {
-            const data = new Date(p.dataVencimento);
-            return data.getMonth() + 1 === filtroMes && data.getFullYear() === filtroAno;
-          })
+          .filter((p: any) => getAnoMes(p.dataVencimento) === filtroAnoMes)
           .map((p: any) => ({
             ...l,
             valor: p.valorParcela,
@@ -247,8 +268,7 @@ export default function DetalheConta() {
             idParcela: p.id
           }));
       } else {
-        const data = new Date(l.data);
-        if (data.getMonth() + 1 === filtroMes && data.getFullYear() === filtroAno) {
+        if (getAnoMes(l.data) === filtroAnoMes) {
           return [{ ...l }];
         }
         return [];
@@ -309,8 +329,6 @@ export default function DetalheConta() {
     requestAnimationFrame(animate);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [totalGastoMes]);
-
-  const [addMeta, setAddMeta] = useState("");
 
   return (
     <div>
@@ -421,37 +439,43 @@ export default function DetalheConta() {
               </div>
             ) : (
               <>
-              <table className={styles.tableMetas}>
-                <thead>
-                  <tr>
-                    <th>Descrição</th>
-                    <th>Categoria</th>
-                    <th>Tipo</th>
-                    <th>Valor</th>
-                    <th>Data</th>
-                    <th>Ações</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {lancamentosFiltrados.map((lancamento) => (
-                    <tr key={lancamento.id}>
-                      <td>{lancamento.descricao}</td>
-                      <td>{lancamento.categoria?.nome || '-'}</td>
-                      <td style={{ color: lancamento.tipo === 'Despesa' ? '#FF5C5C' : '#00D1B2' }}>{lancamento.tipo}</td>
-                      <td style={{ color: lancamento.tipo === 'Despesa' ? '#FF5C5C' : '#00D1B2' }}>
-                        R$ {Number(lancamento.valor).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                      </td>
-                      <td>{lancamento.data ? new Date(lancamento.data).toLocaleDateString('pt-BR') : '-'}</td>
-                      <td className={styles.actionCell}>
-                        <button className={styles.actionBtn} onClick={() => openEditarModal(lancamento)}>Editar</button>
-                        {lancamento.parcelado ? (
-                          <button className={styles.actionBtn} onClick={() => openParcelamentoModal(lancamento)}>Parcelas</button>
-                        ) : null}
-                      </td>
+              {lancamentosFiltrados.length === 0 ? (
+                <div style={{ color: 'var(--text-secondary)', textAlign: 'center', padding: 24 }}>
+                  Nenhum lançamento encontrado para este mês.
+                </div>
+              ) : (
+                <table className={styles.tableMetas}>
+                  <thead>
+                    <tr>
+                      <th>Descrição</th>
+                      <th>Categoria</th>
+                      <th>Tipo</th>
+                      <th>Valor</th>
+                      <th>Data</th>
+                      <th>Ações</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {lancamentosFiltrados.map((lancamento) => (
+                      <tr key={lancamento.id}>
+                        <td>{lancamento.descricao}</td>
+                        <td>{lancamento.categoria?.nome || '-'}</td>
+                        <td style={{ color: lancamento.tipo === 'Despesa' ? '#FF5C5C' : '#00D1B2' }}>{lancamento.tipo}</td>
+                        <td style={{ color: lancamento.tipo === 'Despesa' ? '#FF5C5C' : '#00D1B2' }}>
+                          R$ {Number(lancamento.valor).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                        </td>
+                        <td>{lancamento.data ? new Date(lancamento.data).toLocaleDateString('pt-BR') : '-'}</td>
+                        <td className={styles.actionCell}>
+                          <button className={styles.actionBtn} onClick={() => openEditarModal(lancamento)}>Editar</button>
+                          {lancamento.parcelado ? (
+                            <button className={styles.actionBtn} onClick={() => openParcelamentoModal(lancamento)}>Parcelas</button>
+                          ) : null}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
               {/* Cards responsivos para mobile */}
               {isMobile && (
                 <div className={styles.cardsMobileWrapper}>
@@ -622,120 +646,243 @@ export default function DetalheConta() {
           </div>
         )}
         <Modal open={modalAdd} onClose={() => setModalAdd(false)}>
-            <h2 className={styles.modalTitle}>
-              <span style={{marginRight: 8, color: "#00D1B2"}}>+</span>
-              Adicionar Lançamento
+          <div className={styles.modernFormHeader}>
+            <h2 className={styles.modernFormTitle}>
+              <span className={styles.modernFormIcon}>+</span>
+              Novo Lançamento
             </h2>
-            <form className={styles.formMeta} onSubmit={handleAddSubmit}>
-              <div className={styles.inputGroup}>
-                <label className={styles.labelMeta}>Descrição</label>
-                <input
-                  className={styles.inputMeta}
-                  type="text"
-                  placeholder="Ex: Supermercado"
-                  value={addDescricao}
-                  onChange={e => setAddDescricao(e.target.value)}
-                  required
-                />
-              </div>
-              <div className={styles.inputGroupRow}>
-                <div className={styles.inputGroup} style={{flex: 1}}>
-                  <label className={styles.labelMeta}>Valor</label>
-                  <input
-                    className={styles.inputMeta}
-                    type="number"
-                    placeholder="Ex: 150.00"
-                    value={addValor}
-                    onChange={e => setAddValor(e.target.value)}
-                    required
-                  />
-                </div>
-                <div className={styles.inputGroup} style={{flex: 1}}>
-                  <label className={styles.labelMeta}>Tipo</label>
-                  <select
-                    className={styles.inputMeta}
-                    value={addTipo}
-                    onChange={e => setAddTipo(e.target.value)}
-                    required
-                  >
-                    <option value="Despesa">Despesa</option>
-                    <option value="Receita">Receita</option>
-                  </select>
-                </div>
-              </div>
-              <div className={styles.inputGroupRow}>
-                <div className={styles.inputGroup} style={{flex: 1}}>
-                  <label className={styles.labelMeta}>Categoria</label>
-                  <select
-                    className={styles.inputMeta}
-                    value={addCategoria}
-                    onChange={e => setAddCategoria(e.target.value)}
-                    required
-                  >
-                    <option value="">Selecione</option>
-                    {categorias
-                      .filter(cat => cat.tipo === addTipo)
-                      .map(cat => (
-                        <option key={cat.id} value={cat.id}>{cat.nome}</option>
-                      ))}
-                  </select>
-                </div>
-                <div className={styles.inputGroup} style={{flex: 1}}>
-                  <label className={styles.labelMeta}>Data</label>
-                  <input
-                    className={styles.inputMeta}
-                    type="date"
-                    value={addData}
-                    onChange={e => setAddData(e.target.value)}
-                    required
-                  />
-                </div>
-              </div>
-              <div className={styles.inputGroupRow}>
-                <div className={styles.inputGroup} style={{flex: 1}}>
-                  <label className={styles.labelMeta}>Parcelado?</label>
-                  <select
-                    className={styles.inputMeta}
-                    value={addParcelado ? "Sim" : "Não"}
-                    onChange={e => setAddParcelado(e.target.value === "Sim")}
-                  >
-                    <option value="Não">Não</option>
-                    <option value="Sim">Sim</option>
-                  </select>
-                </div>
-                {addParcelado && (
-                  <div className={styles.inputGroup} style={{flex: 1}}>
-                    <label className={styles.labelMeta}>Quantidade de parcelas</label>
+            <p className={styles.modernFormSubtitle}>
+              Adicione um novo lançamento à conta <strong>{conta?.nome}</strong>
+            </p>
+          </div>
+          {/* Barra de progresso */}
+          <div className={styles.progressBarWrapper}>
+            <div className={styles.progressBarBg}>
+              <div className={styles.progressBarFill} style={{ width: `${wizardStep * 25}%` }} />
+            </div>
+            <div className={styles.progressSteps}>
+              <span className={wizardStep >= 1 ? styles.progressStepActive : styles.progressStep}>1</span>
+              <span className={wizardStep >= 2 ? styles.progressStepActive : styles.progressStep}>2</span>
+              <span className={wizardStep >= 3 ? styles.progressStepActive : styles.progressStep}>3</span>
+              <span className={wizardStep >= 4 ? styles.progressStepActive : styles.progressStep}>4</span>
+            </div>
+          </div>
+          <form className={styles.modernForm} onSubmit={handleAddSubmit}>
+            {wizardStep === 1 && (
+              <>
+                <div className={styles.innerCard}>
+                  <div className={styles.formField}>
+                    <label className={styles.modernLabel}>Descrição</label>
                     <input
-                      className={styles.inputMeta}
-                      type="number"
-                      min={2}
-                      value={addParcelas}
-                      onChange={e => setAddParcelas(e.target.value)}
-                      required={addParcelado}
+                      className={styles.modernInput}
+                      type="text"
+                      placeholder="Ex: Supermercado, Conta de luz, Salário"
+                      value={addDescricao}
+                      onChange={e => setAddDescricao(e.target.value)}
+                      required
                     />
                   </div>
-                )}
-              </div>
-              <div className={styles.inputGroupRow}>
-                {addTipo === "Receita" && (
-                  <div className={styles.inputGroup} style={{flex: 1}}>
-                    <label className={styles.labelMeta}>É para alguma meta?</label>
-                    <select
-                      className={styles.inputMeta}
-                      value={addMeta}
-                      onChange={e => setAddMeta(e.target.value)}
-                    >
-                      <option value="">Nenhuma</option>
-                      {metas.map((meta: any) => (
-                        <option key={meta.id} value={meta.id}>{meta.descricao}</option>
-                      ))}
-                    </select>
+                </div>
+                <div className={styles.innerCard}>
+                  <div className={styles.formRow}>
+                    <div className={styles.formField}>
+                      <label className={styles.modernLabel}>Valor</label>
+                      <input
+                        className={styles.modernInput}
+                        type="number"
+                        step="0.01"
+                        placeholder="Ex: 150.00"
+                        value={addValor}
+                        onChange={e => setAddValor(e.target.value)}
+                        required
+                      />
+                    </div>
+                    <div className={styles.formField}>
+                      <label className={styles.modernLabel}>Tipo</label>
+                      <select
+                        className={styles.modernSelect}
+                        value={addTipo}
+                        onChange={e => setAddTipo(e.target.value)}
+                        required
+                      >
+                        <option value="Despesa">Despesa</option>
+                        <option value="Receita">Receita</option>
+                      </select>
+                    </div>
                   </div>
-                )}
-              </div>
-              <button className={styles.buttonMeta} type="submit">Adicionar Lançamento</button>
-            </form>
+                </div>
+                <div className={styles.formActions}>
+                  <button type="button" className={styles.modernButtonPrimary} onClick={() => setWizardStep(2)} disabled={!addDescricao || !addValor || !addTipo}>
+                    Próximo
+                  </button>
+                </div>
+              </>
+            )}
+            {wizardStep === 2 && (
+              <>
+                <div className={styles.innerCard}>
+                  <div className={styles.formRow}>
+                    <div className={styles.formField}>
+                      <label className={styles.modernLabel}>Categoria</label>
+                      <select
+                        className={styles.modernSelect}
+                        value={addCategoria}
+                        onChange={e => setAddCategoria(e.target.value)}
+                        required
+                      >
+                        <option value="">Selecione uma categoria</option>
+                        {categorias
+                          .filter(cat => cat.tipo === addTipo)
+                          .map(cat => (
+                            <option key={cat.id} value={cat.id}>{cat.nome}</option>
+                          ))}
+                      </select>
+                    </div>
+                    <div className={styles.formField}>
+                      <label className={styles.modernLabel}>Data</label>
+                      <input
+                        className={styles.modernInput}
+                        type="date"
+                        value={addData}
+                        onChange={e => setAddData(e.target.value)}
+                        required
+                      />
+                    </div>
+                  </div>
+                </div>
+                <div className={styles.formActions}>
+                  <button type="button" className={styles.modernButtonSecondary} onClick={() => setWizardStep(1)}>
+                    Voltar
+                  </button>
+                  <button type="button" className={styles.modernButtonPrimary} onClick={() => setWizardStep(3)} disabled={!addCategoria || !addData}>
+                    Próximo
+                  </button>
+                </div>
+              </>
+            )}
+            {wizardStep === 3 && (
+              <>
+                <div className={styles.innerCard + ' ' + styles.fixedCard}>
+                  <div className={styles.formRow}>
+                    <div className={styles.formField}>
+                      <label className={styles.modernLabel}>Parcelado?</label>
+                      <select
+                        className={styles.modernSelect}
+                        value={addParcelado ? "Sim" : "Não"}
+                        onChange={e => setAddParcelado(e.target.value === "Sim")}
+                      >
+                        <option value="Não">Não</option>
+                        <option value="Sim">Sim</option>
+                      </select>
+                    </div>
+                    {addParcelado && (
+                      <div className={styles.formField}>
+                        <label className={styles.modernLabel}>Quantidade de parcelas</label>
+                        <input
+                          className={styles.modernInput}
+                          type="number"
+                          min={2}
+                          max={24}
+                          placeholder="Ex: 12"
+                          value={addParcelas}
+                          onChange={e => setAddParcelas(e.target.value)}
+                          required={addParcelado}
+                        />
+                      </div>
+                    )}
+                  </div>
+                </div>
+                <div className={styles.formActions}>
+                  <button type="button" className={styles.modernButtonSecondary} onClick={() => setWizardStep(2)}>
+                    Voltar
+                  </button>
+                  <button type="button" className={styles.modernButtonPrimary} onClick={() => setWizardStep(4)}>
+                    Próximo
+                  </button>
+                </div>
+              </>
+            )}
+            {wizardStep === 4 && (
+              <>
+                <div className={styles.innerCard + ' ' + styles.fixedCard}>
+                  <div className={styles.recurrenceSection}>
+                    <div className={styles.recurrenceHeader}>
+                      <label className={styles.recurrenceToggle}>
+                        <input
+                          type="checkbox"
+                          className={styles.recurrenceCheckbox}
+                          checked={addRecorrente}
+                          onChange={e => setAddRecorrente(e.target.checked)}
+                        />
+                        <span className={styles.recurrenceLabel}>Tornar lançamento recorrente</span>
+                      </label>
+                    </div>
+                    {addRecorrente && (
+                      <div className={styles.recurrenceFields}>
+                        <div className={styles.formRow}>
+                          <div className={styles.formField}>
+                            <label className={styles.modernLabel}>Frequência da recorrência</label>
+                            <select 
+                              className={styles.modernSelect}
+                              value={addFrequencia}
+                              onChange={e => setAddFrequencia(e.target.value)}
+                            >
+                              <option value="mensal">Mensal</option>
+                              <option value="quinzenal">Quinzenal</option>
+                              <option value="semanal">Semanal</option>
+                              <option value="anual">Anual</option>
+                            </select>
+                          </div>
+                          <div className={styles.formField}>
+                            <label className={styles.modernLabel}>Data de início da recorrência</label>
+                            <input
+                              className={styles.modernInput}
+                              type="date"
+                              value={addData}
+                              onChange={e => setAddData(e.target.value)}
+                            />
+                          </div>
+                          <div className={styles.formField}>
+                            <label className={styles.modernLabel}>Data de término da recorrência (opcional)</label>
+                            <input
+                              className={styles.modernInput}
+                              type="date"
+                              value={addDataTermino}
+                              onChange={e => setAddDataTermino(e.target.value)}
+                              placeholder="Deixe em branco para recorrência indefinida"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                  {addTipo === "Receita" && (
+                    <div className={styles.formField} style={{marginTop: 24}}>
+                      <label className={styles.modernLabel}>É para alguma meta?</label>
+                      <select
+                        className={styles.modernSelect}
+                        value={addMeta}
+                        onChange={e => setAddMeta(e.target.value)}
+                      >
+                        <option value="">Nenhuma meta específica</option>
+                        {metas.map((meta: any) => (
+                          <option key={meta.id} value={meta.id}>{meta.descricao}</option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
+                </div>
+                <div className={styles.formActions}>
+                  <button type="button" className={styles.modernButtonSecondary} onClick={() => setWizardStep(3)}>
+                    Voltar
+                  </button>
+                  <button type="submit" className={styles.modernButtonPrimary}>
+                    Adicionar Lançamento
+                  </button>
+                </div>
+              </>
+            )}
+          </form>
         </Modal>
         <button
           className={isMobile ? styles.voltarBtnMobile : styles.addButton}

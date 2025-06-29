@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import SideBar from "@/components/SideBar/sideBar";
-import Modal from "@/components/Modal/Modal";
 import styles from "./page.module.css";
 import LoadingSpinner from "@/components/LoadingSpinner";
 
@@ -15,7 +14,6 @@ export default function Lancamentos() {
   const [filtroTipo, setFiltroTipo] = useState('Todos');
   const [filtroMes, setFiltroMes] = useState(new Date().getMonth() + 1);
   const [filtroAno, setFiltroAno] = useState(new Date().getFullYear());
-  const [modalOpen, setModalOpen] = useState(false);
   const [loadingContas, setLoadingContas] = useState(true);
   const [loadingCategorias, setLoadingCategorias] = useState(true);
   const [loadingLancamentos, setLoadingLancamentos] = useState(true);
@@ -210,12 +208,9 @@ export default function Lancamentos() {
               R$ {valorAnimado.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
             </div>
           </div>
-          {/* Botão e filtros alinhados à direita no mobile */}
+          {/* Filtros alinhados à direita no mobile */}
           {isMobile ? (
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', width: '100%' }}>
-              <button className={styles.addButton} onClick={() => setModalOpen(true)}>
-                + Adicionar Lançamento
-              </button>
               <div className={styles.filtrosBar}>
                 <div style={{ display: 'flex', gap: 6, background: 'var(--bg-card)', borderRadius: 10, padding: '12px 16px', alignItems: 'center', width: 'fit-content', flexWrap: 'wrap', border: '1px solid var(--border)' }}>
                   <span className={styles.filtrosLabel}>Conta:</span>
@@ -257,46 +252,43 @@ export default function Lancamentos() {
               </div>
             </div>
           ) : (
-            <>
-              <button className={styles.addButton} onClick={() => setModalOpen(true)}>+ Adicionar Lançamento</button>
-              <div className={styles.filtrosBar}>
-                <div style={{ display: 'flex', gap: 6, background: 'var(--bg-card)', borderRadius: 10, padding: '12px 16px', alignItems: 'center', width: 'fit-content', flexWrap: 'wrap', border: '1px solid var(--border)' }}>
-                  <span className={styles.filtrosLabel}>Conta:</span>
-                  <select value={contaFiltro} onChange={e => { setContaFiltro(Number(e.target.value)); setPagina(1); }} className={styles.filtrosSelect}>
-                    <option value={0}>Todas</option>
-                    {(Array.isArray(contas) ? contas : []).map(conta => (
-                      <option key={conta.id} value={conta.id}>{conta.nome}</option>
-                    ))}
-                  </select>
-                  <span className={styles.filtrosLabel}>Categoria:</span>
-                  <select value={filtroCategoria} onChange={e => setFiltroCategoria(e.target.value)} className={styles.filtrosSelect}>
-                    <option value="Todas">Todas</option>
-                    {categorias.map(cat => (
-                      <option key={cat.id} value={cat.nome}>{cat.nome}</option>
-                    ))}
-                  </select>
-                  <span className={styles.filtrosLabel}>Tipo:</span>
-                  <select value={filtroTipo} onChange={e => setFiltroTipo(e.target.value)} className={styles.filtrosSelect}>
-                    <option value="Todos">Todos</option>
-                    <option value="Despesa">Despesa</option>
-                    <option value="Receita">Receita</option>
-                  </select>
-                  <span className={styles.filtrosLabel}>Mês:</span>
-                  <select value={filtroMes} onChange={e => setFiltroMes(Number(e.target.value))} className={styles.filtrosSelect}>
-                    {[...Array(12)].map((_, i) => (
-                      <option key={i+1} value={i+1}>{(i+1).toString().padStart(2, '0')}</option>
-                    ))}
-                  </select>
-                  <span className={styles.filtrosLabel}>Ano:</span>
-                  <select value={filtroAno} onChange={e => setFiltroAno(Number(e.target.value))} className={styles.filtrosSelect}>
-                    {[...Array(5)].map((_, i) => {
-                      const ano = new Date().getFullYear() - 2 + i;
-                      return <option key={ano} value={ano}>{ano}</option>
-                    })}
-                  </select>
-                </div>
+            <div className={styles.filtrosBar}>
+              <div style={{ display: 'flex', gap: 6, background: 'var(--bg-card)', borderRadius: 10, padding: '12px 16px', alignItems: 'center', width: 'fit-content', flexWrap: 'wrap', border: '1px solid var(--border)' }}>
+                <span className={styles.filtrosLabel}>Conta:</span>
+                <select value={contaFiltro} onChange={e => { setContaFiltro(Number(e.target.value)); setPagina(1); }} className={styles.filtrosSelect}>
+                  <option value={0}>Todas</option>
+                  {(Array.isArray(contas) ? contas : []).map(conta => (
+                    <option key={conta.id} value={conta.id}>{conta.nome}</option>
+                  ))}
+                </select>
+                <span className={styles.filtrosLabel}>Categoria:</span>
+                <select value={filtroCategoria} onChange={e => setFiltroCategoria(e.target.value)} className={styles.filtrosSelect}>
+                  <option value="Todas">Todas</option>
+                  {categorias.map(cat => (
+                    <option key={cat.id} value={cat.nome}>{cat.nome}</option>
+                  ))}
+                </select>
+                <span className={styles.filtrosLabel}>Tipo:</span>
+                <select value={filtroTipo} onChange={e => setFiltroTipo(e.target.value)} className={styles.filtrosSelect}>
+                  <option value="Todos">Todos</option>
+                  <option value="Despesa">Despesa</option>
+                  <option value="Receita">Receita</option>
+                </select>
+                <span className={styles.filtrosLabel}>Mês:</span>
+                <select value={filtroMes} onChange={e => setFiltroMes(Number(e.target.value))} className={styles.filtrosSelect}>
+                  {[...Array(12)].map((_, i) => (
+                    <option key={i+1} value={i+1}>{(i+1).toString().padStart(2, '0')}</option>
+                  ))}
+                </select>
+                <span className={styles.filtrosLabel}>Ano:</span>
+                <select value={filtroAno} onChange={e => setFiltroAno(Number(e.target.value))} className={styles.filtrosSelect}>
+                  {[...Array(5)].map((_, i) => {
+                    const ano = new Date().getFullYear() - 2 + i;
+                    return <option key={ano} value={ano}>{ano}</option>
+                  })}
+                </select>
               </div>
-            </>
+            </div>
           )}
           {carregando ? (
             <div className={styles.card} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 180, height: '180px' }}>
@@ -376,10 +368,6 @@ export default function Lancamentos() {
               )}
             </div>
           )}
-          <Modal open={modalOpen} onClose={() => setModalOpen(false)}>
-            <div className={styles.modalTitle}>Adicionar Lançamento (em breve)</div>
-            {/* Aqui entrará o formulário de cadastro/edição */}
-          </Modal>
         </div>
       </main>
     </div>
