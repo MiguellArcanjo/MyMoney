@@ -91,6 +91,9 @@ export default function Login() {
                     right: 8,
                     top: "50%",
                     transform: "translateY(-50%)",
+                    display: 'flex',
+                    alignItems: 'center',
+                    height: '100%',
                     cursor: "pointer",
                   }}
                 >

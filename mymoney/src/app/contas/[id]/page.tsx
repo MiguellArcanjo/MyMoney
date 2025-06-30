@@ -8,6 +8,7 @@ import Modal from "@/components/Modal/Modal";
 import LoadingSpinner from "@/components/LoadingSpinner";
 import { useSidebar } from "@/components/SideBar/SidebarContext";
 import { ModalContext } from "@/components/Modal/Modal";
+import { useTheme } from "@/components/ThemeProvider";
 
 function useCurrentTheme() {
   const [theme, setTheme] = useState("dark");
@@ -72,6 +73,12 @@ export default function DetalheConta() {
   const { setIsOpen } = useSidebar();
   const [modalDeleteOpen, setModalDeleteOpen] = useState(false);
   const [lancamentoToDelete, setLancamentoToDelete] = useState<number | null>(null);
+  const [showCategoriaModal, setShowCategoriaModal] = useState(false);
+  const [novaCategoriaNome, setNovaCategoriaNome] = useState("");
+  const [novaCategoriaTipo, setNovaCategoriaTipo] = useState(addTipo);
+  const [novaCategoriaCor, setNovaCategoriaCor] = useState("#00D1B2");
+  const [categoriaLoading, setCategoriaLoading] = useState(false);
+  const [categoriaErro, setCategoriaErro] = useState("");
 
   const carregando = loadingConta || loadingLancamentos || loadingCategorias || loadingMetas;
 
@@ -799,7 +806,13 @@ export default function DetalheConta() {
                       <select
                         className={styles.modernSelect}
                         value={addCategoria}
-                        onChange={e => setAddCategoria(e.target.value)}
+                        onChange={e => {
+                          if (e.target.value === "__nova__") {
+                            setShowCategoriaModal(true);
+                          } else {
+                            setAddCategoria(e.target.value);
+                          }
+                        }}
                         required
                       >
                         <option value="">Selecione uma categoria</option>
@@ -808,6 +821,7 @@ export default function DetalheConta() {
                           .map(cat => (
                             <option key={cat.id} value={cat.id}>{cat.nome}</option>
                           ))}
+                        <option value="__nova__">+ Criar nova categoria</option>
                       </select>
                     </div>
                     <div className={styles.formField}>
@@ -974,6 +988,141 @@ export default function DetalheConta() {
               <button onClick={closeDeleteModal} style={{ background: 'var(--border)', color: 'var(--text)', border: 'none', borderRadius: 8, padding: '10px 28px', fontWeight: 700, fontSize: 18, cursor: 'pointer' }}>Cancelar</button>
             </div>
           </div>
+        </Modal>
+        {/* Mini Modal de Criação de Categoria */}
+        <Modal open={showCategoriaModal} onClose={() => { setShowCategoriaModal(false); setCategoriaErro(""); }}>
+          <h2 style={{ color: theme === 'dark' ? '#00D1B2' : '#223B5A', fontWeight: 700, fontSize: 22, marginBottom: 18, textAlign: 'center' }}>Nova Categoria</h2>
+          <form onSubmit={async (e) => {
+            e.preventDefault();
+            setCategoriaErro("");
+            if (!novaCategoriaNome.trim()) {
+              setCategoriaErro("O nome é obrigatório.");
+              return;
+            }
+            if (!novaCategoriaTipo) {
+              setCategoriaErro("Selecione o tipo.");
+              return;
+            }
+            if (categorias.some(cat => cat.nome.trim().toLowerCase() === novaCategoriaNome.trim().toLowerCase() && cat.tipo === novaCategoriaTipo)) {
+              setCategoriaErro("Categoria já existente.");
+              return;
+            }
+            setCategoriaLoading(true);
+            const token = localStorage.getItem("token");
+            try {
+              const res = await fetch("/api/categorias", {
+                method: "POST",
+                headers: { "Content-Type": "application/json", Authorization: "Bearer " + token },
+                body: JSON.stringify({ nome: novaCategoriaNome, tipo: novaCategoriaTipo, cor: novaCategoriaCor })
+              });
+              if (res.ok) {
+                const nova = await res.json();
+                setCategorias([nova, ...categorias]);
+                setAddCategoria(nova.id);
+                setShowCategoriaModal(false);
+                setNovaCategoriaNome("");
+                setNovaCategoriaTipo(addTipo);
+                setNovaCategoriaCor("#00D1B2");
+              } else {
+                const erro = await res.json();
+                setCategoriaErro(erro.message || "Erro ao criar categoria.");
+              }
+            } catch (err) {
+              setCategoriaErro("Erro ao criar categoria.");
+            } finally {
+              setCategoriaLoading(false);
+            }
+          }} style={{ display: 'flex', flexDirection: 'column', gap: 16, minWidth: 260 }}>
+            <label style={{ color: theme === 'dark' ? '#A5B3C7' : '#7A869A', fontSize: 13, fontWeight: 500 }}>Nome</label>
+            <input
+              type="text"
+              value={novaCategoriaNome}
+              onChange={e => setNovaCategoriaNome(e.target.value)}
+              style={{
+                background: theme === 'dark' ? '#132B45' : '#f6f8fa',
+                border: `1.5px solid ${theme === 'dark' ? '#00D1B2' : '#e0e7ef'}`,
+                borderRadius: 10,
+                padding: '12px 14px',
+                color: theme === 'dark' ? '#fff' : '#223B5A',
+                fontSize: 16,
+                fontFamily: 'Inter, sans-serif',
+                outline: 'none',
+                boxShadow: 'none',
+                marginBottom: 2,
+              }}
+              placeholder="Ex: Mercado"
+              required
+            />
+            <label style={{ color: theme === 'dark' ? '#A5B3C7' : '#7A869A', fontSize: 13, fontWeight: 500 }}>Tipo</label>
+            <select
+              value={novaCategoriaTipo}
+              onChange={e => setNovaCategoriaTipo(e.target.value)}
+              style={{
+                background: theme === 'dark' ? '#132B45' : '#f6f8fa',
+                border: `1.5px solid ${theme === 'dark' ? '#00D1B2' : '#e0e7ef'}`,
+                borderRadius: 10,
+                padding: '12px 14px',
+                color: theme === 'dark' ? '#fff' : '#223B5A',
+                fontSize: 16,
+                fontFamily: 'Inter, sans-serif',
+                outline: 'none',
+                boxShadow: 'none',
+                marginBottom: 2,
+              }}
+              required
+            >
+              <option value="">Selecione</option>
+              <option value="Receita">Receita</option>
+              <option value="Despesa">Despesa</option>
+            </select>
+            <label style={{ color: theme === 'dark' ? '#A5B3C7' : '#7A869A', fontSize: 13, fontWeight: 500 }}>Cor</label>
+            <input
+              type="color"
+              value={novaCategoriaCor}
+              onChange={e => setNovaCategoriaCor(e.target.value)}
+              style={{ width: 40, height: 32, border: 'none', background: 'transparent', cursor: 'pointer' }}
+              required
+            />
+            {categoriaErro && <div style={{ color: '#FF5C5C', fontSize: 14, marginTop: 2 }}>{categoriaErro}</div>}
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 12, marginTop: 10 }}>
+              <button
+                type="button"
+                onClick={() => { setShowCategoriaModal(false); setCategoriaErro(""); }}
+                style={{
+                  background: 'none',
+                  color: theme === 'dark' ? '#A5B3C7' : '#7A869A',
+                  border: 'none',
+                  fontWeight: 600,
+                  fontSize: 16,
+                  borderRadius: 8,
+                  padding: '10px 18px',
+                  cursor: 'pointer',
+                  transition: 'background 0.2s',
+                }}
+              >
+                Cancelar
+              </button>
+              <button
+                type="submit"
+                disabled={categoriaLoading}
+                style={{
+                  background: '#00D1B2',
+                  color: '#fff',
+                  border: 'none',
+                  fontWeight: 700,
+                  fontSize: 16,
+                  borderRadius: 8,
+                  padding: '10px 22px',
+                  cursor: categoriaLoading ? 'not-allowed' : 'pointer',
+                  boxShadow: '0 2px 8px 0 #00D1B255',
+                  transition: 'background 0.2s, box-shadow 0.2s',
+                  opacity: categoriaLoading ? 0.7 : 1,
+                }}
+              >
+                {categoriaLoading ? 'Salvando...' : 'Salvar'}
+              </button>
+            </div>
+          </form>
         </Modal>
       </main>
     </div>
