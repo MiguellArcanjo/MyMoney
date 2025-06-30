@@ -17,6 +17,7 @@ import LoadingSpinner from "@/components/LoadingSpinner";
 import styles from "./page.module.css";
 import { useSidebar } from "@/components/SideBar/SidebarContext";
 import { colors } from "react-select/dist/declarations/src/theme";
+import { useTheme } from "@/components/ThemeProvider";
 
 ChartJS.register(
   CategoryScale,
@@ -65,6 +66,46 @@ export default function Simulador() {
   const [dadosCarregados, setDadosCarregados] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const { setIsOpen } = useSidebar();
+  const { theme } = useTheme();
+  const [showChart, setShowChart] = useState(true);
+  const [chartKey, setChartKey] = useState(0);
+
+  const chartColors = theme === 'dark'
+    ? {
+        text: '#fff',
+        bg: '#081B33',
+        card: '#0E2A4C',
+        secondary: '#A5B3C7',
+        border: '#223B5A',
+        line: "#00D1B2",
+        lineBg: "rgba(0, 209, 178, 0.1)",
+        point: "#00D1B2",
+        pointBorder: "#fff",
+        tooltipBg: 'rgba(14, 42, 76, 0.9)',
+        tooltipText: '#fff',
+      }
+    : {
+        text: '#081B33',
+        bg: '#fff',
+        card: '#fff',
+        secondary: '#5C6A7C',
+        border: '#e0e6ed',
+        line: "#00D1B2",
+        lineBg: "rgba(0, 209, 178, 0.1)",
+        point: "#00D1B2",
+        pointBorder: "#081B33",
+        tooltipBg: 'rgba(14, 42, 76, 0.9)',
+        tooltipText: '#081B33',
+      };
+
+  useEffect(() => {
+    setShowChart(false);
+    const timeout = setTimeout(() => {
+      setShowChart(true);
+      setChartKey((k) => k + 1);
+    }, 50);
+    return () => clearTimeout(timeout);
+  }, [theme]);
 
   async function carregarDadosFinanceiros() {
     const token = localStorage.getItem("token");
@@ -160,13 +201,13 @@ export default function Simulador() {
       {
         label: 'Saldo Projetado',
         data: projecoes.map(p => p.saldo),
-        borderColor: '#00D1B2',
-        backgroundColor: 'rgba(0, 209, 178, 0.1)',
+        borderColor: chartColors.line,
+        backgroundColor: chartColors.lineBg,
         borderWidth: 3,
         fill: true,
         tension: 0.4,
-        pointBackgroundColor: '#00D1B2',
-        pointBorderColor: '#fff',
+        pointBackgroundColor: chartColors.point,
+        pointBorderColor: chartColors.pointBorder,
         pointBorderWidth: 2,
         pointRadius: 6,
         pointHoverRadius: 8
@@ -179,14 +220,17 @@ export default function Simulador() {
     maintainAspectRatio: false,
     plugins: {
       legend: {
-        display: false
+        display: false,
+        labels: {
+          color: chartColors.text
+        }
       },
       tooltip: {
-        backgroundColor: 'rgba(14, 42, 76, 0.9)',
-        titleColor: '#fff',
-        bodyColor: '#fff',
-        color: '#fff',
-        borderColor: '#00D1B2',
+        backgroundColor: chartColors.tooltipBg,
+        titleColor: chartColors.tooltipText,
+        bodyColor: chartColors.tooltipText,
+        color: chartColors.tooltipText,
+        borderColor: chartColors.line,
         borderWidth: 1,
         callbacks: {
           label: function(context: any) {
@@ -201,7 +245,7 @@ export default function Simulador() {
           color: 'rgba(34, 59, 90, 0.2)'
         },
         ticks: {
-          color: 'white',
+          color: chartColors.text,
         }
       },
       y: {
@@ -209,7 +253,7 @@ export default function Simulador() {
           color: 'rgba(34, 59, 90, 0.2)'
         },
         ticks: {
-          color: 'white',
+          color: chartColors.text,
           callback: function(value: any) {
             return formatarMoeda(value);
           }
@@ -420,11 +464,11 @@ export default function Simulador() {
                 <h2 className={styles.formTitle}>
                   Projeção do Saldo
                 </h2>
-                
                 <div className={styles.chartContainer}>
-                  <Line data={chartData} options={chartOptions} />
+                  {showChart && (
+                    <Line key={chartKey} data={chartData} options={chartOptions} />
+                  )}
                 </div>
-                
                 <div className={styles.summary}>
                   <p className={styles.summaryText}>
                     🔍 Se você mantiver esse padrão, seu saldo final em {periodo} {periodo === 1 ? 'mês' : 'meses'} será de{' '}

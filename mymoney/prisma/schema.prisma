@@ -75,6 +75,8 @@ model Lancamento {
   parcelasLancamento Parcela[]
   metaId Int?
   meta Meta? @relation(fields: [metaId], references: [id])
+
+  createdAt DateTime @default(now())
 }
 
 model Parcela {

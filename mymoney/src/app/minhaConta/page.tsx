@@ -8,6 +8,20 @@ import styles from "./page.module.css";
 import LoadingSpinner from "@/components/LoadingSpinner";
 import { useSidebar } from "@/components/SideBar/SidebarContext";
 
+function useCurrentTheme() {
+  const [theme, setTheme] = useState("dark");
+  useEffect(() => {
+    const t = localStorage.getItem("theme") || "dark";
+    setTheme(t);
+    function syncTheme() {
+      setTheme(localStorage.getItem("theme") || "dark");
+    }
+    window.addEventListener("storage", syncTheme);
+    return () => window.removeEventListener("storage", syncTheme);
+  }, []);
+  return theme;
+}
+
 export default function MinhaConta() {
   const [usuario, setUsuario] = useState<{ nome: string; email: string; salario?: number } | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
@@ -19,6 +33,7 @@ export default function MinhaConta() {
   const router = useRouter();
   const [isMobile, setIsMobile] = useState(false);
   const { setIsOpen } = useSidebar();
+  const theme = useCurrentTheme();
 
   const carregando = !usuario;
 

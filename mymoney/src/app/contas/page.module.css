@@ -1024,6 +1024,7 @@
 
   .recurrenceSection {
     padding: 16px;
+    overflow: scroll !important;
   }
 }
 

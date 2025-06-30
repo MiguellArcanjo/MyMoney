@@ -7,12 +7,27 @@ import Modal from "../Modal/Modal";
 import { useSidebar } from "./SidebarContext";
 import ThemeSwitch from "../ThemeSwitch";
 
+function useCurrentTheme() {
+  const [theme, setTheme] = useState("dark");
+  useEffect(() => {
+    const t = localStorage.getItem("theme") || "dark";
+    setTheme(t);
+    function syncTheme() {
+      setTheme(localStorage.getItem("theme") || "dark");
+    }
+    window.addEventListener("storage", syncTheme);
+    return () => window.removeEventListener("storage", syncTheme);
+  }, []);
+  return theme;
+}
+
 export default function SideBar() {
   const pathname = usePathname();
   const router = useRouter();
   const [isMobile, setIsMobile] = useState(false);
   const { isOpen, setIsOpen } = useSidebar();
   const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const theme = useCurrentTheme();
 
   useEffect(() => {
     function handleResize() {
@@ -75,11 +90,11 @@ export default function SideBar() {
           </>
         )}
         <Modal open={showLogoutModal} onClose={() => setShowLogoutModal(false)}>
-          <div style={{ padding: 24, background: '#0E2A4C', borderRadius: 12, minWidth: 280, color: '#fff', textAlign: 'center' }}>
-            <h2 style={{ color: '#fff', fontWeight: 700, fontSize: 20, marginBottom: 18 }}>Deseja realmente sair?</h2>
+          <div style={{ padding: 24, background: '#0E2A4C', borderRadius: 12, minWidth: 280, color: theme === 'dark' ? '#fff' : '#081B33', textAlign: 'center' }}>
+            <h2 style={{ color: theme === 'dark' ? '#fff' : '#081B33', fontWeight: 700, fontSize: 20, marginBottom: 18 }}>Deseja realmente sair?</h2>
             <div style={{ display: 'flex', justifyContent: 'center', gap: 18, marginTop: 18 }}>
-              <button style={{ background: '#00D1B2', color: '#081B33', border: 'none', borderRadius: 8, padding: '10px 28px', fontWeight: 700, fontSize: 16, cursor: 'pointer' }} onClick={handleLogout}>Sim, sair</button>
-              <button style={{ background: '#223B5A', color: '#fff', border: 'none', borderRadius: 8, padding: '10px 28px', fontWeight: 700, fontSize: 16, cursor: 'pointer' }} onClick={() => setShowLogoutModal(false)}>Cancelar</button>
+              <button style={{ background: '#00D1B2', color: theme === 'dark' ? '#081B33' : '#fff', border: 'none', borderRadius: 8, padding: '10px 28px', fontWeight: 700, fontSize: 16, cursor: 'pointer' }} onClick={handleLogout}>Sim, sair</button>
+              <button style={{ background: '#223B5A', color: theme === 'dark' ? '#fff' : '#081B33', border: 'none', borderRadius: 8, padding: '10px 28px', fontWeight: 700, fontSize: 16, cursor: 'pointer' }} onClick={() => setShowLogoutModal(false)}>Cancelar</button>
             </div>
           </div>
         </Modal>
@@ -106,11 +121,11 @@ export default function SideBar() {
         </ul>
       </nav>
       <Modal open={showLogoutModal} onClose={() => setShowLogoutModal(false)}>
-        <div style={{ padding: 24, background: '#0E2A4C', borderRadius: 12, minWidth: 280, color: '#fff', textAlign: 'center' }}>
-          <h2 style={{ color: '#fff', fontWeight: 700, fontSize: 20, marginBottom: 18 }}>Deseja realmente sair?</h2>
+        <div style={{ padding: 24, background: '#0E2A4C', borderRadius: 12, minWidth: 280, color: theme === 'dark' ? '#fff' : '#081B33', textAlign: 'center' }}>
+          <h2 style={{ color: theme === 'dark' ? '#fff' : '#081B33', fontWeight: 700, fontSize: 20, marginBottom: 18 }}>Deseja realmente sair?</h2>
           <div style={{ display: 'flex', justifyContent: 'center', gap: 18, marginTop: 18 }}>
-            <button style={{ background: '#00D1B2', color: '#081B33', border: 'none', borderRadius: 8, padding: '10px 28px', fontWeight: 700, fontSize: 16, cursor: 'pointer' }} onClick={handleLogout}>Sim, sair</button>
-            <button style={{ background: '#223B5A', color: '#fff', border: 'none', borderRadius: 8, padding: '10px 28px', fontWeight: 700, fontSize: 16, cursor: 'pointer' }} onClick={() => setShowLogoutModal(false)}>Cancelar</button>
+            <button style={{ background: '#00D1B2', color: theme === 'dark' ? '#081B33' : '#fff', border: 'none', borderRadius: 8, padding: '10px 28px', fontWeight: 700, fontSize: 16, cursor: 'pointer' }} onClick={handleLogout}>Sim, sair</button>
+            <button style={{ background: '#223B5A', color: theme === 'dark' ? '#fff' : '#081B33', border: 'none', borderRadius: 8, padding: '10px 28px', fontWeight: 700, fontSize: 16, cursor: 'pointer' }} onClick={() => setShowLogoutModal(false)}>Cancelar</button>
           </div>
         </div>
       </Modal>

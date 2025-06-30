@@ -1,34 +1,13 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useTheme } from "./ThemeProvider";
 
 export default function ThemeSwitch() {
-  const [theme, setTheme] = useState(() => {
-    if (typeof window !== "undefined") {
-      return localStorage.getItem("theme") || "dark";
-    }
-    return "dark";
-  });
-
-  useEffect(() => {
-    function syncTheme() {
-      const current = localStorage.getItem("theme") || "dark";
-      setTheme(current);
-    }
-    window.addEventListener("storage", syncTheme);
-    return () => {
-      window.removeEventListener("storage", syncTheme);
-    };
-  }, []);
-
-  useEffect(() => {
-    document.body.setAttribute("data-theme", theme);
-    localStorage.setItem("theme", theme);
-  }, [theme]);
+  const { theme, toggleTheme } = useTheme();
 
   return (
     <button
       aria-label="Alternar tema"
-      onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+      onClick={toggleTheme}
       style={{
         border: "none",
         background: "none",

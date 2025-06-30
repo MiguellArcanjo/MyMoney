@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import SideBar from "@/components/SideBar/sideBar";
 import styles from "./page.module.css";
 import { Pie, Line } from "react-chartjs-2";
@@ -17,8 +17,24 @@ import {
 } from "chart.js";
 import LoadingSpinner from "@/components/LoadingSpinner";
 import { useSidebar } from "@/components/SideBar/SidebarContext";
+import { colors } from "react-select/dist/declarations/src/theme";
+import { useTheme } from "@/components/ThemeProvider";
 
 ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, PointElement, LineElement, ChartTitle);
+
+function useCurrentTheme() {
+  const [theme, setTheme] = useState("dark");
+  useEffect(() => {
+    const t = localStorage.getItem("theme") || "dark";
+    setTheme(t);
+    function syncTheme() {
+      setTheme(localStorage.getItem("theme") || "dark");
+    }
+    window.addEventListener("storage", syncTheme);
+    return () => window.removeEventListener("storage", syncTheme);
+  }, []);
+  return theme;
+}
 
 export default function Dashboard() {
   const [contas, setContas] = useState<any[]>([]);
@@ -36,6 +52,84 @@ export default function Dashboard() {
   const [lancamentosTotais, setLancamentosTotais] = useState<any[]>([]);
   const [isMobile, setIsMobile] = useState(false);
   const { setIsOpen } = useSidebar();
+  const { theme } = useTheme();
+  const [chartKey, setChartKey] = useState(0);
+  const [showCharts, setShowCharts] = useState(true);
+
+  const chartColors = theme === 'dark'
+    ? {
+        text: '#fff',
+        bg: '#081B33',
+        card: '#0E2A4C',
+        secondary: '#A5B3C7',
+        border: '#223B5A',
+        pie: ["#00D1B2", "#FF5C5C", "#3A4B6A", "#F7B801", "#A259F7", "#2EC4B6", "#FF9F1C", "#E71D36"],
+        line: "#00D1B2",
+        lineBg: "rgba(0,209,178,0.2)"
+      }
+    : {
+        text: '#081B33',
+        bg: '#fff',
+        card: '#fff',
+        secondary: '#5C6A7C',
+        border: '#e0e6ed',
+        pie: ["#00D1B2", "#FF5C5C", "#3A4B6A", "#F7B801", "#A259F7", "#2EC4B6", "#FF9F1C", "#E71D36"],
+        line: "#00D1B2",
+        lineBg: "rgba(0,209,178,0.2)"
+      };
+
+  useEffect(() => {
+    setShowCharts(false);
+    const raf = requestAnimationFrame(() => {
+      setTimeout(() => {
+        setShowCharts(true);
+        setChartKey((k) => k + 1);
+      }, 50);
+    });
+    return () => cancelAnimationFrame(raf);
+  }, [theme]);
+
+  const pieOptions = {
+    plugins: {
+      legend: {
+        display: true,
+        labels: {
+          color: chartColors.text,
+          font: { size: 18 }
+        }
+      },
+      title: {
+        display: false,
+        color: chartColors.text
+      }
+    }
+  };
+
+  const lineOptions = {
+    plugins: {
+      legend: {
+        display: true,
+        labels: {
+          color: chartColors.text,
+          font: { size: 18 }
+        }
+      },
+      title: {
+        display: false,
+        color: chartColors.text
+      }
+    },
+    scales: {
+      x: {
+        ticks: { color: chartColors.text },
+        title: { color: chartColors.text }
+      },
+      y: {
+        ticks: { color: chartColors.text },
+        title: { color: chartColors.text }
+      }
+    }
+  };
 
   useEffect(() => {
     async function fetchContas() {
@@ -206,9 +300,7 @@ export default function Dashboard() {
     datasets: [
       {
         data: Object.values(despesasPorCategoria),
-        backgroundColor: [
-          "#00D1B2", "#FF5C5C", "#3A4B6A", "#F7B801", "#A259F7", "#2EC4B6", "#FF9F1C", "#E71D36"
-        ],
+        backgroundColor: chartColors.pie,
         borderWidth: 1
       }
     ]
@@ -231,16 +323,30 @@ export default function Dashboard() {
       {
         label: "Saldo Geral",
         data: saldoPorMes,
-        borderColor: "#00D1B2",
-        backgroundColor: "rgba(0,209,178,0.2)",
+        borderColor: chartColors.line,
+        backgroundColor: chartColors.lineBg,
         tension: 0.3,
-        fill: true
+        fill: true,
       }
     ]
   };
 
+  // Função para garantir que createdAt seja convertido corretamente para Date
+  const parseDate = (d: any) => {
+    if (d instanceof Date) return d;
+    if (typeof d === 'string' && d.length === 19 && d.indexOf('T') === -1) {
+      return new Date(d.replace(' ', 'T') + 'Z');
+    }
+    return new Date(d);
+  };
+
+  // Mostrar apenas os 4 lançamentos do mês atual mais recentes, usando createdAt
   const lancRecentes = [...(Array.isArray(lancamentosTotais) ? lancamentosTotais : [])]
-    .sort((a, b) => new Date(b.data).getTime() - new Date(a.data).getTime())
+    .filter(l => {
+      const data = new Date(l.data);
+      return data.getMonth() + 1 === filtroMes && data.getFullYear() === filtroAno;
+    })
+    .sort((a, b) => parseDate(b.createdAt).getTime() - parseDate(a.createdAt).getTime())
     .slice(0, 4);
 
   const despesasMes = (Array.isArray(lancamentosTotais) ? lancamentosTotais : []).filter(l => {
@@ -320,7 +426,15 @@ export default function Dashboard() {
                 {Object.keys(despesasPorCategoria).length === 0 ? (
                   <div style={{ color: 'var(--text-secondary)', fontSize: 18, marginTop: 20 }}>Nenhuma despesa cadastrada.</div>
                 ) : (
-                  <Pie data={pieData} options={{ plugins: { legend: { labels: { color: 'var(--text)', font: { size: 18 } } } } }} style={{ width: '100%', maxWidth: 400, height: 'auto' }} />
+                  showCharts && (
+                    <Pie
+                      key={theme + '-' + chartKey}
+                      data={pieData}
+                      options={pieOptions}
+                      redraw={true}
+                      style={{ width: '100%', maxWidth: 400, height: 'auto' }}
+                    />
+                  )
                 )}
               </div>
               <div className={styles.dashboardChartCard}>
@@ -328,7 +442,15 @@ export default function Dashboard() {
                 {lancamentos.length === 0 ? (
                   <div style={{ color: 'var(--text-secondary)', fontSize: 18, marginTop: 20 }}>Sem dados para exibir o gráfico.</div>
                 ) : (
-                  <Line data={lineData} options={{ plugins: { legend: { labels: { color: 'var(--text)', font: { size: 18 } } } }, scales: { x: { ticks: { color: 'var(--text)' } }, y: { ticks: { color: 'var(--text)' } } } }} style={{ width: '100%', maxWidth: 400, height: 'auto' }} />
+                  showCharts && (
+                    <Line
+                      key={theme + '-' + chartKey}
+                      data={lineData}
+                      options={lineOptions}
+                      redraw={true}
+                      style={{ width: '100%', maxWidth: 400, height: 'auto' }}
+                    />
+                  )
                 )}
               </div>
             </div>

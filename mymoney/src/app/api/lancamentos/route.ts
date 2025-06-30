@@ -44,10 +44,30 @@ export async function GET(req: NextRequest) {
       prisma.lancamento.count({ where }),
       prisma.lancamento.findMany({
         where,
-        include: { parcelasLancamento: true, categoria: true, conta: true },
         orderBy: { data: "desc" },
         skip,
-        take: limitNum
+        take: limitNum,
+        select: {
+          id: true,
+          descricao: true,
+          tipo: true,
+          valor: true,
+          data: true,
+          parcelado: true,
+          parcelas: true,
+          contaId: true,
+          categoriaId: true,
+          usuarioId: true,
+          recorrente: true,
+          frequencia: true,
+          dataTermino: true,
+          parcelasLancamento: true,
+          categoria: true,
+          conta: true,
+          metaId: true,
+          meta: true,
+          createdAt: true,
+        }
       })
     ]);
   } else {
@@ -55,8 +75,28 @@ export async function GET(req: NextRequest) {
       prisma.lancamento.count({ where }),
       prisma.lancamento.findMany({
         where,
-        include: { parcelasLancamento: true, categoria: true, conta: true },
-        orderBy: { data: "desc" }
+        orderBy: { data: "desc" },
+        select: {
+          id: true,
+          descricao: true,
+          tipo: true,
+          valor: true,
+          data: true,
+          parcelado: true,
+          parcelas: true,
+          contaId: true,
+          categoriaId: true,
+          usuarioId: true,
+          recorrente: true,
+          frequencia: true,
+          dataTermino: true,
+          parcelasLancamento: true,
+          categoria: true,
+          conta: true,
+          metaId: true,
+          meta: true,
+          createdAt: true,
+        }
       })
     ]);
   }

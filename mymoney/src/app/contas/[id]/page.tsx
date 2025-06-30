@@ -9,6 +9,20 @@ import LoadingSpinner from "@/components/LoadingSpinner";
 import { useSidebar } from "@/components/SideBar/SidebarContext";
 import { ModalContext } from "@/components/Modal/Modal";
 
+function useCurrentTheme() {
+  const [theme, setTheme] = useState("dark");
+  useEffect(() => {
+    const t = localStorage.getItem("theme") || "dark";
+    setTheme(t);
+    function syncTheme() {
+      setTheme(localStorage.getItem("theme") || "dark");
+    }
+    window.addEventListener("storage", syncTheme);
+    return () => window.removeEventListener("storage", syncTheme);
+  }, []);
+  return theme;
+}
+
 export default function DetalheConta() {
   const params = useParams();
   const contaId = Number(params?.id);
@@ -62,6 +76,8 @@ export default function DetalheConta() {
   const carregando = loadingConta || loadingLancamentos || loadingCategorias || loadingMetas;
 
   const { open: modalAberto } = useContext(ModalContext);
+
+  const theme = useCurrentTheme();
 
   useEffect(() => {
     async function fetchConta() {
@@ -205,7 +221,7 @@ export default function DetalheConta() {
         descricao: addDescricao,
         tipo: addTipo,
         valor: Number(addValor),
-        data: addData,
+        data: addData ? addData + 'T12:00:00' : undefined,
         parcelado: addParcelado,
         parcelas: addParcelado ? Number(addParcelas) : null,
         contaId: contaId,
@@ -408,13 +424,13 @@ export default function DetalheConta() {
           {/* Botão e filtros alinhados à direita no mobile */}
           {isMobile ? (
             <div className={styles.mobileActionButton}>
-              <button className={styles.addButton} onClick={() => setModalAdd(true)}>
+              <button className={styles.addButton} onClick={() => { setWizardStep(1); setModalAdd(true); }}>
                 + Adicionar Lançamento
               </button>
             </div>
           ) : (
             <>
-              <button className={styles.addButton} onClick={() => setModalAdd(true)}>
+              <button className={styles.addButton} onClick={() => { setWizardStep(1); setModalAdd(true); }}>
                 + Adicionar Lançamento
               </button>
               <div className={styles.filtrosBar}>
