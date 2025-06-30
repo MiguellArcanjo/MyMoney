@@ -7,20 +7,8 @@ import Modal from "@/components/Modal/Modal";
 import styles from "./page.module.css";
 import LoadingSpinner from "@/components/LoadingSpinner";
 import { useSidebar } from "@/components/SideBar/SidebarContext";
-
-function useCurrentTheme() {
-  const [theme, setTheme] = useState("dark");
-  useEffect(() => {
-    const t = localStorage.getItem("theme") || "dark";
-    setTheme(t);
-    function syncTheme() {
-      setTheme(localStorage.getItem("theme") || "dark");
-    }
-    window.addEventListener("storage", syncTheme);
-    return () => window.removeEventListener("storage", syncTheme);
-  }, []);
-  return theme;
-}
+import { useTheme } from "@/components/ThemeProvider";
+import { FaPencilAlt, FaLock, FaSignOutAlt, FaEnvelope, FaMoneyBillWave } from "react-icons/fa";
 
 export default function MinhaConta() {
   const [usuario, setUsuario] = useState<{ nome: string; email: string; salario?: number } | null>(null);
@@ -33,7 +21,7 @@ export default function MinhaConta() {
   const router = useRouter();
   const [isMobile, setIsMobile] = useState(false);
   const { setIsOpen } = useSidebar();
-  const theme = useCurrentTheme();
+  const { theme } = useTheme();
 
   const carregando = !usuario;
 
@@ -107,128 +95,307 @@ export default function MinhaConta() {
     setEditLoading(false);
   }
 
+  // Função para pegar a inicial do nome
+  function getInitial(nome: string | undefined) {
+    if (!nome) return "?";
+    return nome.trim().charAt(0).toUpperCase();
+  }
+
   return (
-    <div>
+    <div style={{
+      minHeight: '100vh',
+      width: '100vw',
+      background: theme === 'dark'
+        ? 'linear-gradient(135deg, #081B33 0%, #0E2A4C 100%)'
+        : '#f6f8fa',
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'center',
+    }}>
       <SideBar />
-      <main className={styles.mainContent}>
-        {/* Barra de título e menu no mobile */}
-        {isMobile ? (
-          <div className={styles.mobileHeaderBar}>
-            <button
-              className="sidebar-hamburger"
-              style={{ position: 'static', top: 'unset', left: 'unset', marginRight: 12, zIndex: 10000 }}
-              onClick={() => setIsOpen(true)}
+      <main className={styles.mainContent} style={{
+        minHeight: '100vh',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        background: 'transparent',
+        width: '100vw',
+      }}>
+        <div style={{ width: '100%', maxWidth: 480, margin: '0 auto', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+          {isMobile ? (
+            <div className={styles.mobileHeaderBar}>
+              <button
+                className="sidebar-hamburger"
+                style={{ position: 'static', top: 'unset', left: 'unset', marginRight: 12, zIndex: 10000 }}
+                onClick={() => setIsOpen(true)}
+              >
+                <span className="sidebar-hamburger-bar" />
+                <span className="sidebar-hamburger-bar" />
+                <span className="sidebar-hamburger-bar" />
+              </button>
+              <span className={styles.mobileTitle}>Minha Conta</span>
+            </div>
+          ) : (
+            <h1 className={styles.title}>Minha Conta</h1>
+          )}
+
+          {/* Exibir apenas o spinner enquanto carrega */}
+          {carregando ? (
+            <div style={{ width: '100%', minHeight: 320, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <LoadingSpinner size={60} />
+            </div>
+          ) : (
+            <div
+              className={theme === 'dark' ? styles.card : `${styles.card} ${styles.cardLight}`}
+              style={{
+                background: theme === 'dark' ? 'rgba(14,42,76,0.85)' : '#fff',
+                borderRadius: 28,
+                boxShadow: theme === 'dark'
+                  ? '0 8px 32px 0 rgba(0,0,0,0.25)'
+                  : '0 4px 24px 0 rgba(0,0,0,0.08)',
+                border: theme === 'dark' ? '2px solid #00D1B2' : '1.5px solid #e0e7ef',
+                boxSizing: 'border-box',
+                maxWidth: 420,
+                width: '100%',
+                margin: '0 auto',
+                padding: '40px 32px',
+                position: 'relative',
+                outline: 'none',
+                transition: 'box-shadow 0.2s',
+                filter: theme === 'dark' ? 'drop-shadow(0 0 12px #00D1B2AA)' : 'none',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                backdropFilter: theme === 'dark' ? 'blur(8px)' : 'none',
+                WebkitBackdropFilter: theme === 'dark' ? 'blur(8px)' : 'none',
+                marginTop: 28,
+              }}
             >
-              <span className="sidebar-hamburger-bar" />
-              <span className="sidebar-hamburger-bar" />
-              <span className="sidebar-hamburger-bar" />
-            </button>
-            <span className={styles.mobileTitle}>Minha Conta</span>
-          </div>
-        ) : (
-          <h1 className="title">Minha Conta</h1>
-        )}
-        <div className={isMobile ? styles.mobileMainWrapper : undefined}>
-          <div className={styles.card} style={{ minHeight: 320, display: 'flex', flexDirection: 'column', justifyContent: 'flex-start', alignItems: 'stretch' }}>
-            <h2>Dados do Usuário</h2>
-            {carregando ? (
-              <div style={{ width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', flex: 1 }}>
-                <LoadingSpinner size={60} />
+              {/* Avatar */}
+              <div style={{
+                width: 84,
+                height: 84,
+                borderRadius: '50%',
+                background: theme === 'dark'
+                  ? 'linear-gradient(135deg, #00D1B2 60%, #0E2A4C 100%)'
+                  : 'linear-gradient(135deg, #00D1B2 60%, #fff 100%)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                marginBottom: 18,
+                boxShadow: theme === 'dark'
+                  ? '0 2px 12px 0 #00D1B288'
+                  : '0 2px 8px 0 #00D1B222',
+                fontSize: 38,
+                fontWeight: 800,
+                color: '#fff',
+                letterSpacing: 1.5,
+                userSelect: 'none',
+                border: theme === 'dark' ? '3px solid #fff' : '3px solid #00D1B2',
+                transition: 'box-shadow 0.2s',
+              }}>
+                {getInitial(usuario?.nome)}
               </div>
-            ) : (
-              <>
-                <div className={styles.infoGroup}>
-                  <span>Nome:</span>
-                  <span className={styles.infoValue}>{usuario ? usuario.nome : "Carregando..."}</span>
+              {/* Dados do usuário */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 16, width: '100%', alignItems: 'center', marginBottom: 28 }}>
+                <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+                  <span style={{ color: theme === 'dark' ? '#00D1B2' : '#223B5A', fontWeight: 700, fontSize: 22, letterSpacing: 0.2, fontFamily: 'Poppins, Inter, sans-serif' }}>{usuario ? usuario.nome : "Carregando..."}</span>
                 </div>
-                <div className={styles.infoGroup}>
-                  <span>Email:</span>
-                  <span className={styles.infoValue}>{usuario ? usuario.email : "Carregando..."}</span>
+                <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                  <FaEnvelope color={theme === 'dark' ? '#00D1B2' : '#081B33'} size={18} />
+                  <a href={`mailto:${usuario?.email}`} style={{ color: theme === 'dark' ? '#A5B3C7' : '#223B5A', fontWeight: 500, fontSize: 16, textDecoration: 'underline dotted', wordBreak: 'break-all', fontFamily: 'Inter, sans-serif' }}>{usuario ? usuario.email : "Carregando..."}</a>
                 </div>
-                <div className={styles.infoGroup}>
-                  <span>Salário:</span>
-                  <span className={styles.infoValue}>{usuario && usuario.salario !== undefined && usuario.salario !== null ? `R$ ${Number(usuario.salario).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}` : '-'}</span>
+                <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                  <FaMoneyBillWave color={theme === 'dark' ? '#00D1B2' : '#081B33'} size={20} />
+                  <span style={{ color: '#00D1B2', fontWeight: 700, fontSize: 18, fontFamily: 'Inter, sans-serif' }}>
+                    {usuario && usuario.salario !== undefined && usuario.salario !== null ? `R$ ${Number(usuario.salario).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}` : '-'}
+                  </span>
                 </div>
-                <div className={styles.buttonGroup}>
-                  <button className={styles.actionButton}>Alterar Senha</button>
-                  <button className={styles.actionButton} onClick={openEditModal}>Editar Dados</button>
-                  <button className={styles.actionButton} onClick={handleLogout}>Logout</button>
-                </div>
-              </>
-            )}
-          </div>
+              </div>
+              {/* Botões */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 18, width: '100%', justifyContent: 'center', alignItems: 'center', marginTop: 8 }}>
+                <button
+                  className={styles.actionButton}
+                  style={{
+                    background: '#00D1B2',
+                    color: '#fff',
+                    borderRadius: 16,
+                    fontWeight: 700,
+                    fontSize: 17,
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 12,
+                    boxShadow: '0 2px 8px 0 #00D1B255',
+                    transition: 'box-shadow 0.2s, transform 0.1s',
+                    width: '100%',
+                    maxWidth: 320,
+                    justifyContent: 'center',
+                    padding: '14px 0',
+                  }}
+                  onMouseDown={e => e.currentTarget.style.transform = 'scale(0.97)'}
+                  onMouseUp={e => e.currentTarget.style.transform = 'scale(1)'}
+                >
+                  <FaLock size={20} color={theme === 'dark' ? '#081B33' : '#fff'} /> Alterar Senha
+                </button>
+                <button
+                  className={styles.actionButton}
+                  style={{
+                    background: '#00D1B2',
+                    color: '#fff',
+                    borderRadius: 16,
+                    fontWeight: 700,
+                    fontSize: 17,
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 12,
+                    boxShadow: '0 2px 8px 0 #00D1B255',
+                    transition: 'box-shadow 0.2s, transform 0.1s',
+                    width: '100%',
+                    maxWidth: 320,
+                    justifyContent: 'center',
+                    padding: '14px 0',
+                  }}
+                  onClick={openEditModal}
+                  onMouseDown={e => e.currentTarget.style.transform = 'scale(0.97)'}
+                  onMouseUp={e => e.currentTarget.style.transform = 'scale(1)'}
+                >
+                  <FaPencilAlt size={20} color={theme === 'dark' ? '#081B33' : '#fff'} /> Editar Dados
+                </button>
+                <button
+                  className={styles.actionButton}
+                  style={{
+                    background: '#00D1B2',
+                    color: '#fff',
+                    borderRadius: 16,
+                    fontWeight: 700,
+                    fontSize: 17,
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 12,
+                    boxShadow: '0 2px 8px 0 #00D1B255',
+                    transition: 'box-shadow 0.2s, transform 0.1s',
+                    width: '100%',
+                    maxWidth: 320,
+                    justifyContent: 'center',
+                    padding: '14px 0',
+                  }}
+                  onClick={handleLogout}
+                  onMouseDown={e => e.currentTarget.style.transform = 'scale(0.97)'}
+                  onMouseUp={e => e.currentTarget.style.transform = 'scale(1)'}
+                >
+                  <FaSignOutAlt size={20} color={theme === 'dark' ? '#081B33' : '#fff'} /> Logout
+                </button>
+              </div>
+            </div>
+          )}
         </div>
-        <Modal open={modalOpen} onClose={() => setModalOpen(false)}>
-          <h2 className={styles.modalLabel} style={{ color: '#fff', marginBottom: 16 }}>Editar Dados</h2>
-          <form onSubmit={handleEditSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-            <label className={styles.modalLabel} style={{ color: '#A5B3C7', fontSize: 14 }}>Nome</label>
-            <input
-              type="text"
-              value={editNome}
-              onChange={e => setEditNome(e.target.value)}
-              className={styles.inputStyled}
-              style={{
-                background: '#061426',
-                border: 'none',
-                borderRadius: 10,
-                padding: '12px 16px',
-                color: '#A5B3C7',
-                fontSize: 16,
-                marginBottom: 8
-              }}
-              required
-            />
-            <label className={styles.modalLabel} style={{ color: '#A5B3C7', fontSize: 14 }}>Email</label>
-            <input
-              type="email"
-              value={editEmail}
-              onChange={e => setEditEmail(e.target.value)}
-              className={styles.inputStyled}
-              style={{
-                background: '#061426',
-                border: 'none',
-                borderRadius: 10,
-                padding: '12px 16px',
-                color: '#A5B3C7',
-                fontSize: 16,
-                marginBottom: 16
-              }}
-              required
-            />
-            <label className={styles.modalLabel} style={{ color: '#A5B3C7', fontSize: 14 }}>Salário mensal (opcional)</label>
-            <input
-              type="number"
-              value={editSalario}
-              onChange={e => setEditSalario(e.target.value)}
-              className={styles.inputStyled}
-              style={{
-                background: '#061426',
-                border: 'none',
-                borderRadius: 10,
-                padding: '12px 16px',
-                color: '#A5B3C7',
-                fontSize: 16,
-                marginBottom: 8
-              }}
-              min={0}
-              step={0.01}
-              placeholder="Ex: 3500.00"
-            />
-            {editError && <span className={styles.errorMessage} style={{ color: 'red', fontSize: 14 }}>{editError}</span>}
-            <button type="submit" className={styles.modalInput} style={{
-              background: '#00D1B2',
-              color: '#222',
-              border: 'none',
-              borderRadius: 8,
-              padding: '12px 0',
-              fontSize: 16,
-              fontWeight: 'bold',
-              cursor: 'pointer',
-              marginTop: 8,
-              opacity: editLoading ? 0.7 : 1
-            }} disabled={editLoading}>
-              {editLoading ? 'Salvando...' : 'Salvar Alterações'}
-            </button>
+        <Modal open={modalOpen} onClose={() => setModalOpen(false)} customOverlayClass={styles.minhaContaEditOverlay}>
+          <h2 style={{ color: '#fff', fontWeight: 700, fontSize: 24, marginBottom: 24, textAlign: 'center', letterSpacing: 0.5, fontFamily: 'Poppins, Inter, sans-serif' }}>Editar Dados</h2>
+          <form onSubmit={handleEditSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 18, width: '100%', maxWidth: 340, margin: '0 auto' }}>
+            <label style={{ color: '#A5B3C7', fontSize: 13, marginBottom: 2, fontWeight: 500 }}>Nome</label>
+            <div style={{ display: 'flex', alignItems: 'center', background: '#0E2A4C', borderRadius: 10, border: '1.5px solid #00D1B2', padding: '0 12px', marginBottom: 2 }}>
+              <FaPencilAlt color="#00D1B2" size={18} style={{ marginRight: 8 }} />
+              <input
+                type="text"
+                value={editNome}
+                onChange={e => setEditNome(e.target.value)}
+                style={{
+                  background: 'transparent',
+                  border: 'none',
+                  outline: 'none',
+                  color: '#fff',
+                  fontSize: 16,
+                  padding: '12px 0',
+                  width: '100%',
+                  fontFamily: 'Inter, sans-serif',
+                }}
+                required
+              />
+            </div>
+            <label style={{ color: '#A5B3C7', fontSize: 13, marginBottom: 2, fontWeight: 500 }}>Email</label>
+            <div style={{ display: 'flex', alignItems: 'center', background: '#0E2A4C', borderRadius: 10, border: '1.5px solid #00D1B2', padding: '0 12px', marginBottom: 2 }}>
+              <FaEnvelope color="#00D1B2" size={18} style={{ marginRight: 8 }} />
+              <input
+                type="email"
+                value={editEmail}
+                onChange={e => setEditEmail(e.target.value)}
+                style={{
+                  background: 'transparent',
+                  border: 'none',
+                  outline: 'none',
+                  color: '#fff',
+                  fontSize: 16,
+                  padding: '12px 0',
+                  width: '100%',
+                  fontFamily: 'Inter, sans-serif',
+                }}
+                required
+              />
+            </div>
+            <label style={{ color: '#A5B3C7', fontSize: 13, marginBottom: 2, fontWeight: 500 }}>Salário mensal (opcional)</label>
+            <div style={{ display: 'flex', alignItems: 'center', background: '#0E2A4C', borderRadius: 10, border: '1.5px solid #00D1B2', padding: '0 12px', marginBottom: 2 }}>
+              <FaMoneyBillWave color="#00D1B2" size={18} style={{ marginRight: 8 }} />
+              <input
+                type="number"
+                value={editSalario}
+                onChange={e => setEditSalario(e.target.value)}
+                style={{
+                  background: 'transparent',
+                  border: 'none',
+                  outline: 'none',
+                  color: '#fff',
+                  fontSize: 16,
+                  padding: '12px 0',
+                  width: '100%',
+                  fontFamily: 'Inter, sans-serif',
+                }}
+                min={0}
+                step={0.01}
+              />
+            </div>
+            {editError && (
+              <div style={{ color: '#ff5e5e', fontSize: 14, marginTop: 2, textAlign: 'center' }}>{editError}</div>
+            )}
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 12, marginTop: 10 }}>
+              <button
+                type="button"
+                onClick={() => setModalOpen(false)}
+                style={{
+                  background: 'none',
+                  color: '#A5B3C7',
+                  border: 'none',
+                  fontWeight: 600,
+                  fontSize: 16,
+                  borderRadius: 8,
+                  padding: '10px 18px',
+                  cursor: 'pointer',
+                  transition: 'background 0.2s',
+                }}
+              >
+                Cancelar
+              </button>
+              <button
+                type="submit"
+                disabled={editLoading}
+                style={{
+                  background: '#00D1B2',
+                  color: '#081B33',
+                  border: 'none',
+                  fontWeight: 700,
+                  fontSize: 16,
+                  borderRadius: 8,
+                  padding: '10px 22px',
+                  cursor: editLoading ? 'not-allowed' : 'pointer',
+                  boxShadow: '0 2px 8px 0 #00D1B255',
+                  transition: 'background 0.2s, box-shadow 0.2s',
+                  opacity: editLoading ? 0.7 : 1,
+                }}
+              >
+                {editLoading ? 'Salvando...' : 'Salvar alterações'}
+              </button>
+            </div>
           </form>
         </Modal>
       </main>

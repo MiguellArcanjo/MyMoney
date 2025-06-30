@@ -6,11 +6,12 @@ interface ModalProps {
   open: boolean;
   onClose: () => void;
   children: React.ReactNode;
+  customOverlayClass?: string;
 }
 
 export const ModalContext = createContext({ open: false });
 
-export default function Modal({ open, onClose, children }: ModalProps) {
+export default function Modal({ open, onClose, children, customOverlayClass }: ModalProps) {
   const { setIsOpen } = useSidebar();
 
   useEffect(() => {
@@ -26,7 +27,7 @@ export default function Modal({ open, onClose, children }: ModalProps) {
   if (!open) return null;
   return (
     <ModalContext.Provider value={{ open }}>
-      <div className={styles.overlay}>
+      <div className={customOverlayClass ? `${styles.overlay} ${customOverlayClass}` : styles.overlay}>
         <div className={styles.modal}>
           <button className={styles.closeBtn} onClick={onClose}>&times;</button>
           {children}

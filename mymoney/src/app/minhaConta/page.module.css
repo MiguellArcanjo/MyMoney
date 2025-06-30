@@ -1,22 +1,32 @@
 .mainContent {
-    margin-left: 240px;
-    padding: 40px 0 0 0;
+  min-height: 100vh;
+  background: transparent;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  width: 100vw;
+  box-sizing: border-box;
 }
 
 .card {
-    background: var(--bg-card);
-    border-radius: 18px;
-    padding: 32px 40px;
-    max-width: 600px;
-    min-width: 450px;
-    color: var(--text);
-    box-shadow: 0 4px 24px 0 rgba(0,0,0,0.10);
-    display: flex;
-    flex-direction: column;
-    gap: 24px;
-    position: relative;
-    min-height: 320px;
-    border: 1px solid var(--border);
+  background: transparent;
+  border-radius: 28px;
+  box-shadow: none;
+  border: none;
+  box-sizing: border-box;
+  max-width: 420px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 40px 32px;
+  position: relative;
+  outline: none;
+  transition: box-shadow 0.2s;
+  filter: drop-shadow(0 0 8px #00D1B2AA);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 28px;
 }
 
 .card h2 {
@@ -27,7 +37,7 @@
     text-overflow: ellipsis;
     white-space: nowrap;
     width: 100%;
-    color: var(--text);
+    color: #fff;
 }
 
 .infoGroup {
@@ -52,7 +62,7 @@
 }
 
 .infoValue {
-    color: var(--primary);
+    color: #00D1B2;
     font-weight: bold;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -65,28 +75,29 @@
     flex-direction: column;
     gap: 12px;
     margin-top: 18px;
-    color: var(--text-secondary);
+    color: #A5B3C7;
 }
 
 .actionButton {
-    background: var(--primary);
-    color: var(--bg);
-    border: none;
-    border-radius: 8px;
-    padding: 10px 24px;
-    font-size: 1rem;
-    font-weight: bold;
-    cursor: pointer;
-    transition: background 0.2s;
-    width: 100%;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    min-width: 0;
+  background: #00D1B2;
+  color: #081B33;
+  border: none;
+  border-radius: 12px;
+  padding: 12px 28px;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: box-shadow 0.2s, background 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  box-shadow: 0 2px 8px 0 #00D1B255;
+  margin-bottom: 0;
 }
 
 .actionButton:hover {
-    background: #00b89c;
+  background: #00b89c;
+  box-shadow: 0 4px 16px 0 #00D1B288;
 }
 
 .spinnerContainer {
@@ -119,7 +130,7 @@
   box-shadow: none;
 }
 .mobileTitle {
-  color: var(--text);
+  color: #fff;
   font-size: 1.5rem;
   font-weight: bold;
   transition: color 0.3s ease;
@@ -149,7 +160,6 @@
 
 @media (max-width: 768px) {
   .mainContent {
-    align-items: center;
     padding: 0 12px;
     margin: 0;
     width: 100vw;
@@ -244,18 +254,32 @@
 }
 
 .inputStyled {
-  background: var(--bg-card);
-  color: var(--text);
-  border: 1px solid var(--border);
+  background: #0E2A4C;
+  color: #fff;
+  border: 1px solid #00D1B2;
   border-radius: 10px;
   padding: 12px 16px;
   font-size: 16px;
 }
 
 .inputStyled:focus {
-  border: 1px solid var(--primary);
+  border: 1px solid #00D1B2;
 }
 
 .inputStyled::placeholder {
-  color: var(--text-secondary);
+  color: #A5B3C7;
+}
+
+.minhaContaEditOverlay {
+  background: rgba(8, 27, 51, 0.85) !important;
+  backdrop-filter: none !important;
+}
+
+.cardLight {
+  background: #fff !important;
+  border: 1.5px solid #e0e7ef !important;
+  box-shadow: 0 4px 24px 0 rgba(0,0,0,0.08) !important;
+  filter: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
 } 
