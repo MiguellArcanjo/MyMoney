@@ -67,6 +67,7 @@ model Lancamento {
   recorrente Boolean @default(false)
   frequencia String?
   dataTermino DateTime?
+  recorrenciaId String?
 
   conta Conta @relation(fields: [contaId], references: [id])
   categoria Categoria @relation(fields: [categoriaId], references: [id])

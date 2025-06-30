@@ -251,6 +251,12 @@ export default function DetalheConta() {
     if (res.ok) {
       const data = await res.json();
       setLancamentos(data.lancamentos || []);
+      setLancamentosTotais(data.lancamentos || []);
+      // Tocar som de dinheiro ao adicionar lançamento
+      try {
+        const audio = new Audio('/coin.mp3');
+        audio.play();
+      } catch (e) { /* ignora erro de autoplay */ }
     }
   }
 

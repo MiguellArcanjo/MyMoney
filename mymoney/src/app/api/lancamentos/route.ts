@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { verifyToken } from "@/lib/auth";
+import { randomUUID } from 'crypto';
 
 function getTokenFromRequest(req: NextRequest) {
   const auth = req.headers.get("authorization");
@@ -164,6 +165,7 @@ export async function POST(req: NextRequest) {
   }
 
   // Se for recorrente, criar vários lançamentos futuros
+  const recorrenciaId = randomUUID();
   let dataInicio = new Date(data);
   let dataFim = dataTermino ? new Date(dataTermino) : null;
   const lancamentosCriados = [];
@@ -200,7 +202,8 @@ export async function POST(req: NextRequest) {
         metaId: metaId ? Number(metaId) : undefined,
         recorrente: true,
         frequencia: frequencia || "mensal",
-        dataTermino: dataFim
+        dataTermino: dataFim,
+        recorrenciaId,
       }
     });
     lancamentosCriados.push(lancamento);
@@ -230,6 +233,11 @@ export async function DELETE(req: NextRequest) {
   if (!id) return NextResponse.json({ error: "ID obrigatório" }, { status: 400 });
   const lancamento = await prisma.lancamento.findFirst({ where: { id, usuarioId: token.id } });
   if (!lancamento) return NextResponse.json({ error: "Lançamento não encontrado" }, { status: 404 });
-  await prisma.lancamento.delete({ where: { id } });
-  return NextResponse.json({ ok: true });
+  if (lancamento && lancamento.recorrenciaId) {
+    await prisma.lancamento.deleteMany({ where: { recorrenciaId: lancamento.recorrenciaId, usuarioId: token.id } });
+    return NextResponse.json({ ok: true, deletedAll: true });
+  } else {
+    await prisma.lancamento.delete({ where: { id } });
+    return NextResponse.json({ ok: true, deletedAll: false });
+  }
 } 
