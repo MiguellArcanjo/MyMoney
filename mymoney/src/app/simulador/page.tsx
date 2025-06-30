@@ -18,6 +18,8 @@ import styles from "./page.module.css";
 import { useSidebar } from "@/components/SideBar/SidebarContext";
 import { colors } from "react-select/dist/declarations/src/theme";
 import { useTheme } from "@/components/ThemeProvider";
+import Modal from "@/components/Modal/Modal";
+import { FaQuestionCircle } from "react-icons/fa";
 
 ChartJS.register(
   CategoryScale,
@@ -69,6 +71,8 @@ export default function Simulador() {
   const { theme } = useTheme();
   const [showChart, setShowChart] = useState(true);
   const [chartKey, setChartKey] = useState(0);
+  const [showIntroModal, setShowIntroModal] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
   const chartColors = theme === 'dark'
     ? {
@@ -106,6 +110,21 @@ export default function Simulador() {
     }, 50);
     return () => clearTimeout(timeout);
   }, [theme]);
+
+  useEffect(() => {
+    const jaViuIntro = localStorage.getItem("simuladorIntroVisto");
+    if (!jaViuIntro) {
+      setShowIntroModal(true);
+    } else {
+      setShowIntroModal(false);
+    }
+    setMounted(true);
+  }, []);
+
+  function handleCloseIntroModal() {
+    setShowIntroModal(false);
+    localStorage.setItem("simuladorIntroVisto", "true");
+  }
 
   async function carregarDadosFinanceiros() {
     const token = localStorage.getItem("token");
@@ -279,235 +298,271 @@ export default function Simulador() {
   }
 
   return (
-    <div className={styles.container}>
-      <SideBar />
-      <main className={styles.main}>
-        {/* Header responsivo com menu e título no mobile */}
-        {isMobile ? (
-          <div className={styles.mobileHeaderBar}>
-            <button
-              className="sidebar-hamburger"
-              style={{ position: 'static', top: 'unset', left: 'unset', marginRight: 12, zIndex: 10000 }}
-              onClick={() => setIsOpen(true)}
-            >
-              <span className="sidebar-hamburger-bar" />
-              <span className="sidebar-hamburger-bar" />
-              <span className="sidebar-hamburger-bar" />
-            </button>
-            <span className={styles.mobileTitle}>Simulador Financeiro</span>
-          </div>
-        ) : (
-          <h1 className={styles.formTitle} style={{ marginBottom: 32 }}>Simulador Financeiro</h1>
-        )}
-        <div className={styles.content}>
-          {dadosCarregados && dadosFinanceiros && (
-            <div className={styles.summary} style={{ marginBottom: '24px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
-                <p className={styles.summaryText} style={{ margin: 0 }}>
-                  📊 <strong>Dados carregados automaticamente:</strong>
-                </p>
-                <button
-                  onClick={recarregarDados}
-                  disabled={loadingDados}
-                  style={{
-                    background: 'var(--primary)',
-                    color: '#081B33',
-                    border: 'none',
-                    borderRadius: '6px',
-                    padding: '6px 12px',
-                    fontSize: '12px',
-                    fontWeight: '600',
-                    cursor: loadingDados ? 'not-allowed' : 'pointer',
-                    opacity: loadingDados ? 0.7 : 1,
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '4px'
-                  }}
-                >
-                  {loadingDados ? <LoadingSpinner size={12} inline /> : '🔄 Atualizar'}
-                </button>
-              </div>
-              <div style={{ fontSize: '14px', lineHeight: '1.5' }}>
-                {dadosFinanceiros.dadosDisponiveis.temContas && (
-                  <>💰 Saldo atual: {formatarMoeda(dadosFinanceiros.saldoAtual)}<br /></>
-                )}
-                {dadosFinanceiros.dadosDisponiveis.temSalario && (
-                  <>💵 Salário: {formatarMoeda(dadosFinanceiros.salario)}<br /></>
-                )}
-                {dadosFinanceiros.dadosDisponiveis.temLancamentos && (
-                  <>📈 Receita média (6 meses): {formatarMoeda(dadosFinanceiros.receitaMediaMensal)}<br />
-                  📉 Gasto médio (6 meses): {formatarMoeda(dadosFinanceiros.gastoMedioMensal)}</>
-                )}
-                {!dadosFinanceiros.dadosDisponiveis.temContas && !dadosFinanceiros.dadosDisponiveis.temSalario && !dadosFinanceiros.dadosDisponiveis.temLancamentos && (
-                  <>⚠️ Nenhum dado financeiro encontrado. Preencha manualmente os campos abaixo.</>
-                )}
-                {dadosFinanceiros.detalhesSaldo && (
-                  <div style={{ marginTop: '8px', padding: '8px', backgroundColor: 'rgba(0, 209, 178, 0.05)', borderRadius: '4px', fontSize: '12px' }}>
-                    <strong>Detalhes do saldo:</strong><br />
-                    {dadosFinanceiros.detalhesSaldo.baseSaldo === 'salario' ? (
-                      <>
-                        • Salário base: {formatarMoeda(dadosFinanceiros.detalhesSaldo.salarioBase)}<br />
-                        • Saldo contas: {formatarMoeda(dadosFinanceiros.detalhesSaldo.saldoInicialTotal)}<br />
-                        • Impacto lançamentos: {formatarMoeda(dadosFinanceiros.detalhesSaldo.impactoLancamentos)}<br />
-                        • Total lançamentos: {dadosFinanceiros.detalhesSaldo.totalLancamentos}
-                      </>
-                    ) : (
-                      <>
-                        • Saldo inicial: {formatarMoeda(dadosFinanceiros.detalhesSaldo.saldoInicialTotal)}<br />
-                        • Impacto lançamentos: {formatarMoeda(dadosFinanceiros.detalhesSaldo.impactoLancamentos)}<br />
-                        • Total lançamentos: {dadosFinanceiros.detalhesSaldo.totalLancamentos}
-                      </>
-                    )}
-                  </div>
-                )}
-              </div>
+    <>
+      {mounted && (
+        <Modal open={showIntroModal} onClose={handleCloseIntroModal}>
+          <h2 style={{ fontSize: 22, fontWeight: 700, marginBottom: 12, color: theme === 'dark' ? '#00D1B2' : '#223B5A', textAlign: 'center' }}>Simulador Financeiro</h2>
+          <p style={{ fontSize: 16, color: theme === 'dark' ? '#fff' : '#223B5A', textAlign: 'center', marginBottom: 8 }}>
+            Esta página permite que você simule a evolução do seu saldo ao longo dos próximos meses, considerando seu saldo atual, receitas e despesas médias. Use para planejar, prever cenários e tomar melhores decisões financeiras!
+          </p>
+          <ul style={{ color: theme === 'dark' ? '#A5B3C7' : '#5C6A7C', fontSize: 15, margin: '10px 0 0 0', paddingLeft: 18, textAlign: 'left' }}>
+            <li>Preencha os campos com seus dados ou use os valores sugeridos.</li>
+            <li>Escolha o período de simulação.</li>
+            <li>Clique em "Simular" para ver o gráfico de projeção.</li>
+          </ul>
+        </Modal>
+      )}
+      <button
+        onClick={() => setShowIntroModal(true)}
+        style={{
+          position: 'fixed',
+          bottom: 22,
+          right: 22,
+          background: 'none',
+          border: 'none',
+          padding: 0,
+          zIndex: 100000,
+          cursor: 'pointer',
+          opacity: 0.45,
+          transition: 'opacity 0.2s',
+        }}
+        title="Sobre o simulador"
+        aria-label="Sobre o simulador"
+        onMouseOver={e => (e.currentTarget.style.opacity = '1')}
+        onMouseOut={e => (e.currentTarget.style.opacity = '0.45')}
+      >
+        <FaQuestionCircle size={28} color={theme === 'dark' ? '#A5B3C7' : '#223B5A'} />
+      </button>
+      <div className={styles.container}>
+        <SideBar />
+        <main className={styles.main}>
+          {/* Header responsivo com menu e título no mobile */}
+          {isMobile ? (
+            <div className={styles.mobileHeaderBar}>
+              <button
+                className="sidebar-hamburger"
+                style={{ position: 'static', top: 'unset', left: 'unset', marginRight: 12, zIndex: 10000 }}
+                onClick={() => setIsOpen(true)}
+              >
+                <span className="sidebar-hamburger-bar" />
+                <span className="sidebar-hamburger-bar" />
+                <span className="sidebar-hamburger-bar" />
+              </button>
+              <span className={styles.mobileTitle}>Simulador Financeiro</span>
             </div>
+          ) : (
+            <h1 className={styles.formTitle} style={{ marginBottom: 32 }}>Simulador Financeiro</h1>
           )}
-          
-          <div className={styles.formCard}>
-            <h2 className={styles.formTitle}>
-              Dados para Simulação
-            </h2>
-            
-            <div className={styles.formGrid}>
-              <div className={styles.formField}>
-                <label className={styles.label}>
-                  Saldo Atual
-                </label>
-                <input
-                  type="number"
-                  value={saldoAtual}
-                  onChange={e => setSaldoAtual(e.target.value)}
-                  placeholder="0,00"
-                  step="0.01"
-                  min="0"
-                  className={styles.input}
-                />
-                {dadosFinanceiros?.dadosDisponiveis.temContas && (
-                  <small style={{ color: 'var(--text-secondary)', fontSize: '12px', marginTop: '4px' }}>
-                    💡 Calculado automaticamente: {dadosFinanceiros.detalhesSaldo?.baseSaldo === 'salario' 
-                      ? 'salário + saldo das contas + impacto dos lançamentos até hoje'
-                      : 'saldo inicial das contas + impacto dos lançamentos até hoje'
-                    }
-                  </small>
-                )}
-              </div>
-              
-              <div className={styles.formField}>
-                <label className={styles.label}>
-                  Receita Mensal
-                </label>
-                <input
-                  type="number"
-                  value={receitaMensal}
-                  onChange={e => setReceitaMensal(e.target.value)}
-                  placeholder="0,00"
-                  step="0.01"
-                  min="0"
-                  className={styles.input}
-                />
-                {dadosFinanceiros?.dadosDisponiveis.temSalario && (
-                  <small style={{ color: 'var(--text-secondary)', fontSize: '12px', marginTop: '4px' }}>
-                    💡 Carregado automaticamente do seu salário
-                  </small>
-                )}
-              </div>
-              
-              <div className={styles.formField}>
-                <label className={styles.label}>
-                  Gasto Médio Mensal
-                </label>
-                <input
-                  type="number"
-                  value={gastoMensal}
-                  onChange={e => setGastoMensal(e.target.value)}
-                  placeholder="0,00"
-                  step="0.01"
-                  min="0"
-                  className={styles.input}
-                />
-                {dadosFinanceiros?.dadosDisponiveis.temLancamentos && (
-                  <small style={{ color: 'var(--text-secondary)', fontSize: '12px', marginTop: '4px' }}>
-                    💡 Calculado automaticamente dos últimos 6 meses
-                  </small>
-                )}
-              </div>
-              
-              <div className={styles.formField}>
-                <label className={styles.label}>
-                  Período da Simulação
-                </label>
-                <select
-                  value={periodo}
-                  onChange={(e) => setPeriodo(Number(e.target.value))}
-                  className={styles.input}
-                >
-                  <option value={3}>3 meses</option>
-                  <option value={6}>6 meses</option>
-                  <option value={12}>12 meses</option>
-                </select>
-              </div>
-            </div>
-            
-            <button
-              onClick={gerarProjecao}
-              disabled={loading}
-              className={styles.button}
-            >
-              {loading ? <LoadingSpinner size={20} inline /> : 'Gerar Projeção'}
-            </button>
-          </div>
-          
-          {mostrarResultado && projecoes.length > 0 && (
-            <>
-              <div className={styles.resultCard}>
-                <h2 className={styles.formTitle}>
-                  Projeção do Saldo
-                </h2>
-                <div className={styles.chartContainer}>
-                  {showChart && (
-                    <Line key={chartKey} data={chartData} options={chartOptions} />
+          <div className={styles.content}>
+            {dadosCarregados && dadosFinanceiros && (
+              <div className={styles.summary} style={{ marginBottom: '24px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
+                  <p className={styles.summaryText} style={{ margin: 0 }}>
+                    📊 <strong>Dados carregados automaticamente:</strong>
+                  </p>
+                  <button
+                    onClick={recarregarDados}
+                    disabled={loadingDados}
+                    style={{
+                      background: 'var(--primary)',
+                      color: '#081B33',
+                      border: 'none',
+                      borderRadius: '6px',
+                      padding: '6px 12px',
+                      fontSize: '12px',
+                      fontWeight: '600',
+                      cursor: loadingDados ? 'not-allowed' : 'pointer',
+                      opacity: loadingDados ? 0.7 : 1,
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '4px'
+                    }}
+                  >
+                    {loadingDados ? <LoadingSpinner size={12} inline /> : '🔄 Atualizar'}
+                  </button>
+                </div>
+                <div style={{ fontSize: '14px', lineHeight: '1.5' }}>
+                  {dadosFinanceiros.dadosDisponiveis.temContas && (
+                    <>💰 Saldo atual: {formatarMoeda(dadosFinanceiros.saldoAtual)}<br /></>
+                  )}
+                  {dadosFinanceiros.dadosDisponiveis.temSalario && (
+                    <>💵 Salário: {formatarMoeda(dadosFinanceiros.salario)}<br /></>
+                  )}
+                  {dadosFinanceiros.dadosDisponiveis.temLancamentos && (
+                    <>📈 Receita média (6 meses): {formatarMoeda(dadosFinanceiros.receitaMediaMensal)}<br />
+                    📉 Gasto médio (6 meses): {formatarMoeda(dadosFinanceiros.gastoMedioMensal)}</>
+                  )}
+                  {!dadosFinanceiros.dadosDisponiveis.temContas && !dadosFinanceiros.dadosDisponiveis.temSalario && !dadosFinanceiros.dadosDisponiveis.temLancamentos && (
+                    <>⚠️ Nenhum dado financeiro encontrado. Preencha manualmente os campos abaixo.</>
+                  )}
+                  {dadosFinanceiros.detalhesSaldo && (
+                    <div style={{ marginTop: '8px', padding: '8px', backgroundColor: 'rgba(0, 209, 178, 0.05)', borderRadius: '4px', fontSize: '12px' }}>
+                      <strong>Detalhes do saldo:</strong><br />
+                      {dadosFinanceiros.detalhesSaldo.baseSaldo === 'salario' ? (
+                        <>
+                          • Salário base: {formatarMoeda(dadosFinanceiros.detalhesSaldo.salarioBase)}<br />
+                          • Saldo contas: {formatarMoeda(dadosFinanceiros.detalhesSaldo.saldoInicialTotal)}<br />
+                          • Impacto lançamentos: {formatarMoeda(dadosFinanceiros.detalhesSaldo.impactoLancamentos)}<br />
+                          • Total lançamentos: {dadosFinanceiros.detalhesSaldo.totalLancamentos}
+                        </>
+                      ) : (
+                        <>
+                          • Saldo inicial: {formatarMoeda(dadosFinanceiros.detalhesSaldo.saldoInicialTotal)}<br />
+                          • Impacto lançamentos: {formatarMoeda(dadosFinanceiros.detalhesSaldo.impactoLancamentos)}<br />
+                          • Total lançamentos: {dadosFinanceiros.detalhesSaldo.totalLancamentos}
+                        </>
+                      )}
+                    </div>
                   )}
                 </div>
-                <div className={styles.summary}>
-                  <p className={styles.summaryText}>
-                    🔍 Se você mantiver esse padrão, seu saldo final em {periodo} {periodo === 1 ? 'mês' : 'meses'} será de{' '}
-                    <strong className={styles.summaryHighlight}>
-                      {formatarMoeda(projecoes[projecoes.length - 1].saldo)}
-                    </strong>
-                  </p>
+              </div>
+            )}
+            
+            <div className={styles.formCard}>
+              <h2 className={styles.formTitle}>
+                Dados para Simulação
+              </h2>
+              
+              <div className={styles.formGrid}>
+                <div className={styles.formField}>
+                  <label className={styles.label}>
+                    Saldo Atual
+                  </label>
+                  <input
+                    type="number"
+                    value={saldoAtual}
+                    onChange={e => setSaldoAtual(e.target.value)}
+                    placeholder="0,00"
+                    step="0.01"
+                    min="0"
+                    className={styles.input}
+                  />
+                  {dadosFinanceiros?.dadosDisponiveis.temContas && (
+                    <small style={{ color: 'var(--text-secondary)', fontSize: '12px', marginTop: '4px' }}>
+                      💡 Calculado automaticamente: {dadosFinanceiros.detalhesSaldo?.baseSaldo === 'salario' 
+                        ? 'salário + saldo das contas + impacto dos lançamentos até hoje'
+                        : 'saldo inicial das contas + impacto dos lançamentos até hoje'
+                      }
+                    </small>
+                  )}
+                </div>
+                
+                <div className={styles.formField}>
+                  <label className={styles.label}>
+                    Receita Mensal
+                  </label>
+                  <input
+                    type="number"
+                    value={receitaMensal}
+                    onChange={e => setReceitaMensal(e.target.value)}
+                    placeholder="0,00"
+                    step="0.01"
+                    min="0"
+                    className={styles.input}
+                  />
+                  {dadosFinanceiros?.dadosDisponiveis.temSalario && (
+                    <small style={{ color: 'var(--text-secondary)', fontSize: '12px', marginTop: '4px' }}>
+                      💡 Carregado automaticamente do seu salário
+                    </small>
+                  )}
+                </div>
+                
+                <div className={styles.formField}>
+                  <label className={styles.label}>
+                    Gasto Médio Mensal
+                  </label>
+                  <input
+                    type="number"
+                    value={gastoMensal}
+                    onChange={e => setGastoMensal(e.target.value)}
+                    placeholder="0,00"
+                    step="0.01"
+                    min="0"
+                    className={styles.input}
+                  />
+                  {dadosFinanceiros?.dadosDisponiveis.temLancamentos && (
+                    <small style={{ color: 'var(--text-secondary)', fontSize: '12px', marginTop: '4px' }}>
+                      💡 Calculado automaticamente dos últimos 6 meses
+                    </small>
+                  )}
+                </div>
+                
+                <div className={styles.formField}>
+                  <label className={styles.label}>
+                    Período da Simulação
+                  </label>
+                  <select
+                    value={periodo}
+                    onChange={(e) => setPeriodo(Number(e.target.value))}
+                    className={styles.input}
+                  >
+                    <option value={3}>3 meses</option>
+                    <option value={6}>6 meses</option>
+                    <option value={12}>12 meses</option>
+                  </select>
                 </div>
               </div>
               
-              <div className={styles.tableCard}>
-                <h2 className={styles.formTitle}>
-                  Detalhamento Mensal
-                </h2>
-                
-                <div className={styles.tableGrid}>
-                  {projecoes.map((projecao) => (
-                    <div
-                      key={projecao.mes}
-                      className={`${styles.tableItem} ${
-                        projecao.saldo >= 0 ? styles.tableItemPositive : styles.tableItemNegative
-                      }`}
-                    >
-                      <div className={styles.monthLabel}>
-                        Mês {projecao.mes}
-                      </div>
-                      <div className={`${styles.monthValue} ${
-                        projecao.saldo >= 0 ? styles.monthValuePositive : styles.monthValueNegative
-                      }`}>
-                        {formatarMoeda(projecao.saldo)}
-                      </div>
-                    </div>
-                  ))}
+              <button
+                onClick={gerarProjecao}
+                disabled={loading}
+                className={styles.button}
+              >
+                {loading ? <LoadingSpinner size={20} inline /> : 'Gerar Projeção'}
+              </button>
+            </div>
+            
+            {mostrarResultado && projecoes.length > 0 && (
+              <>
+                <div className={styles.resultCard}>
+                  <h2 className={styles.formTitle}>
+                    Projeção do Saldo
+                  </h2>
+                  <div className={styles.chartContainer}>
+                    {showChart && (
+                      <Line key={chartKey} data={chartData} options={chartOptions} />
+                    )}
+                  </div>
+                  <div className={styles.summary}>
+                    <p className={styles.summaryText}>
+                      🔍 Se você mantiver esse padrão, seu saldo final em {periodo} {periodo === 1 ? 'mês' : 'meses'} será de{' '}
+                      <strong className={styles.summaryHighlight}>
+                        {formatarMoeda(projecoes[projecoes.length - 1].saldo)}
+                      </strong>
+                    </p>
+                  </div>
                 </div>
-              </div>
-            </>
-          )}
-        </div>
-      </main>
-    </div>
+                
+                <div className={styles.tableCard}>
+                  <h2 className={styles.formTitle}>
+                    Detalhamento Mensal
+                  </h2>
+                  
+                  <div className={styles.tableGrid}>
+                    {projecoes.map((projecao) => (
+                      <div
+                        key={projecao.mes}
+                        className={`${styles.tableItem} ${
+                          projecao.saldo >= 0 ? styles.tableItemPositive : styles.tableItemNegative
+                        }`}
+                      >
+                        <div className={styles.monthLabel}>
+                          Mês {projecao.mes}
+                        </div>
+                        <div className={`${styles.monthValue} ${
+                          projecao.saldo >= 0 ? styles.monthValuePositive : styles.monthValueNegative
+                        }`}>
+                          {formatarMoeda(projecao.saldo)}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
+        </main>
+      </div>
+    </>
   );
 } 
