@@ -506,9 +506,7 @@ export default function DetalheConta() {
           <div className={styles.card} style={{ marginTop: 24 }}>
             <h2 className={styles.tableTitle}>Lançamentos</h2>
             {carregando ? (
-              <div className={styles.card} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 180, height: '180px' }}>
-                <LoadingSpinner size={48} inline />
-              </div>
+              <LoadingSpinner size={48} inline />
             ) : (
               <>
               {lancamentosFiltrados.length === 0 ? (
