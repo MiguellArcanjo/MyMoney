@@ -6,6 +6,7 @@ import Modal from "@/components/Modal/Modal";
 import styles from "./page.module.css";
 import LoadingSpinner from "@/components/LoadingSpinner";
 import { useSidebar } from "@/components/SideBar/SidebarContext";
+import WizardMetaModal from "@/components/Modal/WizardMetaModal";
 
 export default function Metas() {
   const [metas, setMetas] = useState<any[]>([]);
@@ -23,6 +24,7 @@ export default function Metas() {
   const carregando = metas.length === 0;
   const [isMobile, setIsMobile] = useState(false);
   const { setIsOpen } = useSidebar();
+  const [wizardOpen, setWizardOpen] = useState(false);
 
   useEffect(() => {
     async function fetchMetas() {
@@ -77,7 +79,7 @@ export default function Metas() {
     setValor("");
     setDataInicio("");
     setDataFim("");
-    setModalOpen(true);
+    setWizardOpen(true);
   }
 
   function openEditModal(meta: any) {
@@ -168,6 +170,9 @@ export default function Metas() {
   }
 
   function openDetalheModal(meta: any) {
+    setModalOpen(false);
+    setWizardOpen(false);
+    setConfirmDeleteOpen(false);
     setDetalheMeta(meta);
   }
 
@@ -300,7 +305,7 @@ export default function Metas() {
             )}
           </div>
         </div>
-        <Modal open={modalOpen} onClose={() => setModalOpen(false)}>
+        <Modal open={modalOpen} onClose={() => setModalOpen(false)} customOverlayClass={detalheMeta ? styles.hideModalOverlay : undefined}>
           <h2 className={styles.modalTitle}>{editId ? "Editar Meta" : "Adicionar Nova Meta"}</h2>
           <form className={styles.formMeta} onSubmit={handleSubmit}>
             <label className={styles.labelMeta}>Descrição da Meta</label>
@@ -340,6 +345,14 @@ export default function Metas() {
             <button className={styles.buttonMeta} type="submit">{editId ? "Salvar Alterações" : "Adicionar Meta"}</button>
           </form>
         </Modal>
+        <WizardMetaModal
+          open={wizardOpen}
+          onClose={() => setWizardOpen(false)}
+          onMetaCreated={novaMeta => {
+            setMetas([novaMeta, ...metas]);
+            setWizardOpen(false);
+          }}
+        />
         <Modal open={confirmDeleteOpen} onClose={() => setConfirmDeleteOpen(false)}>
           <h2 className={styles.modalTitle}>Confirmar Exclusão</h2>
           <p style={{ color: 'var(--text-secondary)', marginBottom: 24 }}>Tem certeza que deseja excluir esta meta?</p>
@@ -352,32 +365,53 @@ export default function Metas() {
             </button>
           </div>
         </Modal>
-        <Modal open={!!detalheMeta} onClose={() => setDetalheMeta(null)}>
+        <Modal open={!!detalheMeta} onClose={() => setDetalheMeta(null)} customOverlayClass={styles.metaDetailOverlay}>
           {detalheMeta && (
-            <div>
-              <h2 className={styles.modalTitle}>Detalhes da Meta</h2>
-              <div style={{ color: 'var(--text-secondary)', marginBottom: 12 }}>
-                <div>Descrição: <span style={{ color: 'var(--primary)', fontWeight: 600 }}>{detalheMeta.descricao}</span></div>
-                <div>Valor Objetivo: <span style={{ color: 'var(--primary)', fontWeight: 600 }}>R$ {Number(detalheMeta.valorObjetivo).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span></div>
-                <div>Período: <span style={{ color: 'var(--primary)', fontWeight: 600 }}>{formatPeriodo(detalheMeta)}</span></div>
-                <div>Valor Economizado: <span style={{ color: 'var(--primary)', fontWeight: 600 }}>R$ {(receitasPorMeta[detalheMeta.id] || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span></div>
-                <div>Status: <span style={{ color: 'var(--text)' }}>{detalheMeta.status || (new Date(detalheMeta.dataFim) < new Date() ? "Concluída" : "Em andamento")}</span></div>
+            <div className={styles.metaDetailCard}>
+              <div className={styles.metaDetailHeader}>
+                <div className={styles.metaDetailIcon}>
+                  <span role="img" aria-label="meta">🎯</span>
+                </div>
+                <span className={styles.metaDetailTitle}>Detalhes da Meta</span>
+                <button className={styles.metaDetailCloseBtn} onClick={() => setDetalheMeta(null)}>&times;</button>
+              </div>
+              <div className={styles.metaDetailRow}>
+                <span className={styles.metaDetailLabel}>Descrição:</span>
+                <span className={styles.metaDetailValue}>{detalheMeta.descricao}</span>
+              </div>
+              <div className={styles.metaDetailRow}>
+                <span className={styles.metaDetailLabel}>Valor Objetivo:</span>
+                <span className={styles.metaDetailValue}>R$ {Number(detalheMeta.valorObjetivo).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
+              </div>
+              <div className={styles.metaDetailRow}>
+                <span className={styles.metaDetailLabel}>Período:</span>
+                <span className={styles.metaDetailValue}>{formatPeriodo(detalheMeta)}</span>
+              </div>
+              <div className={styles.metaDetailRow}>
+                <span className={styles.metaDetailLabel}>Valor Economizado:</span>
+                <span className={styles.metaDetailValue}>R$ {(receitasPorMeta[detalheMeta.id] || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
+              </div>
+              <div className={styles.metaDetailRow}>
+                <span className={styles.metaDetailLabel}>Status:</span>
+                <span className={styles.metaDetailBadge}>{detalheMeta.status || (new Date(detalheMeta.dataFim) < new Date() ? "Concluída" : "Em andamento")}</span>
               </div>
               <div style={{ margin: '18px 0 8px 0' }}>
-                <div style={{ color: 'var(--text-secondary)', fontSize: 15, marginBottom: 4 }}>Progresso:</div>
-                <div className={styles.progressBar} style={{ width: '100%', height: 16, background: 'var(--bg)' }}>
+                <div className={styles.metaDetailLabel} style={{ marginBottom: 4 }}>Progresso:</div>
+                <div className={styles.metaDetailProgressBar}>
                   <div
-                    className={styles.progressFill}
-                    style={{ width: `${Math.min(100, (receitasPorMeta[detalheMeta.id] || 0) / detalheMeta.valorObjetivo * 100)}%`, height: '100%' }}
+                    className={styles.metaDetailProgressFill}
+                    style={{ width: `${Math.min(100, (receitasPorMeta[detalheMeta.id] || 0) / detalheMeta.valorObjetivo * 100)}%` }}
                   />
                 </div>
-                <div className={styles.progressText} style={{ color: 'var(--text-secondary)', fontSize: 15, marginTop: 6 }}>
+                <div className={styles.metaDetailProgressText}>
                   {Math.min(100, ((receitasPorMeta[detalheMeta.id] || 0) / detalheMeta.valorObjetivo * 100)).toFixed(1)}% da meta concluída
                 </div>
               </div>
-              <button className={styles.buttonMeta} style={{ marginTop: 18 }} onClick={() => setDetalheMeta(null)}>
-                Fechar
-              </button>
+              <div className={styles.metaDetailFooter}>
+                <button className={styles.buttonMeta} onClick={() => setDetalheMeta(null)}>
+                  Fechar
+                </button>
+              </div>
             </div>
           )}
         </Modal>

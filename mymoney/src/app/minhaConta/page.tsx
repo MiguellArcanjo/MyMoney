@@ -234,29 +234,6 @@ export default function MinhaConta() {
                     justifyContent: 'center',
                     padding: '14px 0',
                   }}
-                  onMouseDown={e => e.currentTarget.style.transform = 'scale(0.97)'}
-                  onMouseUp={e => e.currentTarget.style.transform = 'scale(1)'}
-                >
-                  <FaLock size={20} color={theme === 'dark' ? '#081B33' : '#fff'} /> Alterar Senha
-                </button>
-                <button
-                  className={styles.actionButton}
-                  style={{
-                    background: '#00D1B2',
-                    color: '#fff',
-                    borderRadius: 16,
-                    fontWeight: 700,
-                    fontSize: 17,
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 12,
-                    boxShadow: '0 2px 8px 0 #00D1B255',
-                    transition: 'box-shadow 0.2s, transform 0.1s',
-                    width: '100%',
-                    maxWidth: 320,
-                    justifyContent: 'center',
-                    padding: '14px 0',
-                  }}
                   onClick={openEditModal}
                   onMouseDown={e => e.currentTarget.style.transform = 'scale(0.97)'}
                   onMouseUp={e => e.currentTarget.style.transform = 'scale(1)'}

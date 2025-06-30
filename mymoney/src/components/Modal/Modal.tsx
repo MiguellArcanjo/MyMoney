@@ -27,8 +27,8 @@ export default function Modal({ open, onClose, children, customOverlayClass }: M
   if (!open) return null;
   return (
     <ModalContext.Provider value={{ open }}>
-      <div className={customOverlayClass ? `${styles.overlay} ${customOverlayClass}` : styles.overlay}>
-        <div className={styles.modal}>
+      <div className={styles.overlay}>
+        <div className={customOverlayClass ? `${styles.metaDetailModal}` : styles.modal}>
           <button className={styles.closeBtn} onClick={onClose}>&times;</button>
           {children}
         </div>

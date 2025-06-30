@@ -173,9 +173,25 @@
   font-size: 1rem;
   font-weight: bold;
   margin-top: 12px;
+  min-width: 180px;
   width: 100px;
   cursor: pointer;
   transition: all 0.3s ease;
+}
+
+.metaDetailBadge {
+  background: #00D1B2;
+  color: #081B33;
+  border: none;
+  border-radius: 8px;
+  padding: 14px 0;
+  min-width: 130px;
+  font-size: 1rem;
+  font-weight: bold;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(0,209,178,0.10);
+  display: inline-block;
+  margin-left: 18px;
 }
 
 .buttonMeta:hover {
@@ -337,4 +353,140 @@
     padding: 4px 6px;
     font-size: 0.8rem;
   }
+}
+
+.metaDetailCard {
+  background: rgba(14, 42, 76, 0.92);
+  border-radius: 22px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+  border: 1.5px solid rgba(165, 179, 199, 0.18);
+  padding: 32px 28px 24px 28px;
+  min-width: 320px;
+  max-width: 410px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  position: relative;
+  backdrop-filter: blur(18px) saturate(1.2);
+  color: #fff;
+  margin: 0 auto;
+}
+.metaDetailHeader {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+.metaDetailIcon {
+  font-size: 2.1rem;
+  color: #00D1B2;
+  background: rgba(0,209,178,0.10);
+  border-radius: 50%;
+  padding: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.metaDetailTitle {
+  font-size: 1.25rem;
+  font-weight: bold;
+  color: #fff;
+  flex: 1;
+}
+.metaDetailCloseBtn {
+  background: none;
+  border: none;
+  color: #A5B3C7;
+  font-size: 2rem;
+  cursor: pointer;
+  transition: color 0.2s;
+  margin-left: 8px;
+}
+.metaDetailCloseBtn:hover {
+  color: #00D1B2;
+}
+.metaDetailRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+  gap: 8px;
+}
+.metaDetailLabel {
+  color: #A5B3C7;
+  font-size: 1.01rem;
+  font-weight: 500;
+}
+.metaDetailValue {
+  color: #fff;
+  font-size: 1.07rem;
+  font-weight: 600;
+}
+.metaDetailProgressBar {
+  width: 100%;
+  background: #223B5C;
+  border-radius: 10px;
+  height: 16px;
+  overflow: hidden;
+  margin-bottom: 4px;
+  position: relative;
+  box-shadow: 0 2px 8px rgba(0,209,178,0.06);
+}
+.metaDetailProgressFill {
+  background: linear-gradient(90deg, #00D1B2 60%, #00b89c 100%);
+  height: 100%;
+  border-radius: 10px 0 0 10px;
+  transition: width 0.5s cubic-bezier(.4,1,.7,1);
+}
+.metaDetailProgressText {
+  color: #A5B3C7;
+  font-size: 1.01rem;
+  margin-top: 2px;
+  text-align: right;
+}
+.metaDetailFooter {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 18px;
+}
+.metaDetailFooter .buttonMeta {
+  min-width: 120px;
+  font-size: 1.08rem;
+  border-radius: 12px;
+  padding: 12px 0;
+}
+
+@media (max-width: 600px) {
+  .metaDetailCard {
+    min-width: 0;
+    width: 98vw;
+    max-width: 98vw;
+    padding: 16px 4vw 18px 4vw;
+    border-radius: 14px;
+  }
+  .metaDetailHeader {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+  .metaDetailFooter {
+    justify-content: center;
+  }
+}
+
+.metaDetailOverlay {
+  background: transparent !important;
+  backdrop-filter: none !important;
+  display: none !important;
+  align-items: center;
+  justify-content: center;
+  z-index: 99999;
+  /* Remove qualquer padding/margem extra do overlay padrão */
+}
+
+.hideModalOverlay {
+  display: none !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
 } 
