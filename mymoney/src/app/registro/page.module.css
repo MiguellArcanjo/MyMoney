@@ -2,10 +2,14 @@
 .containerPageLogin {
     background-color: #081B33;
     width: 100%;
-    height: 100vh;
+    min-height: 100vh;
     display: flex;
     justify-content: center;
     align-items: center;
+    box-sizing: border-box;
+    padding-top: 32px;
+    padding-bottom: 32px;
+    overflow-y: hidden !important;
   }
   
   .authContainer {
@@ -240,6 +244,41 @@
   
     .senhaFullWidth {
       grid-column: auto;
+    }
+  }
+  
+  @media (max-height: 700px) {
+    .containerPageLogin {
+      padding-top: 12px;
+      padding-bottom: 12px;
+    }
+    .authContainer {
+      min-height: 400px;
+      border-radius: 14px;
+    }
+    .splitLeft, .splitLeftElegant, .splitRight {
+      padding: 18px !important;
+      border-radius: 0 !important;
+    }
+    .formLogin {
+      padding: 16px !important;
+      gap: 12px !important;
+      max-width: 320px !important;
+    }
+    .formLogin h2 {
+      font-size: 20px !important;
+    }
+    .welcomeTitle {
+      font-size: 1.3rem !important;
+      margin-bottom: 8px !important;
+    }
+    .welcomeText {
+      font-size: 0.95rem !important;
+      max-width: 220px !important;
+    }
+    .splitLogo {
+      max-width: 60px !important;
+      margin-bottom: 12px !important;
     }
   }
   
