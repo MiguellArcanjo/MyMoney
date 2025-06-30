@@ -9,15 +9,6 @@
   --border: #e0e6ed;
 }
 
-:root {
-  --bg: #081B33;
-  --bg-card: #0E2A4C;
-  --primary: #00D1B2;
-  --border: #223B5A;
-  --text: #FFFFFF;
-  --text-secondary: #A5B3C7;
-}
-
 
 body[data-theme="dark"] {
   --bg: #081B33;

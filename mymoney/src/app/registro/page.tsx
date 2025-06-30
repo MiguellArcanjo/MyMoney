@@ -20,6 +20,7 @@ export default function Register() {
   const router = useRouter();
   const [isMobile, setIsMobile] = useState(false);
   const [reenviando, setReenviando] = useState(false);
+  const [confirmarSenha, setConfirmarSenha] = useState("");
 
   useEffect(() => {
     function handleResize() {
@@ -75,6 +76,10 @@ export default function Register() {
     if (step === 1) {
       if (!nome || !email || !senha) {
         setErro("Preencha todos os campos obrigatórios.");
+        return;
+      }
+      if (senha !== confirmarSenha) {
+        setErro("As senhas não coincidem.");
         return;
       }
 
@@ -221,6 +226,36 @@ export default function Register() {
                           </svg>
                         )}
                       </span>
+                    </div>
+                  </div>
+                  <div className={styles.senhaFullWidth}>
+                    <label>Confirmar Senha</label>
+                    <div style={{ position: "relative" }}>
+                      <input
+                        type={senhaVisivel ? "text" : "password"}
+                        placeholder="Confirme sua senha"
+                        value={confirmarSenha}
+                        onChange={e => setConfirmarSenha(e.target.value)}
+                        required
+                        style={{
+                          paddingRight: 36,
+                          borderColor: confirmarSenha && senha !== confirmarSenha ? "#ff4444" : undefined
+                        }}
+                      />
+                      {confirmarSenha && (
+                        <span
+                          style={{
+                            position: "absolute",
+                            right: 8,
+                            top: "50%",
+                            transform: "translateY(-50%)",
+                            fontSize: 18,
+                            color: senha === confirmarSenha ? "#00D1B2" : "#ff4444"
+                          }}
+                        >
+                          {senha === confirmarSenha ? "✓" : "✕"}
+                        </span>
+                      )}
                     </div>
                   </div>
                 </>
