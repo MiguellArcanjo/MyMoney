@@ -157,7 +157,10 @@ export default function Lancamentos() {
       const res = await fetch("/api/contas", {
         headers: { Authorization: "Bearer " + token }
       });
-      if (res.ok) setContas(await res.json());
+      if (res.ok) {
+        const data = await res.json();
+        setContas(data.contas || []);
+      }
       setLoadingContas(false);
     }
     fetchContas();

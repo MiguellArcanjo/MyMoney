@@ -2,11 +2,12 @@
 
 import SideBar from "@/components/SideBar/sideBar";
 import styles from "../page.module.css";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Modal from "@/components/Modal/Modal";
 import LoadingSpinner from "@/components/LoadingSpinner";
 import { useSidebar } from "@/components/SideBar/SidebarContext";
+import { ModalContext } from "@/components/Modal/Modal";
 
 export default function DetalheConta() {
   const params = useParams();
@@ -55,8 +56,12 @@ export default function DetalheConta() {
   const [addDataTermino, setAddDataTermino] = useState("");
   const [wizardStep, setWizardStep] = useState(1);
   const { setIsOpen } = useSidebar();
+  const [modalDeleteOpen, setModalDeleteOpen] = useState(false);
+  const [lancamentoToDelete, setLancamentoToDelete] = useState<number | null>(null);
 
   const carregando = loadingConta || loadingLancamentos || loadingCategorias || loadingMetas;
+
+  const { open: modalAberto } = useContext(ModalContext);
 
   useEffect(() => {
     async function fetchConta() {
@@ -245,6 +250,43 @@ export default function DetalheConta() {
     if (parcelamentoInfo) openParcelamentoModal(parcelamentoInfo);
   }
 
+  function openDeleteModal(id: number) {
+    setLancamentoToDelete(id);
+    setModalDeleteOpen(true);
+  }
+
+  function closeDeleteModal() {
+    setModalDeleteOpen(false);
+    setLancamentoToDelete(null);
+  }
+
+  async function handleDeleteLancamentoConfirmado() {
+    if (!lancamentoToDelete) return;
+    const token = localStorage.getItem("token");
+    if (!token) return;
+    await fetch(`/api/lancamentos?id=${lancamentoToDelete}`, {
+      method: "DELETE",
+      headers: { Authorization: "Bearer " + token }
+    });
+    closeDeleteModal();
+    // Atualiza lançamentos
+    const res = await fetch(`/api/lancamentos?contaId=${contaId}&page=${pagina}&limit=${itensPorPagina}&mes=${filtroMes}&ano=${filtroAno}`, {
+      headers: { Authorization: "Bearer " + token }
+    });
+    if (res.ok) {
+      const data = await res.json();
+      setLancamentos(data.lancamentos || []);
+    }
+    // Atualiza total gasto no mês
+    const resTotais = await fetch(`/api/lancamentos?contaId=${contaId}`, {
+      headers: { Authorization: "Bearer " + token }
+    });
+    if (resTotais.ok) {
+      const data = await resTotais.json();
+      setLancamentosTotais(data.lancamentos || []);
+    }
+  }
+
   console.log("Lançamentos completos:", lancamentos);
   console.log("Datas dos lançamentos:", lancamentos.map(l => l.data));
 
@@ -337,7 +379,7 @@ export default function DetalheConta() {
       <SideBar />
       <main className={styles.mainContent}>
         {/* Barra de título e menu no mobile */}
-        {isMobile ? (
+        {isMobile && !modalAberto ? (
           <div className={styles.mobileHeaderBar}>
             <button
               className="sidebar-hamburger"
@@ -350,9 +392,9 @@ export default function DetalheConta() {
             </button>
             <span className={styles.mobileTitle}>{conta ? `${conta.nome} - Detalhes` : "Detalhes da Conta"}</span>
           </div>
-        ) : (
+        ) : !isMobile ? (
           <h1 className="title">{conta ? `${conta.nome} - Detalhes` : "Detalhes da Conta"}</h1>
-        )}
+        ) : null}
         <div className={isMobile ? styles.mobileMainWrapper : undefined}>
           {/* Card de resumo centralizado e largo */}
           <div style={{ width: '100%', marginBottom: 32 }}>
@@ -478,6 +520,7 @@ export default function DetalheConta() {
                           {lancamento.parcelado ? (
                             <button className={styles.actionBtn} onClick={() => openParcelamentoModal(lancamento)}>Parcelas</button>
                           ) : null}
+                          <button className={styles.actionBtn} style={{ color: '#FF5C5C' }} onClick={() => openDeleteModal(lancamento.id)}>Excluir</button>
                         </td>
                       </tr>
                     ))}
@@ -501,6 +544,7 @@ export default function DetalheConta() {
                         {lancamento.parcelado ? (
                           <button onClick={() => openParcelamentoModal(lancamento)}>Parcelas</button>
                         ) : null}
+                        <button style={{ color: '#FF5C5C' }} onClick={() => openDeleteModal(lancamento.id)}>Excluir</button>
                       </div>
                     </div>
                   ))}
@@ -898,6 +942,19 @@ export default function DetalheConta() {
         >
           Voltar
         </button>
+        {/* Modal de confirmação de exclusão */}
+        <Modal open={modalDeleteOpen} onClose={closeDeleteModal}>
+          <div style={{ textAlign: 'center', padding: 8 }}>
+            <h2 style={{ color: 'var(--primary)', marginBottom: 18 }}>Excluir lançamento</h2>
+            <div style={{ color: 'var(--text)', marginBottom: 24, fontSize: 18 }}>
+              Tem certeza que deseja excluir este lançamento? Esta ação não poderá ser desfeita.
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'center', gap: 18 }}>
+              <button onClick={handleDeleteLancamentoConfirmado} style={{ background: '#FF5C5C', color: '#fff', border: 'none', borderRadius: 8, padding: '10px 28px', fontWeight: 700, fontSize: 18, cursor: 'pointer' }}>Excluir</button>
+              <button onClick={closeDeleteModal} style={{ background: 'var(--border)', color: 'var(--text)', border: 'none', borderRadius: 8, padding: '10px 28px', fontWeight: 700, fontSize: 18, cursor: 'pointer' }}>Cancelar</button>
+            </div>
+          </div>
+        </Modal>
       </main>
     </div>
   );

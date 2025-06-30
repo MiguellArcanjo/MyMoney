@@ -258,6 +258,7 @@
     max-width: 100%;
     margin: 8px 0;
     padding: 16px;
+    width: 100vw !important;
   }
   .tableMetas {
     font-size: 0.9rem;

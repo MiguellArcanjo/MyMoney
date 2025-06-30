@@ -207,6 +207,13 @@
   box-shadow: 0 0 0 2px rgba(0, 209, 178, 0.2);
 }
 
+
+@media (max-width: 1500px) {
+  .card {
+    width: 80vw !important;
+  }
+}
+
 @media (max-width: 768px) {
   .mainContent {
     align-items: center;
@@ -303,6 +310,7 @@
     max-width: 100%;
     margin: 8px 0;
     padding: 16px;
+    width: 100vw !important;
   }
   .tableMetas {
     font-size: 0.9rem;
@@ -333,9 +341,3 @@
     font-size: 0.8rem;
   }
 } 
-
-@media (max-width: 1500px) {
-  .card {
-    width: 80vw !important;
-  }
-}

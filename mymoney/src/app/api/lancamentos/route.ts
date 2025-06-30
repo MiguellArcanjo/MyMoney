@@ -188,6 +188,8 @@ export async function DELETE(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const id = Number(searchParams.get("id"));
   if (!id) return NextResponse.json({ error: "ID obrigatório" }, { status: 400 });
-  await prisma.lancamento.delete({ where: { id, usuarioId: token.id } });
+  const lancamento = await prisma.lancamento.findFirst({ where: { id, usuarioId: token.id } });
+  if (!lancamento) return NextResponse.json({ error: "Lançamento não encontrado" }, { status: 404 });
+  await prisma.lancamento.delete({ where: { id } });
   return NextResponse.json({ ok: true });
 } 
