@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import SideBar from "@/components/SideBar/sideBar";
 import styles from "./page.module.css";
 import LoadingSpinner from "@/components/LoadingSpinner";
+import { useSidebar } from "@/components/SideBar/SidebarContext";
 
 export default function Lancamentos() {
   const [contas, setContas] = useState<any[]>([]);
@@ -22,6 +23,7 @@ export default function Lancamentos() {
   const itensPorPagina = 10;
   const [lancamentosTotais, setLancamentosTotais] = useState<any[]>([]);
   const [isMobile, setIsMobile] = useState(false);
+  const { setIsOpen } = useSidebar();
 
   // Buscar todos os lançamentos (sem paginação)
   useEffect(() => {
@@ -196,6 +198,15 @@ export default function Lancamentos() {
         {/* Barra de título e menu no mobile */}
         {isMobile ? (
           <div className={styles.mobileHeaderBar}>
+            <button
+              className="sidebar-hamburger"
+              style={{ position: 'static', top: 'unset', left: 'unset', marginRight: 12, zIndex: 10000 }}
+              onClick={() => setIsOpen(true)}
+            >
+              <span className="sidebar-hamburger-bar" />
+              <span className="sidebar-hamburger-bar" />
+              <span className="sidebar-hamburger-bar" />
+            </button>
             <span className={styles.mobileTitle}>Lançamentos</span>
           </div>
         ) : (
@@ -210,7 +221,7 @@ export default function Lancamentos() {
           </div>
           {/* Filtros alinhados à direita no mobile */}
           {isMobile ? (
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', width: '100%' }}>
+            <div className={styles.mobileMainWrapper}>
               <div className={styles.filtrosBar}>
                 <div style={{ display: 'flex', gap: 6, background: 'var(--bg-card)', borderRadius: 10, padding: '12px 16px', alignItems: 'center', width: 'fit-content', flexWrap: 'wrap', border: '1px solid var(--border)' }}>
                   <span className={styles.filtrosLabel}>Conta:</span>

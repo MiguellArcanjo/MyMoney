@@ -204,6 +204,55 @@
     margin: 8px 0;
     padding: 16px;
   }
+  .cardsMobileWrapper {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .contaCardMobile {
+    display: flex;
+    flex-direction: column;
+    background: var(--bg-card);
+    border-radius: 14px;
+    margin-bottom: 10px;
+    padding: 14px 12px 10px 14px;
+    box-shadow: 0 2px 12px 0 rgba(0,0,0,0.08);
+    color: var(--text);
+    width: 100%;
+    min-width: 0;
+    border: 1px solid var(--border);
+    transition: all 0.3s ease;
+  }
+  .contaNome {
+    color: var(--primary);
+    font-size: 1.08rem;
+    font-weight: 600;
+    margin-bottom: 4px;
+    transition: color 0.3s ease;
+  }
+  .contaTipo {
+    color: var(--text-secondary);
+    font-size: 0.98rem;
+    margin-bottom: 2px;
+    transition: color 0.3s ease;
+  }
+  .contaSaldo {
+    font-size: 1.08rem;
+    font-weight: 700;
+    margin-bottom: 2px;
+    transition: color 0.3s ease;
+  }
+  .mobileSectionTitle {
+    font-size: 2rem;
+    font-weight: bold;
+    color: var(--primary);
+    margin: 24px 0 12px 0;
+    padding-left: 0;
+    letter-spacing: 0.01em;
+    text-align: center;
+    width: 100%;
+  }
 }
 
 @media (max-width: 900px) {
@@ -223,4 +272,35 @@
   .mainContent {
     padding: 24px 8px 0 8px;
   }
+}
+
+.mobileHeaderBar {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  margin-bottom: 12px;
+  padding: 16px 18px 0 18px;
+  position: relative;
+  z-index: 9999;
+  box-sizing: border-box;
+}
+
+.mobileTitle {
+  color: var(--text);
+  font-size: 1.5rem;
+  font-weight: bold;
+  transition: color 0.3s ease;
+  flex: 1;
+  text-align: left;
+}
+
+.mobileSectionTitle {
+  font-size: 2rem;
+  font-weight: bold;
+  color: var(--primary);
+  margin: 24px 0 12px 0;
+  padding-left: 0;
+  letter-spacing: 0.01em;
+  text-align: center;
+  width: 100%;
 } 

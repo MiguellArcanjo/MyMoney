@@ -294,6 +294,51 @@
   transition: color 0.3s ease;
 }
 
+.mobileHeaderBar {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  margin-bottom: 12px;
+  padding: 16px 18px 0 18px;
+  position: relative;
+  z-index: 9999;
+  box-sizing: border-box;
+}
+
+.mobileTitle {
+  color: var(--text);
+  font-size: 1.5rem;
+  font-weight: bold;
+  transition: color 0.3s ease;
+  flex: 1;
+  text-align: left;
+}
+
+.mobileHeaderBar .sidebar-hamburger {
+  margin-right: 12px;
+  background: none !important;
+  border: none !important;
+  box-shadow: none !important;
+  outline: none !important;
+  z-index: 10001 !important;
+  width: 38px;
+  height: 38px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 0;
+}
+
+.mobileHeaderBar .sidebar-hamburger-bar {
+  display: block;
+  width: 28px;
+  height: 4px;
+  background: #fff !important;
+  margin: 3px 0;
+  border-radius: 2px;
+}
+
 @media (max-width: 1500px) {
   .mainContent {
     padding: 24px 0 0 0;
@@ -310,21 +355,17 @@
     margin: 0;
   }
   .mobileHeaderBar {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-    padding: 18px 0 12px 0;
-    margin-bottom: 0;
-    position: relative;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    padding: 18px 0 12px 0 !important;
   }
   .mobileTitle {
-    flex: 1;
-    text-align: center;
-    font-size: 1.5rem;
+    text-align: left !important;
+    font-size: 2rem;
     font-weight: bold;
-    color: var(--text);
-    transition: color 0.3s ease;
+    width: 100%;
+    margin: 0;
   }
   .mobileMainWrapper {
     width: 100%;
@@ -383,9 +424,21 @@
     right: 5px;
   }
   .filtrosBar {
+    width: 100%;
+    display: flex;
     flex-direction: column;
-    align-items: stretch;
-    gap: 12px;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    margin-bottom: 18px;
+  }
+  .filtrosBar > div {
+    width: 100%;
+    max-width: 420px;
+    min-width: 0;
+    margin: 0 auto;
+    box-sizing: border-box;
+    justify-content: center;
   }
   .filtrosSelect {
     width: 100%;

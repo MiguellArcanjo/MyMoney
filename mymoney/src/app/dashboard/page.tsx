@@ -16,6 +16,7 @@ import {
   Title as ChartTitle
 } from "chart.js";
 import LoadingSpinner from "@/components/LoadingSpinner";
+import { useSidebar } from "@/components/SideBar/SidebarContext";
 
 ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, PointElement, LineElement, ChartTitle);
 
@@ -34,6 +35,7 @@ export default function Dashboard() {
   const filtroAno = new Date().getFullYear();
   const [lancamentosTotais, setLancamentosTotais] = useState<any[]>([]);
   const [isMobile, setIsMobile] = useState(false);
+  const { setIsOpen } = useSidebar();
 
   useEffect(() => {
     async function fetchContas() {
@@ -265,7 +267,23 @@ export default function Dashboard() {
     <div>
       <SideBar />
       <main className={styles.mainContent}>
-        <h1 className={styles.title}>Dashboard</h1>
+        {/* Barra de título e menu no mobile */}
+        {isMobile ? (
+          <div className={styles.mobileHeaderBar}>
+            <button
+              className="sidebar-hamburger"
+              style={{ position: 'static', top: 'unset', left: 'unset', marginRight: 12, zIndex: 10000 }}
+              onClick={() => setIsOpen(true)}
+            >
+              <span className="sidebar-hamburger-bar" />
+              <span className="sidebar-hamburger-bar" />
+              <span className="sidebar-hamburger-bar" />
+            </button>
+            <span className={styles.mobileTitle}>Dashboard</span>
+          </div>
+        ) : (
+          <h1 className={styles.title}>Dashboard</h1>
+        )}
         <div className={styles.totalGasto}>
           <div className={styles.totalGastoLabel}>Saldo Geral do Mês:</div>
           <div className={styles.totalGastoValor}>
@@ -315,33 +333,58 @@ export default function Dashboard() {
               </div>
             </div>
             {/* Lançamentos Recentes */}
-            <table className={styles.recentTable}>
-              <thead>
-                <tr>
-                  <th>Descrição</th>
-                  <th>Conta</th>
-                  <th>Categoria</th>
-                  <th>Valor</th>
-                  <th>Data</th>
-                </tr>
-              </thead>
-              <tbody>
-                {lancRecentes.length === 0 && (
-                  <tr><td colSpan={5} style={{ color: 'var(--text-secondary)', textAlign: 'center', padding: 18 }}>Nenhum lançamento recente.</td></tr>
-                )}
-                {lancRecentes.map((l: any) => (
-                  <tr key={l.id}>
-                    <td style={{ color: 'var(--primary)', fontWeight: 600 }}>{l.descricao}</td>
-                    <td>{contas.find(c => c.id === l.contaId)?.nome || '-'}</td>
-                    <td>{l.categoria?.nome || '-'}</td>
-                    <td style={{ color: l.tipo === 'Despesa' ? '#FF5C5C' : 'var(--primary)', fontWeight: 600 }}>
-                      R$ {l.tipo === 'Despesa' ? '-' : '+'}{Math.abs(Number(l.valor)).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                    </td>
-                    <td>{l.data ? new Date(l.data).toLocaleDateString('pt-BR') : '-'}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            {isMobile ? (
+              <>
+                <div className={styles.mobileSectionTitle}>Lançamentos Recentes</div>
+                <div className={styles.cardsMobileWrapper}>
+                  {lancRecentes.length === 0 && (
+                    <div style={{ color: 'var(--text-secondary)', textAlign: 'center', padding: 18 }}>Nenhum lançamento recente.</div>
+                  )}
+                  {lancRecentes.map((l: any) => (
+                    <div className={styles.contaCardMobile} key={l.id}>
+                      <div className={styles.contaNome} style={{ color: 'var(--primary)', fontWeight: 700 }}>{l.descricao}</div>
+                      <div className={styles.contaTipo}>{contas.find(c => c.id === l.contaId)?.nome || '-'}</div>
+                      <div className={styles.contaTipo}>{l.categoria?.nome || '-'}</div>
+                      <div className={styles.contaSaldo} style={{ color: l.tipo === 'Despesa' ? '#FF5C5C' : 'var(--primary)', fontWeight: 700 }}>
+                        R$ {l.tipo === 'Despesa' ? '-' : '+'}{Math.abs(Number(l.valor)).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                      </div>
+                      <div className={styles.contaTipo}>{l.data ? new Date(l.data).toLocaleDateString('pt-BR') : '-'}</div>
+                    </div>
+                  ))}
+                </div>
+              </>
+            ) : (
+              <>
+                <div className={styles.mobileSectionTitle}>Lançamentos Recentes</div>
+                <table className={styles.recentTable}>
+                  <thead>
+                    <tr>
+                      <th>Descrição</th>
+                      <th>Conta</th>
+                      <th>Categoria</th>
+                      <th>Valor</th>
+                      <th>Data</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {lancRecentes.length === 0 && (
+                      <tr><td colSpan={5} style={{ color: 'var(--text-secondary)', textAlign: 'center', padding: 18 }}>Nenhum lançamento recente.</td></tr>
+                    )}
+                    {lancRecentes.map((l: any) => (
+                      <tr key={l.id}>
+                        <td style={{ color: 'var(--primary)', fontWeight: 600 }}>{l.descricao}</td>
+                        <td>{contas.find(c => c.id === l.contaId)?.nome || '-'}</td>
+                        <td>{l.categoria?.nome || '-'}</td>
+                        <td style={{ color: l.tipo === 'Despesa' ? '#FF5C5C' : 'var(--primary)', fontWeight: 600 }}>
+                          R$ {l.tipo === 'Despesa' ? '-' : '+'}{Math.abs(Number(l.valor)).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                        </td>
+                        <td>{l.data ? new Date(l.data).toLocaleDateString('pt-BR') : '-'}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </>
+            )}
           </>
         )}
       </main>

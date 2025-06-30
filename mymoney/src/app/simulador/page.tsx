@@ -16,6 +16,7 @@ import {
 import LoadingSpinner from "@/components/LoadingSpinner";
 import styles from "./page.module.css";
 import { useSidebar } from "@/components/SideBar/SidebarContext";
+import { colors } from "react-select/dist/declarations/src/theme";
 
 ChartJS.register(
   CategoryScale,
@@ -184,6 +185,7 @@ export default function Simulador() {
         backgroundColor: 'rgba(14, 42, 76, 0.9)',
         titleColor: '#fff',
         bodyColor: '#fff',
+        color: '#fff',
         borderColor: '#00D1B2',
         borderWidth: 1,
         callbacks: {
@@ -199,7 +201,7 @@ export default function Simulador() {
           color: 'rgba(34, 59, 90, 0.2)'
         },
         ticks: {
-          color: 'var(--text-secondary)'
+          color: 'white',
         }
       },
       y: {
@@ -207,7 +209,7 @@ export default function Simulador() {
           color: 'rgba(34, 59, 90, 0.2)'
         },
         ticks: {
-          color: 'var(--text-secondary)',
+          color: 'white',
           callback: function(value: any) {
             return formatarMoeda(value);
           }
