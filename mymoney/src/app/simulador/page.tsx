@@ -20,6 +20,7 @@ import { colors } from "react-select/dist/declarations/src/theme";
 import { useTheme } from "@/components/ThemeProvider";
 import Modal from "@/components/Modal/Modal";
 import { FaQuestionCircle } from "react-icons/fa";
+import { useRouter } from "next/navigation";
 
 ChartJS.register(
   CategoryScale,
@@ -73,6 +74,7 @@ export default function Simulador() {
   const [chartKey, setChartKey] = useState(0);
   const [showIntroModal, setShowIntroModal] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const router = useRouter();
 
   const chartColors = theme === 'dark'
     ? {
@@ -130,6 +132,7 @@ export default function Simulador() {
     const token = localStorage.getItem("token");
     if (!token) {
       setLoadingDados(false);
+      router.push("/");
       return;
     }
     
@@ -139,6 +142,11 @@ export default function Simulador() {
         headers: { Authorization: "Bearer " + token }
       });
       
+      if (res.status === 401) {
+        localStorage.removeItem("token");
+        router.push("/");
+        return;
+      }
       if (res.ok) {
         const dados = await res.json();
         setDadosFinanceiros(dados);
