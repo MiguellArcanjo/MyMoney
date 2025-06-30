@@ -53,9 +53,9 @@ interface DadosFinanceiros {
 }
 
 export default function Simulador() {
-  const [saldoAtual, setSaldoAtual] = useState<number>(0);
-  const [receitaMensal, setReceitaMensal] = useState<number>(0);
-  const [gastoMensal, setGastoMensal] = useState<number>(0);
+  const [saldoAtual, setSaldoAtual] = useState<string>("0");
+  const [receitaMensal, setReceitaMensal] = useState<string>("0");
+  const [gastoMensal, setGastoMensal] = useState<string>("0");
   const [periodo, setPeriodo] = useState<number>(6);
   const [projecoes, setProjecoes] = useState<Projecao[]>([]);
   const [mostrarResultado, setMostrarResultado] = useState(false);
@@ -84,16 +84,16 @@ export default function Simulador() {
         setDadosFinanceiros(dados);
         
         // Preencher automaticamente os campos
-        setSaldoAtual(dados.saldoAtual);
+        setSaldoAtual(String(dados.saldoAtual));
         
         // Usar salário se disponível, senão usar receita média
         if (dados.salario > 0) {
-          setReceitaMensal(dados.salario);
+          setReceitaMensal(String(dados.salario));
         } else if (dados.receitaMediaMensal > 0) {
-          setReceitaMensal(dados.receitaMediaMensal);
+          setReceitaMensal(String(dados.receitaMediaMensal));
         }
         
-        setGastoMensal(dados.gastoMedioMensal);
+        setGastoMensal(String(dados.gastoMedioMensal));
         setDadosCarregados(true);
       }
     } catch (error) {
@@ -121,7 +121,7 @@ export default function Simulador() {
   };
 
   const gerarProjecao = () => {
-    if (saldoAtual < 0 || receitaMensal < 0 || gastoMensal < 0) {
+    if (Number(saldoAtual) < 0 || Number(receitaMensal) < 0 || Number(gastoMensal) < 0) {
       alert("Por favor, insira valores válidos (maiores ou iguais a zero).");
       return;
     }
@@ -131,10 +131,10 @@ export default function Simulador() {
     // Simular um pequeno delay para melhor UX
     setTimeout(() => {
       const novasProjecoes: Projecao[] = [];
-      let saldoAcumulado = saldoAtual;
+      let saldoAcumulado = Number(saldoAtual);
       
       for (let mes = 1; mes <= periodo; mes++) {
-        saldoAcumulado += (receitaMensal - gastoMensal);
+        saldoAcumulado += (Number(receitaMensal) - Number(gastoMensal));
         novasProjecoes.push({
           mes,
           saldo: saldoAcumulado
@@ -333,7 +333,7 @@ export default function Simulador() {
                 <input
                   type="number"
                   value={saldoAtual}
-                  onChange={(e) => setSaldoAtual(Number(e.target.value))}
+                  onChange={e => setSaldoAtual(e.target.value)}
                   placeholder="0,00"
                   step="0.01"
                   min="0"
@@ -356,7 +356,7 @@ export default function Simulador() {
                 <input
                   type="number"
                   value={receitaMensal}
-                  onChange={(e) => setReceitaMensal(Number(e.target.value))}
+                  onChange={e => setReceitaMensal(e.target.value)}
                   placeholder="0,00"
                   step="0.01"
                   min="0"
@@ -376,7 +376,7 @@ export default function Simulador() {
                 <input
                   type="number"
                   value={gastoMensal}
-                  onChange={(e) => setGastoMensal(Number(e.target.value))}
+                  onChange={e => setGastoMensal(e.target.value)}
                   placeholder="0,00"
                   step="0.01"
                   min="0"
